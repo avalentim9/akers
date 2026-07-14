@@ -3349,6 +3349,7 @@ function applyJiraSync(freshProjects){
       PROJECTS[idx].duedate  = fp.duedate  ?? PROJECTS[idx].duedate;
       PROJECTS[idx].times    = fp.times    ?? PROJECTS[idx].times;
       PROJECTS[idx].created  = fp.created  ?? PROJECTS[idx].created;
+      PROJECTS[idx].segment  = fp.segment  ?? PROJECTS[idx].segment;
     } else {
       PROJECTS.push(fp);
     }
