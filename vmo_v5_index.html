@@ -93,13 +93,13 @@ body{font-family:'Poppins',system-ui,sans-serif;font-size:11px;background:var(--
 
 /* ─── REUSABLES ─── */
 .spill{font-size:9px;padding:2px 7px;border-radius:10px;font-weight:600;white-space:nowrap;display:inline-block}
-.s-novos{background:#dbeafe;color:#2563eb}.s-neg{background:#eceff1;color:#546e7a}
+.s-novos{background:#dbeafe;color:#2563eb}.s-neg{background:#fef9c3;color:#854d0e}
 .s-ref{background:#fdf0d5;color:#b45309}.s-doc{background:#fde3da;color:#c2410c}
 .s-dev{background:#ede9fe;color:#7c3aed}.s-hom{background:#dcfce7;color:#16a34a}
-.s-pos{background:#15803d;color:#ffffff}.s-pau{background:#6d4c33;color:#ffffff}.s-agp{background:#0d9488;color:#ffffff}.s-roll{background:#0B1B73;color:#ffffff}
-.s-bkl{background:#1f2937;color:#fff}.s-can{background:#dc2626;color:#ffffff}
+.s-pos{background:#bbf7d0;color:#15803d}.s-pau{background:#e5e7eb;color:#374151}.s-agp{background:#ccfbf1;color:#0f766e}.s-roll{background:#e0e7ff;color:#3730a3}
+.s-bkl{background:#cbd5e1;color:#1e293b}.s-can{background:#fee2e2;color:#b91c1c}
 .s-kick{background:#fce7f3;color:#be185d}
-.s-precom{background:#eef2ff;color:#4f46e5}.s-com{background:#e2e8f0;color:#475569}
+.s-precom{background:#ede0d3;color:#7c4a23}.s-com{background:#e0c3a0;color:#6b4423}
 .ts-not_started{background:#e2e8f0;color:#475569}.ts-in_progress{background:#fef9c3;color:#854d0e}
 .ts-done{background:#dcfce7;color:#166534}.ts-blocked{background:#fee2e2;color:#b91c1c}
 .ts-cancelled{background:#1e293b;color:#fff}
@@ -210,18 +210,50 @@ input[type=checkbox]{width:13px;height:13px;accent-color:var(--purple);cursor:po
 .cal-col-hdr{font-size:9.5px;font-weight:600;color:var(--navy);padding:4px 8px;background:var(--off);border-bottom:1px solid var(--border)}
 .cal-items{display:flex;flex-direction:column;gap:3px;padding:5px}
 .cal-item{font-size:9px;padding:4px 7px;border-radius:4px;cursor:pointer;font-weight:500;line-height:1.4;word-break:break-word}
-.cal-item.on-track{background:#dcfce7;color:#166534}.cal-item.alert{background:#fef9c3;color:#854d0e}
+.cal-item.on-track{background:#ede9fe;color:#6d28d9}.cal-item.alert{background:#fef9c3;color:#854d0e}
 .cal-item.off-track{background:#fee2e2;color:#b91c1c}.cal-item.no-sched{background:#f1f5f9;color:#64748b}
 
 /* Portfolio table */
-table.pft{width:100%;border-collapse:collapse;font-size:9.5px;table-layout:fixed}
-table.pft th{background:var(--bg2);border-bottom:1px solid var(--border);padding:5px 8px;text-align:left;font-size:9px;font-weight:600;color:var(--text3);position:sticky;top:0;z-index:2;white-space:nowrap;box-shadow:0 1px 0 var(--border)}
+table.pft{width:100%;border-collapse:separate;border-spacing:0;font-size:9.5px;table-layout:fixed}
+table.pft th{background:var(--bg2);border-bottom:1px solid var(--border);padding:5px 8px;text-align:left;font-size:9px;font-weight:600;color:var(--text3);position:sticky;top:0;z-index:2;white-space:nowrap;box-shadow:0 1px 0 var(--border);will-change:transform}
 .pft-col-resize{position:absolute;right:-3px;top:0;bottom:0;width:6px;cursor:col-resize;user-select:none;z-index:3}
 .pft-col-resize:hover,.pft-col-resize.active{background:rgba(105,36,225,.35)}
 table.pft td{padding:4px 8px;border-bottom:.5px solid var(--border);vertical-align:middle;max-width:360px;overflow:hidden}
 table.pft .spill{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
 table.pft tr:hover td{background:var(--bg2)}
 .prio-badge{font-size:9px;padding:1px 5px;background:#fef3c7;color:#92400e;border-radius:4px;font-weight:700;white-space:nowrap}
+
+/* Impacto por Time (Visão Geral) */
+.team-impact-grid{display:flex;flex-direction:column;gap:14px;padding:12px 14px 14px}
+.team-card-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.team-card-row .kc2{min-width:0}
+@media(max-width:1300px){.team-card-row{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:900px){.team-card-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.team-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.ti-panel{background:var(--bg);border:1px solid var(--border2);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.ti-panel-hdr{padding:9px 12px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg2);flex-wrap:wrap}
+.ti-panel-title{font-size:10.5px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.ti-select{font-size:10px;border:1px solid var(--border);border-radius:6px;padding:4px 8px;background:var(--bg);color:var(--text2);cursor:pointer;max-width:170px}
+.ti-list{max-height:360px;overflow-y:auto}
+.ti-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border2)}
+.ti-row:last-child{border-bottom:none}
+.ti-row:hover{background:var(--bg2)}
+.ti-row-name{font-size:10.5px;font-weight:600;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.ti-count-badge{font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:10px;flex-shrink:0;white-space:nowrap}
+.ti-count-low{background:#e0f2fe;color:#0369a1}
+.ti-count-high{background:#fee2e2;color:#dc2626}
+.ti-view-btn{font-size:9px;font-weight:600;padding:5px 10px;border-radius:6px;background:var(--purple);color:#fff;border:none;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:4px;transition:background .15s}
+.ti-view-btn:hover{background:#5a1dc4}
+.ti-empty{padding:22px;text-align:center;color:var(--text3);font-size:10.5px}
+.ti-bar-row{display:flex;align-items:center;gap:8px;padding:5px 12px}
+.ti-bar-label{font-size:9.5px;font-weight:500;color:var(--text2);width:112px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right}
+.ti-bar-track{flex:1;height:17px;background:var(--bg2);border-radius:4px;overflow:hidden;position:relative}
+.ti-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;transition:width .4s ease;min-width:20px}
+.ti-bar-fill.low{background:#93c5fd}
+.ti-bar-fill.high{background:#f87171}
+.ti-bar-val{font-size:9px;font-weight:700;color:#fff}
+.ti-legend{display:flex;align-items:center;gap:16px;padding:9px 12px;border-top:1px solid var(--border2);font-size:9.5px;color:var(--text3);flex-wrap:wrap}
+.ti-legend-dot{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:5px;vertical-align:middle}
 .gp-tag{font-size:9px;background:#ede9fe;color:#5b21b6;padding:2px 6px;border-radius:10px;white-space:nowrap;max-width:110px;overflow:hidden;text-overflow:ellipsis;display:inline-block}
 .pf-act{font-size:9.5px;padding:3px 8px;border:1px solid var(--border2);border-radius:5px;cursor:pointer;background:var(--bg);color:var(--text2);white-space:nowrap}
 .pf-act:hover{background:var(--off);border-color:var(--purple);color:var(--purple)}
@@ -437,6 +469,7 @@ table.pft tr:hover td{background:var(--bg2)}
   <div class="tn-sep"></div>
   <button class="tn-btn" id="export-btn" onclick="openExportModal()" style="display:none"><i class="ti ti-download" style="font-size:10px"></i> Exportar</button>
   <button class="tn-btn" id="audit-btn" onclick="openAuditModal()" style="display:none"><i class="ti ti-history" style="font-size:10px"></i> Histórico</button>
+  <button class="tn-btn" id="stakeholders-btn" onclick="openStakeholdersModal()" style="display:none"><i class="ti ti-users" style="font-size:10px"></i> Stakeholders</button>
   <div class="tn-sep"></div>
   <!-- Profile button -->
   <div class="tn-profile" id="tn-profile" onclick="toggleProfileMenu(event)">
@@ -459,7 +492,7 @@ table.pft tr:hover td{background:var(--bg2)}
 
 <!-- ══ PRIORIDADES ══ -->
 <div class="view" id="view-prioridades" style="overflow-y:auto;overflow-x:auto">
-  <div id="pf-topbar" style="position:sticky;top:0;z-index:10;background:var(--bg);display:flex;align-items:center;gap:7px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+  <div id="pf-topbar" style="position:sticky;top:0;left:0;z-index:10;background:var(--bg);display:flex;align-items:center;gap:7px;padding:8px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;will-change:transform">
     <div class="sb2"><i class="ti ti-search"></i><input id="pf-search" type="text" placeholder="Buscar projeto..." oninput="renderPortfolio()"></div>
     <div class="filter-sep"></div>
     <button class="fbtn on" onclick="setF('all',this)" id="fbtn-all">Todos</button>
@@ -1070,6 +1103,7 @@ function showView(v){
   document.getElementById('pm-access-btn').style.display=(v==='schedule'&&showEdit)?'flex':'none';
   document.getElementById('export-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('audit-btn').style.display=v==='schedule'?'':'none';
+  document.getElementById('stakeholders-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('template-btn').style.display=(v==='schedule'&&curKey&&showEdit)?'':'none';
   if(v==='updates')renderUpdatesProjectList();
   if(v==='scoring')renderScoringView();
@@ -1296,7 +1330,7 @@ function renderKPI(){
   const off=PROJECTS.filter(p=>getStats(p.key).health==='off-track').length;
   const pct=n=>Math.round(n/total*100);
   const statusOrder=ETAPA_ORDER.slice();
-  const SC2={'Desenvolvimento':'#ede9fe|#7c3aed','Homologação':'#dcfce7|#16a34a','Pós produção':'#15803d|#ffffff','Aguardando Produção':'#0d9488|#ffffff','PROCESSO DE ROLLOUT':'#0B1B73|#ffffff','Pré-Comitê':'#eef2ff|#4f46e5','Comitê':'#e2e8f0|#475569','KICK OFF':'#fce7f3|#be185d','Refinamento & Cronograma':'#fdf0d5|#b45309','Documentação de escopo':'#fde3da|#c2410c','NEG. COMERCIAL / PRÉ VENDA':'#eceff1|#546e7a','Novos projetos':'#dbeafe|#2563eb','PAUSADO':'#6d4c33|#ffffff','BACKLOG':'#1f2937|#ffffff','CANCELADO':'#dc2626|#ffffff'};
+  const SC2={'Desenvolvimento':'#ede9fe|#7c3aed','Homologação':'#dcfce7|#16a34a','Pós produção':'#bbf7d0|#15803d','Aguardando Produção':'#ccfbf1|#0f766e','PROCESSO DE ROLLOUT':'#e0e7ff|#3730a3','Pré-Comitê':'#ede0d3|#7c4a23','Comitê':'#e0c3a0|#6b4423','KICK OFF':'#fce7f3|#be185d','Refinamento & Cronograma':'#fdf0d5|#b45309','Documentação de escopo':'#fde3da|#c2410c','NEG. COMERCIAL / PRÉ VENDA':'#fef9c3|#854d0e','Novos projetos':'#dbeafe|#2563eb','PAUSADO':'#e5e7eb|#374151','BACKLOG':'#cbd5e1|#1e293b','CANCELADO':'#fee2e2|#b91c1c'};
   const statusCardHtml=s=>{
     const [bg,fg]=(SC2[s]||'#f0f1fa|#4b5675').split('|');
     const n=byStatus[s]||0;
@@ -1359,9 +1393,9 @@ function renderKPI(){
         <div style="font-size:20px;font-weight:700;color:#b91c1c;line-height:1">${offActive}</div>
         <div style="font-size:9px;color:#b91c1c;margin-top:2px;font-weight:500">✗ Atrasados</div>
       </div>
-      <div class="kc2" style="background:#ede9fe;border-color:#ddd6fe;cursor:pointer" title="Filtrar: novos projetos" onclick="filterByStatus('Novos projetos')">
-        <div style="font-size:20px;font-weight:700;color:#6d28d9;line-height:1">${novosCount}</div>
-        <div style="font-size:9px;color:#6d28d9;margin-top:2px;font-weight:500">🆕 Novos projetos</div>
+      <div class="kc2" style="background:#dbeafe;border-color:#bfdbfe;cursor:pointer" title="Filtrar: novos projetos" onclick="filterByStatus('Novos projetos')">
+        <div style="font-size:20px;font-weight:700;color:#2563eb;line-height:1">${novosCount}</div>
+        <div style="font-size:9px;color:#2563eb;margin-top:2px;font-weight:500">🆕 Novos projetos</div>
       </div>
     </div></div>`+
 
@@ -1370,10 +1404,10 @@ function renderKPI(){
 
     secHdr('cronogramas','#e0f2fe','#0369a1','ti-calendar-stats','Cronogramas','Cobertura e saúde dos cronogramas cadastrados')+
     `<div class="kpi-row2">
-      <div class="kc2" style="background:#dcfce7;border-color:#dcfce7;cursor:pointer" onclick="setF('sched',document.getElementById('fbtn-sched'))">
-        <div style="font-size:20px;font-weight:700;color:#166534;line-height:1">${withSched}</div>
-        <div style="font-size:8.5px;color:#166534;opacity:.75;font-weight:600">${pct(withSched)}%</div>
-        <div style="font-size:9px;color:#166534;margin-top:2px;font-weight:500">Com cronograma</div>
+      <div class="kc2" style="background:#ede9fe;border-color:#ddd6fe;cursor:pointer" onclick="setF('sched',document.getElementById('fbtn-sched'))">
+        <div style="font-size:20px;font-weight:700;color:#6d28d9;line-height:1">${withSched}</div>
+        <div style="font-size:8.5px;color:#6d28d9;opacity:.75;font-weight:600">${pct(withSched)}%</div>
+        <div style="font-size:9px;color:#6d28d9;margin-top:2px;font-weight:500">Com cronograma</div>
       </div>
       <div class="kc2" style="background:#f1f5f9;border-color:#f1f5f9;cursor:pointer" onclick="setF('nosched',document.getElementById('fbtn-nosched'))">
         <div style="font-size:20px;font-weight:700;color:#475569;line-height:1">${noSched}</div>
@@ -1398,6 +1432,10 @@ function renderKPI(){
       </div>
     </div></div>`+
 
+    secHdr('impacto','#ecfeff','#0e7490','ti-users','Impacto por Time','Quantidade de projetos ativos que cada time está tocando · '+getAllTeams().length+' time'+(getAllTeams().length!==1?'s':''))+
+    `<div id="team-impact-body"></div>
+    </div>`+
+
     secHdr('cal','#e0f9ff','#0369a1','ti-calendar-check','Próximas Entregas','Datas de Go Live cadastradas no Jira','')+
     `<div style="padding:8px 14px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border2)">
       <span style="font-size:10px;color:var(--text3);font-weight:500">Visualizar por:</span>
@@ -1421,6 +1459,7 @@ function renderKPI(){
     </tr></thead><tbody id="hist-body"></tbody></table>
     </div>`;
   renderHistorico(delivered);
+  renderTeamImpact();
   renderPrioridadesShell(activeProjects.length);
   // Apply collapse state immediately (no setTimeout)
   Object.keys(sectionState).forEach(sec=>{
@@ -1457,7 +1496,112 @@ function filterByHealth(h){
   updateDD('dd-health','dd-health-lbl','health','Saúde do cronograma');
   showView('prioridades');
 }
+// ── IMPACTO POR TIME (Visão Geral) ──
+// Quantos projetos ativos (não entregues, não cancelados) cada time está tocando,
+// com lista filtrável + link direto para o Portfólio, e gráfico de carga (menor → maior).
+let teamImpactSelected='';
+let teamChartExpanded=false;
+function toggleTeamChartExpand(){teamChartExpanded=!teamChartExpanded;renderTeamImpact();}
+function computeTeamImpactData(){
+  const relevant=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&p.status!=='CANCELADO');
+  return getAllTeams().map(t=>({name:t,count:relevant.filter(p=>(p.times||[]).includes(t)).length}));
+}
+function filterByTeamLink(team){
+  msFilters.times.clear();msFilters.times.add(team);
+  const safe=team.replace(/[^a-z0-9]/gi,'_');
+  document.querySelectorAll('#dd-times-menu .ms-dd-item').forEach(item=>{
+    const cb=item.querySelector('input');
+    const match=!!cb&&cb.id==='chk-times-'+safe;
+    if(cb)cb.checked=match;
+    item.classList.toggle('checked',match);
+  });
+  updateDD('dd-times','dd-times-lbl','times','Todos os times');
+  showView('prioridades');
+}
+function renderTeamImpact(){
+  const wrap=document.getElementById('team-impact-body');if(!wrap)return;
+  const data=computeTeamImpactData();
+  if(!data.length){wrap.innerHTML='<div class="ti-empty">Nenhum time cadastrado ainda.</div>';return;}
+  const cardsSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+  const chartSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+  const maxCount=Math.max(1,...data.map(d=>d.count));
+  const totalActive=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&p.status!=='CANCELADO').length||1;
+  const esc=s=>String(s).replace(/'/g,"\\'");
+  const cardsHtml=cardsSorted.map(d=>{
+    const high=d.count>5;
+    const bg=high?'#fee2e2':'#e0f2fe';const fg=high?'#b91c1c':'#0369a1';
+    const pctv=Math.round(d.count/totalActive*100);
+    return `<div class="kc2" style="background:${bg};border-color:${bg};cursor:pointer" title="Ver Portfólio: ${d.name}" onclick="filterByTeamLink('${esc(d.name)}')">
+      <div style="font-size:20px;font-weight:700;color:${fg};line-height:1">${d.count}</div>
+      <div style="font-size:8.5px;color:${fg};opacity:.75;margin-top:1px;font-weight:600">${pctv}%</div>
+      <div style="font-size:9px;color:${fg};margin-top:2px;line-height:1.3;font-weight:500;text-transform:uppercase">${d.name}</div>
+    </div>`;
+  }).join('');
+  const TEAM_CHART_PAGE_SIZE=5;
+  const chartToShow=teamChartExpanded?chartSorted:chartSorted.slice(0,TEAM_CHART_PAGE_SIZE);
+  const chartRest=chartSorted.length-TEAM_CHART_PAGE_SIZE;
+  const barsHtml=chartToShow.map(d=>{
+    const wpct=Math.max(4,Math.round(d.count/maxCount*100));
+    const cls=d.count>5?'high':'low';
+    return `<div class="ti-bar-row">
+      <span class="ti-bar-label" title="${d.name}">${d.name}</span>
+      <div class="ti-bar-track"><div class="ti-bar-fill ${cls}" style="width:${wpct}%"><span class="ti-bar-val">${d.count}</span></div></div>
+    </div>`;
+  }).join('');
+  const chartMoreBtn=chartRest>0?`<div style="text-align:center;padding:6px 0 2px">
+      <button class="pf-act" onclick="toggleTeamChartExpand()">${teamChartExpanded?'Ver menos':'Ver mais ('+chartRest+')'}</button>
+    </div>`:'';
+  wrap.innerHTML=`<div class="team-impact-grid">
+    <div class="ti-panel">
+      <div class="ti-panel-hdr">
+        <div class="ti-panel-title"><i class="ti ti-list-check" style="font-size:13px"></i> Times &amp; Projetos Impactados</div>
+      </div>
+      <div class="team-card-row" style="padding:10px 12px">${cardsHtml}</div>
+    </div>
+    <div class="ti-panel">
+      <div class="ti-panel-hdr">
+        <div class="ti-panel-title"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por Time · Top ${Math.min(TEAM_CHART_PAGE_SIZE,chartSorted.length)}${teamChartExpanded?' (todos)':''}</div>
+      </div>
+      <div style="padding:8px 2px">${barsHtml}</div>
+      ${chartMoreBtn}
+      <div class="ti-legend">
+        <span><span class="ti-legend-dot" style="background:#93c5fd"></span>≤ 5 projetos (carga normal)</span>
+        <span><span class="ti-legend-dot" style="background:#f87171"></span>&gt; 5 projetos (alta carga · alerta)</span>
+      </div>
+    </div>
+  </div>`;
+}
 // ── HISTÓRICO (projetos entregues — Pós produção, somente consulta) ──
+// A barra de busca/filtros (#pf-topbar) e o cabeçalho da tabela de Prioridades são sticky ao
+// mesmo tempo (top:0), então sem esse ajuste um cobre o outro ao rolar a página para baixo.
+// Aqui a gente desloca o cabeçalho da tabela para logo abaixo da barra de filtros.
+function syncPrioTableHeaderOffset(){
+  const apply=()=>{
+    const topbar=document.getElementById('pf-topbar');
+    const table=document.getElementById('prio-table');
+    if(!topbar||!table)return;
+    const h=topbar.offsetHeight;
+    table.querySelectorAll('th').forEach(th=>{th.style.top=h+'px';});
+  };
+  // Espera o layout assentar (largura da barra de filtros pode mudar com o conteúdo dos dropdowns)
+  requestAnimationFrame(apply);
+}
+window.addEventListener('resize',()=>{if(document.getElementById('view-prioridades')?.classList.contains('active'))syncPrioTableHeaderOffset();});
+// Alguns navegadores (principalmente Chrome/Windows) tem um bug de renderizacao onde o cabecalho
+// sticky some/pisca ou perde a sincronia durante o scroll lateral rapido (fica com o desenho antigo
+// ate um repaint forcado). Forcamos esse repaint a cada scroll, tocando em 'top' com o mesmo valor.
+let _pftScrollRAF=null;
+function forcePrioHeaderRepaint(){
+  const table=document.getElementById('prio-table');if(!table)return;
+  table.querySelectorAll('th').forEach(th=>{const t=th.style.top;th.style.top='';th.offsetHeight;th.style.top=t;});
+}
+(function(){
+  const view=document.getElementById('view-prioridades');
+  if(view)view.addEventListener('scroll',()=>{
+    if(_pftScrollRAF)return;
+    _pftScrollRAF=requestAnimationFrame(()=>{forcePrioHeaderRepaint();_pftScrollRAF=null;});
+  },{passive:true});
+})();
 function renderPrioridadesShell(activeCount){
   const el=document.getElementById('prio-kpi');if(!el)return;
   el.innerHTML=
@@ -1478,6 +1622,7 @@ function renderPrioridadesShell(activeCount){
       <th style="width:110px" data-col="acao">Ação</th>
     </tr></thead><tbody id="pf-body"></tbody></table>
     </div>`;
+  syncPrioTableHeaderOffset();
   const body=document.getElementById('sec-body-prioridades');
   const ch=document.getElementById('sec-chev-prioridades');
   if(body)body.classList.toggle('collapsed',!sectionState.prioridades);
@@ -1494,7 +1639,9 @@ function initPftResize(tableId,storageKey){
     const key=th.dataset.col;
     if(saved[key])th.style.width=saved[key]+'px';
     if(i===ths.length-1)return;
-    th.style.position='relative';
+    // Nao definir th.style.position='relative' aqui: o th ja tem position:sticky via CSS,
+    // que serve de containing block pro handle absolute. Sobrescrever para 'relative' quebrava
+    // o sticky do cabecalho (so a ultima coluna, que o loop pula, permanecia fixa).
     const handle=document.createElement('div');
     handle.className='pft-col-resize';
     th.appendChild(handle);
@@ -1553,7 +1700,7 @@ function renderHistorico(delivered){
 
 // Section state persists across filter changes
 // status=open, cronogramas=closed, cal=closed, portfolio=closed
-const sectionState={status:true, alertas:true, etapas:false, cronogramas:false, cal:false, historico:false, prioridades:true};
+const sectionState={status:true, alertas:true, etapas:false, cronogramas:false, impacto:false, cal:false, historico:false, prioridades:true};
 
 function toggleSection(sec){
   sectionState[sec]=!sectionState[sec];
@@ -1576,6 +1723,7 @@ let calModeVal='month';
 // Projetos comerciais entram no segmento cadastrado (Utilities/Education/Telco/Health/Others);
 // projetos de Produtos (que não têm esse campo no Jira) caem todos juntos em 'Produtos'.
 const SEGMENT_ORDER=['Utilities','Education','Telco','Health','Others','Produtos'];
+let calCatExpanded=new Set(); // segmentos que o usuário expandiu para ver além do mês atual
 function renderCalendarByCategory(grid){
   const withDate=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS).map(p=>{
     const st=getStats(p.key);
@@ -1591,18 +1739,32 @@ function renderCalendarByCategory(grid){
     if(pa!==pb)return pa-pb;
     return groups[b].length-groups[a].length;
   });
+  // Só mostra de cara o que vence até o fim do mês atual (inclui atrasados); o resto some atrás de "Ver mais"
+  const curMonthEnd=new Date(TODAY.getFullYear(),TODAY.getMonth()+1,0);
   order.forEach(s=>{
     const list=groups[s].slice().sort((a,b)=>a.d-b.d);
+    const isExp=calCatExpanded.has(s);
+    const inMonth=list.filter(x=>x.d<=curMonthEnd);
+    const rest=list.filter(x=>x.d>curMonthEnd);
+    const toShow=isExp?list:inMonth;
     const col=document.createElement('div');col.className='cal-col';col.style.cssText='min-width:185px;flex:0 0 185px';
     col.innerHTML='<div class="cal-col-hdr" style="text-transform:uppercase">'+s+' · '+list.length+'</div><div class="cal-items"></div>';
     const items=col.querySelector('.cal-items');
-    list.forEach(x=>{
+    toShow.forEach(x=>{
       const cls=x.health==='on-track'?'on-track':x.health==='alert'?'alert':x.health==='off-track'?'off-track':'no-sched';
       const el=document.createElement('div');el.className='cal-item '+cls;
       el.innerHTML='<b>'+x.p.key+'</b> · '+x.p.summary+'<br><span style="font-size:8px;opacity:.75">'+(x.isJira?'Go Live: ':'Fim cron.: ')+fmtBR(x.dLbl)+'</span>';
       el.onclick=()=>openProject(x.p.key);
       items.appendChild(el);
     });
+    if(rest.length>0){
+      const btn=document.createElement('button');
+      btn.className='pf-act';
+      btn.style.cssText='width:100%;margin-top:4px;font-size:9.5px';
+      btn.textContent=isExp?'Ver menos':'Ver mais ('+rest.length+')';
+      btn.onclick=()=>{if(isExp)calCatExpanded.delete(s);else calCatExpanded.add(s);renderCalendar();};
+      items.appendChild(btn);
+    }
     grid.appendChild(col);
   });
 }
@@ -1699,7 +1861,7 @@ function openUpdatesProject(key){
   if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
   else glChip.style.display='none';
   document.getElementById('upd-composer').style.display=isEditorOrAbove()?'':'none';
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[]};
   renderUpdates(key);renderUpdatesProjectList();
 }
 function renderUpdates(key){
@@ -1817,7 +1979,7 @@ function openProject(key){
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[]};
   collapsed.clear();viewOffset=0;selectedMs.clear();
   document.getElementById('se-title').textContent=p.summary.length>35?p.summary.slice(0,35)+'…':p.summary;
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
@@ -1884,7 +2046,7 @@ function getSeqLabel(u,idx){
   return pfx+(idx+1);
 }
 
-const C={num:26,name:195,start:72,dl:72,er:72,de:46,dr:46,prog:70,resp:105,dep:74,st:90,timing:82,jiralink:76,act:28};
+const C={num:26,name:195,start:72,dl:72,atraso:74,er:72,de:46,dr:46,prog:70,resp:105,dep:74,st:90,timing:82,jiralink:76,act:28};
 let LW=Object.values(C).reduce((a,b)=>a+b,0);
 // ── Colunas do cronograma ajustáveis (persistidas por navegador, igual à tabela de Prioridades) ──
 const CRON_COLW_KEY='vmo_cron_colw';
@@ -1957,7 +2119,7 @@ function renderTblHdr(){
   LW=Object.values(C).reduce((a,b)=>a+b,0);
   const h=document.getElementById('tbl-hdr');h.style.width=LW+'px';
   const rh=(col)=>`<div class="th-resize" onmousedown="startColResize(event,'${col}')"></div>`;
-  h.innerHTML=`<div class="th" data-col="num" style="width:${C.num}px">#${rh('num')}</div><div class="th" data-col="name" style="width:${C.name}px">Nome${rh('name')}</div><div class="th" data-col="start" style="width:${C.start}px">Início${rh('start')}</div><div class="th" data-col="dl" style="width:${C.dl}px">Prazo${rh('dl')}</div><div class="th" data-col="er" style="width:${C.er}px">Conclusão${rh('er')}</div><div class="th" data-col="de" style="width:${C.de}px">Est.${rh('de')}</div><div class="th" data-col="dr" style="width:${C.dr}px">Real${rh('dr')}</div><div class="th" data-col="prog" style="width:${C.prog}px">Progresso${rh('prog')}</div><div class="th" data-col="resp" style="width:${C.resp}px">Responsáveis${rh('resp')}</div><div class="th" data-col="dep" style="width:${C.dep}px">Dep.${rh('dep')}</div><div class="th" data-col="st" style="width:${C.st}px">Status${rh('st')}</div><div class="th" data-col="timing" style="width:${C.timing}px">Tempo${rh('timing')}</div><div class="th" data-col="jiralink" style="width:${C.jiralink}px">Jira${rh('jiralink')}</div><div class="th" data-col="act" style="width:${C.act}px"></div>`;
+  h.innerHTML=`<div class="th" data-col="num" style="width:${C.num}px">#${rh('num')}</div><div class="th" data-col="name" style="width:${C.name}px">Nome${rh('name')}</div><div class="th" data-col="start" style="width:${C.start}px">Início${rh('start')}</div><div class="th" data-col="dl" style="width:${C.dl}px">Prazo${rh('dl')}</div><div class="th" data-col="atraso" style="width:${C.atraso}px" title="Atraso acumulado: diferença entre a data original da tarefa e o prazo atual">Atraso Acum.${rh('atraso')}</div><div class="th" data-col="er" style="width:${C.er}px">Conclusão${rh('er')}</div><div class="th" data-col="de" style="width:${C.de}px">Est.${rh('de')}</div><div class="th" data-col="dr" style="width:${C.dr}px">Real${rh('dr')}</div><div class="th" data-col="prog" style="width:${C.prog}px">Progresso${rh('prog')}</div><div class="th" data-col="resp" style="width:${C.resp}px">Responsáveis${rh('resp')}</div><div class="th" data-col="dep" style="width:${C.dep}px">Dep.${rh('dep')}</div><div class="th" data-col="st" style="width:${C.st}px">Status${rh('st')}</div><div class="th" data-col="timing" style="width:${C.timing}px">Tempo${rh('timing')}</div><div class="th" data-col="jiralink" style="width:${C.jiralink}px">Jira${rh('jiralink')}</div><div class="th" data-col="act" style="width:${C.act}px"></div>`;
 }
 function taskProg(t){if(t.progress!=null&&!isNaN(t.progress))return Math.max(0,Math.min(100,Math.round(t.progress)));return t.status==='done'?100:t.status==='in_progress'?50:0;}
 // ── NUMERAÇÃO SEQUENCIAL DA COLUNA # (inteiros, sem decimais) ──
@@ -2003,6 +2165,7 @@ function renderRows(){
       </div>
       <div class="td" data-col="start" style="width:${C.start}px"><span style="font-size:9.5px">${fmtBR(ms.start)}</span></div>
       <div class="td" data-col="dl" style="width:${C.dl}px"><span style="font-size:9.5px">${fmtBR(ms.deadline)}</span></div>
+      <div class="td" data-col="atraso" style="width:${C.atraso}px">—</div>
       <div class="td" data-col="er" style="width:${C.er}px">${autoEr?`<span style="font-size:9px;color:var(--green)">${fmtBR(autoEr)}<i class="ti ti-refresh" style="font-size:8px;margin-left:1px" title="Auto"></i></span>`:ms.endReal?`<span style="font-size:9.5px">${fmtBR(ms.endReal)}</span>`:'—'}</div>
       <div class="td" data-col="de" style="width:${C.de}px"><span style="font-size:9px;color:var(--text3)">${de}</span></div>
       <div class="td" data-col="dr" style="width:${C.dr}px"><span style="font-size:9px;color:${dr!=='—'&&de!=='—'&&parseInt(dr)>parseInt(de)?'var(--red)':'var(--green)'}">${dr}</span></div>
@@ -2024,6 +2187,9 @@ function renderRows(){
     msTasks.forEach((t,ti)=>{
       const depT=tasks.find(x=>x.id===t.depId);
       const prog2=taskProg(t);const de2=t.start&&t.deadline?diffD(pd(t.start),pd(t.deadline))+'d':'—';const dr2=t.start&&t.endReal?diffD(pd(t.start),pd(t.endReal))+'d':'—';
+      // Atraso acumulado: diferença entre a data original da tarefa (gravada na criação) e o prazo atual
+      const origDl2=t.origDeadline||t.deadline;
+      const atrasoAcc2=(origDl2&&t.deadline)?diffD(pd(origDl2),pd(t.deadline)):null;
       const aHtml2=(t.assignees||[]).map(a=>`<span class="atag ${a.type==='external'?'ext':''}">${a.name.split(' ')[0]}</span>`).join('');
       const stCls2=strikeTask&&t.status==='done'?' st-task':'';
       // Show dep as line numbers only
@@ -2061,6 +2227,7 @@ function renderRows(){
         </div>
         <div class="td" data-col="start" style="width:${C.start}px"><span style="font-size:9.5px">${fmtBR(t.start)}</span></div>
         <div class="td" data-col="dl" style="width:${C.dl}px"><span style="font-size:9.5px">${fmtBR(t.deadline)}</span></div>
+        <div class="td" data-col="atraso" style="width:${C.atraso}px" title="Data original: ${fmtBR(origDl2)}">${atrasoAcc2===null?'—':atrasoAcc2>0?`<span style="font-size:9px;font-weight:700;color:var(--red)">+${atrasoAcc2}d</span>`:atrasoAcc2<0?`<span style="font-size:9px;font-weight:700;color:var(--green)">${atrasoAcc2}d</span>`:`<span style="font-size:9px;color:var(--text3)">0d</span>`}</div>
         <div class="td" data-col="er" style="width:${C.er}px">${t.endReal?`<span style="font-size:9.5px">${fmtBR(t.endReal)}</span><button onclick="editEndReal('${t.id}',event)" style="font-size:8px;border:none;background:transparent;cursor:pointer;color:var(--text3);padding:0 2px">✎</button>`:`<button onclick="inlineDone('${t.id}','${ms.id}',event)" style="font-size:8.5px;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text3);cursor:pointer;padding:1px 4px">+ data</button>`}</div>
         <div class="td" data-col="de" style="width:${C.de}px"><span style="font-size:9px;color:var(--text3)">${de2}</span></div>
         <div class="td" data-col="dr" style="width:${C.dr}px"><span style="font-size:9px;color:${dr2!=='—'&&de2!=='—'&&parseInt(dr2)>parseInt(de2)?'var(--red)':'var(--green)'}">${dr2}</span></div>
@@ -2238,7 +2405,7 @@ function drawDependencyLines(sched,cont,totalW){
 function syncScroll(){const l=document.getElementById('se-left'),r=document.getElementById('se-right');l.onscroll=()=>{r.scrollTop=l.scrollTop;};r.onscroll=()=>{l.scrollTop=r.scrollTop;};}
 
 // ── Redimensionar QUALQUER coluna do cronograma (arrastar borda do header) ──
-const CRON_MIN_W={num:26,name:120,start:56,dl:56,er:56,de:36,dr:36,prog:50,resp:60,dep:50,st:60,timing:60,jiralink:50,act:28};
+const CRON_MIN_W={num:26,name:120,start:56,dl:56,atraso:48,er:56,de:36,dr:36,prog:50,resp:60,dep:50,st:60,timing:60,jiralink:50,act:28};
 function startColResize(e,col){
   e.stopPropagation();e.preventDefault();
   const startX=e.clientX;const startW=C[col];
@@ -2282,8 +2449,8 @@ function hideTip(){document.getElementById('tip').style.display='none';}
 // ── INLINE ACTIONS ──
 function inlineDone(tid,msId,ev){ev.stopPropagation();const sched=schedules[curKey];const t=sched.tasks.find(x=>x.id===tid);if(!t)return;t.endReal=ds(TODAY);t.status='done';logChange(curKey,`Tarefa "${t.name}" concluída`,'#16a34a');autoUpdateMsStatus(curKey);renderSchedule();syncToJira(curKey);persistSchedule(curKey);}
 function editEndReal(tid,ev){ev.stopPropagation();const sched=schedules[curKey];const t=sched.tasks.find(x=>x.id===tid);if(!t)return;const val=prompt('Data real (AAAA-MM-DD):',t.endReal||ds(TODAY));if(val&&/^\d{4}-\d{2}-\d{2}$/.test(val)){t.endReal=val;logChange(curKey,`Data real de "${t.name}": ${val}`,'#d97706');autoUpdateMsStatus(curKey);renderSchedule();persistSchedule(curKey);}}
-function cloneMs(msId){const sched=schedules[curKey];const ms=sched.milestones.find(m=>m.id===msId);if(!ms)return;const newMs={...JSON.parse(JSON.stringify(ms)),id:uid(),name:ms.name+' (cópia)'};sched.milestones.push(newMs);const msTasks=sched.tasks.filter(t=>t.msId===msId);const idMap={};msTasks.forEach(t=>{const newId=uid();idMap[t.id]=newId;sched.tasks.push({...JSON.parse(JSON.stringify(t)),id:newId,msId:newMs.id,endReal:'',status:'not_started'});});logChange(curKey,`Etapa "${ms.name}" clonada`,'#6924E1');renderSchedule();persistSchedule(curKey);}
-function cloneTask(msId,taskId){const sched=schedules[curKey];const t=sched.tasks.find(x=>x.id===taskId);if(!t)return;sched.tasks.push({...JSON.parse(JSON.stringify(t)),id:uid(),name:t.name+' (cópia)',endReal:'',status:'not_started',depId:''});logChange(curKey,`Tarefa "${t.name}" clonada`,'#6924E1');renderSchedule();persistSchedule(curKey);}
+function cloneMs(msId){const sched=schedules[curKey];const ms=sched.milestones.find(m=>m.id===msId);if(!ms)return;const newMs={...JSON.parse(JSON.stringify(ms)),id:uid(),name:ms.name+' (cópia)'};sched.milestones.push(newMs);const msTasks=sched.tasks.filter(t=>t.msId===msId);const idMap={};msTasks.forEach(t=>{const newId=uid();idMap[t.id]=newId;sched.tasks.push({...JSON.parse(JSON.stringify(t)),id:newId,msId:newMs.id,endReal:'',status:'not_started',origDeadline:t.origDeadline||t.deadline});});logChange(curKey,`Etapa "${ms.name}" clonada`,'#6924E1');renderSchedule();persistSchedule(curKey);}
+function cloneTask(msId,taskId){const sched=schedules[curKey];const t=sched.tasks.find(x=>x.id===taskId);if(!t)return;sched.tasks.push({...JSON.parse(JSON.stringify(t)),id:uid(),name:t.name+' (cópia)',endReal:'',status:'not_started',depId:'',origDeadline:t.origDeadline||t.deadline});logChange(curKey,`Tarefa "${t.name}" clonada`,'#6924E1');renderSchedule();persistSchedule(curKey);}
 
 // ── RESIZE ──
 (function(){const handle=document.getElementById('resize-handle');let dr=false,sx=0,sw=0;handle.addEventListener('mousedown',e=>{dr=true;sx=e.clientX;sw=document.getElementById('se-left').offsetWidth;document.body.style.cursor='col-resize';e.preventDefault();});document.addEventListener('mousemove',e=>{if(!dr)return;const nw=Math.max(260,Math.min(920,sw+(e.clientX-sx)));userLeftW=nw;document.getElementById('se-left').style.width=nw+'px';});document.addEventListener('mouseup',()=>{dr=false;document.body.style.cursor='';});})();
@@ -2561,7 +2728,21 @@ function saveTask(){const name=document.getElementById('t-name').value.trim();if
   const depIds=depRaw.split(',').map(s=>s.trim()).filter(Boolean).map(v=>numToId2[parseInt(v)]).filter(Boolean);
   const depId=depIds[0]||''; // primary dep for backwards compat
   const progRaw=parseInt(document.getElementById('t-progress').value);const progress=progressTouched&&!isNaN(progRaw)?Math.max(0,Math.min(100,progRaw)):null;
-  const data={id:editTaskId||uid(),msId:editTaskMsId,name,start:document.getElementById('t-start').value,deadline:document.getElementById('t-deadline').value,endReal:document.getElementById('t-endreal').value,assignees:getAs('t-a-list'),depId,depIds,depType:depId?document.getElementById('t-deptype').value:'',depMode:depId?depModeVal2:'',status:document.getElementById('t-status').value,progress,notes:document.getElementById('t-notes').value,jiraLink:document.getElementById('t-jiralink').value,jiraLinkStatus:'',critical:document.getElementById('t-critical').checked};if(editTaskId){const idx=sched.tasks.findIndex(x=>x.id===editTaskId);const old=idx>=0?JSON.parse(JSON.stringify(sched.tasks[idx])):null;if(idx>=0)sched.tasks[idx]=data;if(old&&old.deadline!==data.deadline)logChange(curKey,`Tarefa "${name}": prazo ${fmtBR(old.deadline)} → ${fmtBR(data.deadline)}`,'#d97706');}else{sched.tasks.push(data);logChange(curKey,`Tarefa "${name}" criada`,'#6924E1');if(!sched.baseline)sched.baseline={milestones:JSON.parse(JSON.stringify(sched.milestones)),tasks:[JSON.parse(JSON.stringify(data))]};else sched.baseline.tasks.push(JSON.parse(JSON.stringify(data)));}autoUpdateMsStatus(curKey);closeM('task-modal');renderSchedule();renderPortfolio();syncToJira(curKey);persistSchedule(curKey);}
+  const deadlineVal=document.getElementById('t-deadline').value;
+  const data={id:editTaskId||uid(),msId:editTaskMsId,name,start:document.getElementById('t-start').value,deadline:deadlineVal,endReal:document.getElementById('t-endreal').value,assignees:getAs('t-a-list'),depId,depIds,depType:depId?document.getElementById('t-deptype').value:'',depMode:depId?depModeVal2:'',status:document.getElementById('t-status').value,progress,notes:document.getElementById('t-notes').value,jiraLink:document.getElementById('t-jiralink').value,jiraLinkStatus:'',critical:document.getElementById('t-critical').checked};
+  if(editTaskId){
+    const idx=sched.tasks.findIndex(x=>x.id===editTaskId);const old=idx>=0?JSON.parse(JSON.stringify(sched.tasks[idx])):null;
+    // Preserva a data original da tarefa (nunca é sobrescrita numa edição); se a tarefa ainda não tinha
+    // esse registro (criada antes desse recurso existir), o prazo anterior à edição vira a origem a partir de agora.
+    data.origDeadline=old?(old.origDeadline||old.deadline):deadlineVal;
+    if(idx>=0)sched.tasks[idx]=data;
+    if(old&&old.deadline!==data.deadline)logChange(curKey,`Tarefa "${name}": prazo ${fmtBR(old.deadline)} → ${fmtBR(data.deadline)}`,'#d97706');
+  }else{
+    data.origDeadline=deadlineVal;
+    sched.tasks.push(data);logChange(curKey,`Tarefa "${name}" criada`,'#6924E1');
+    if(!sched.baseline)sched.baseline={milestones:JSON.parse(JSON.stringify(sched.milestones)),tasks:[JSON.parse(JSON.stringify(data))]};else sched.baseline.tasks.push(JSON.parse(JSON.stringify(data)));
+  }
+  autoUpdateMsStatus(curKey);closeM('task-modal');renderSchedule();renderPortfolio();syncToJira(curKey);persistSchedule(curKey);}
 function deleteTask(){
   if(!confirm('Excluir tarefa?'))return;
   const sched=schedules[curKey];const delT=sched.tasks.find(x=>x.id===editTaskId);
@@ -2630,7 +2811,7 @@ function addTeamActivities(){
   const msId=uid();let d=new Date(TODAY);
   sched.milestones.push({id:msId,name:`Atividades — ${team}`,start:ds(d),deadline:ds(addD(d,checked.length*5)),endReal:'',color:'#0d9488',status:'not_started',assignees:[]});
   checked.forEach((name,i)=>{
-    sched.tasks.push({id:uid(),msId,name,start:ds(addD(d,i*5)),deadline:ds(addD(d,i*5+4)),endReal:'',assignees:[],depId:'',depIds:[],depType:'TI',depMode:'blocked',status:'not_started',notes:'',jiraLink:'',jiraLinkStatus:''});
+    sched.tasks.push({id:uid(),msId,name,start:ds(addD(d,i*5)),deadline:ds(addD(d,i*5+4)),origDeadline:ds(addD(d,i*5+4)),endReal:'',assignees:[],depId:'',depIds:[],depType:'TI',depMode:'blocked',status:'not_started',notes:'',jiraLink:'',jiraLinkStatus:''});
   });
   logChange(curKey,`${checked.length} atividade(s) do time "${team}" incluída(s)`,'#0d9488');
   closeM('tpl-modal');renderSchedule();renderPortfolio();persistSchedule(curKey);
@@ -2648,7 +2829,7 @@ function openTemplateModal(){
   document.getElementById('tpl-team-add-btn').style.display='none';
   openM('tpl-modal');
 }
-function applyTemplate(k){if(!confirm('Adicionar etapas e tarefas padrão?'))return;const tpl=TEMPLATES[k];const sched=schedules[curKey];let d=new Date(TODAY);tpl.milestones.forEach(m=>{const msId=uid();const start=ds(d);const end=ds(addD(d,m.days));sched.milestones.push({id:msId,name:m.name,start,deadline:end,endReal:'',color:m.color,status:'not_started',assignees:[]});m.tasks.forEach((t,i)=>{sched.tasks.push({id:uid(),msId,name:t.name,start:ds(addD(d,Math.floor(m.days/m.tasks.length*i))),deadline:ds(addD(d,Math.floor(m.days/m.tasks.length*(i+1)))),endReal:'',assignees:[],depId:'',depType:'TI',depMode:'blocked',status:'not_started',notes:'',jiraLink:'',jiraLinkStatus:''});});d=addD(d,m.days+1);});logChange(curKey,`Modelo "${tpl.name}" aplicado`,'#6924E1');closeM('tpl-modal');renderSchedule();renderPortfolio();}
+function applyTemplate(k){if(!confirm('Adicionar etapas e tarefas padrão?'))return;const tpl=TEMPLATES[k];const sched=schedules[curKey];let d=new Date(TODAY);tpl.milestones.forEach(m=>{const msId=uid();const start=ds(d);const end=ds(addD(d,m.days));sched.milestones.push({id:msId,name:m.name,start,deadline:end,endReal:'',color:m.color,status:'not_started',assignees:[]});m.tasks.forEach((t,i)=>{const tDl=ds(addD(d,Math.floor(m.days/m.tasks.length*(i+1))));sched.tasks.push({id:uid(),msId,name:t.name,start:ds(addD(d,Math.floor(m.days/m.tasks.length*i))),deadline:tDl,origDeadline:tDl,endReal:'',assignees:[],depId:'',depType:'TI',depMode:'blocked',status:'not_started',notes:'',jiraLink:'',jiraLinkStatus:''});});d=addD(d,m.days+1);});logChange(curKey,`Modelo "${tpl.name}" aplicado`,'#6924E1');closeM('tpl-modal');renderSchedule();renderPortfolio();}
 
 // Access
 function openAccessModal(){
@@ -2738,6 +2919,108 @@ async function exportPng(){try{const canvas=await html2canvas(document.getElemen
 
 // Audit
 function openAuditModal(){const modal=getOrBuildModal('audit-modal','Histórico',`<div id="audit-list" style="display:flex;flex-direction:column;gap:5px;max-height:400px;overflow-y:auto"></div>`,`<button class="btn-c" onclick="closeM('audit-modal')">Fechar</button>`);const log=(schedules[curKey]?.auditLog||[]);const list=document.getElementById('audit-list');list.innerHTML='';if(!log.length){list.innerHTML='<div style="font-size:10.5px;color:var(--text3);padding:7px">Nenhuma alteração ainda.</div>';openM('audit-modal');return;}log.forEach(e=>{const div=document.createElement('div');div.style.cssText='display:flex;gap:9px;padding:7px 9px;background:var(--bg2);border-radius:6px';div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${e.color||'#6924E1'};flex-shrink:0;margin-top:3px"></div><div><span style="font-size:10.5px;font-weight:600;color:var(--text)">${e.who}</span><span style="font-size:9px;color:var(--text3);margin-left:5px">${e.when}</span><div style="font-size:10.5px;color:var(--text2);margin-top:1px">${e.desc}</div></div>`;list.appendChild(div);});openM('audit-modal');}
+// ── STAKEHOLDERS (registro de interessados + envio manual de atualização por e-mail) ──
+function openStakeholdersModal(){
+  if(!curKey||!schedules[curKey])return;
+  const sched=schedules[curKey];if(!sched.stakeholders)sched.stakeholders=[];
+  const canSend=isEditorOrAbove();
+  const modal=getOrBuildModal('stakeholders-modal','Stakeholders',`
+    <div class="info-box">
+      Cadastre aqui as pessoas interessadas neste projeto. O envio de atualização por e-mail é <b>manual</b> — cadastrar não dispara nada sozinho, você decide quando clicar em "Enviar atualização".
+    </div>
+    <div class="section-lbl">Adicionar stakeholder</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <input type="text" id="sh-name" placeholder="Nome" style="flex:1;min-width:110px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <input type="email" id="sh-email" placeholder="email" style="flex:1;min-width:150px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <input type="text" id="sh-role" placeholder="Papel (opcional)" style="width:120px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <button class="btn-s" onclick="addStakeholder()">+</button>
+    </div>
+    <div class="section-lbl" style="margin-top:8px">Cadastrados</div>
+    <div id="stakeholders-list" style="max-height:170px;overflow-y:auto;display:flex;flex-direction:column;gap:4px"></div>
+    <div class="section-lbl" style="margin-top:10px">Enviar atualização por e-mail</div>
+    <textarea id="sh-message" rows="3" placeholder="Mensagem opcional — vai junto com o status atual do projeto (etapa, progresso, próxima entrega)" style="width:100%;border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:10.5px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+    <div id="sh-send-status" style="font-size:9.5px;color:var(--text3);margin-top:5px"></div>
+  `,`<button class="btn-c" onclick="closeM('stakeholders-modal')">Fechar</button>
+     <button class="btn-s" id="sh-send-btn" onclick="sendStakeholderUpdate()" style="background:linear-gradient(135deg,#16a34a,#059669);display:${canSend?'flex':'none'}"><i class="ti ti-mail-forward"></i> Enviar atualização</button>`);
+  renderStakeholdersList();
+  openM('stakeholders-modal');
+}
+function renderStakeholdersList(){
+  const sched=schedules[curKey];const list=document.getElementById('stakeholders-list');if(!sched||!list)return;
+  list.innerHTML='';
+  (sched.stakeholders||[]).forEach(st=>{
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 7px;background:var(--bg2);border-radius:5px';
+    div.innerHTML=`<div style="flex:1;min-width:0">
+        <div style="font-size:10.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${st.name||st.email}${st.role?' <span style="font-weight:400;color:var(--text3)">· '+st.role+'</span>':''}</div>
+        <div style="font-size:9.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${st.email}</div>
+      </div>
+      <button class="rm" onclick="removeStakeholder('${st.id}')">×</button>`;
+    list.appendChild(div);
+  });
+  if(!list.children.length)list.innerHTML='<div style="font-size:10.5px;color:var(--text3);padding:4px">Nenhum stakeholder cadastrado ainda.</div>';
+}
+function addStakeholder(){
+  const nameEl=document.getElementById('sh-name');const emailEl=document.getElementById('sh-email');const roleEl=document.getElementById('sh-role');
+  const name=nameEl.value.trim();const email=emailEl.value.trim();const role=roleEl.value.trim();
+  if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){alert('E-mail inválido');return;}
+  const sched=schedules[curKey];if(!sched.stakeholders)sched.stakeholders=[];
+  if(sched.stakeholders.find(s=>s.email.toLowerCase()===email.toLowerCase())){alert('Esse e-mail já está cadastrado para este projeto.');return;}
+  sched.stakeholders.push({id:uid(),name:name||email,email,role,addedAt:nowStr()});
+  logChange(curKey,`Stakeholder adicionado: ${name||email}`,'#0369a1');
+  nameEl.value='';emailEl.value='';roleEl.value='';
+  renderStakeholdersList();persistSchedule(curKey);
+}
+function removeStakeholder(id){
+  const sched=schedules[curKey];const st=(sched.stakeholders||[]).find(s=>s.id===id);if(!st)return;
+  if(!confirm(`Remover "${st.name||st.email}" da lista de stakeholders?`))return;
+  sched.stakeholders=sched.stakeholders.filter(s=>s.id!==id);
+  logChange(curKey,`Stakeholder removido: ${st.name||st.email}`,'#dc2626');
+  renderStakeholdersList();persistSchedule(curKey);
+}
+async function sendStakeholderUpdate(){
+  const sched=schedules[curKey];const recipients=(sched.stakeholders||[]);
+  const statusEl=document.getElementById('sh-send-status');
+  const btn=document.getElementById('sh-send-btn');
+  if(!recipients.length){alert('Cadastre pelo menos um stakeholder antes de enviar.');return;}
+  if(!GAS_URL||GAS_URL.includes('COLE_AQUI')){
+    if(statusEl){statusEl.textContent='Envio de e-mail não configurado (GAS_URL). Fale com o time técnico.';statusEl.style.color='var(--red)';}
+    return;
+  }
+  const p=PROJECTS.find(x=>x.key===curKey);
+  const st=getStats(curKey);
+  const customMsg=(document.getElementById('sh-message')?.value||'').trim();
+  const scheduleUrl=window.location.href.split('?')[0]+'?project='+curKey;
+  const payload={
+    action:'sendStakeholderUpdate',
+    issueKey:curKey,
+    projectName:p?p.summary:curKey,
+    status:p?p.status:'',
+    progress:st.prog,
+    health:st.health,
+    goLive:(p&&p.golive)||st.goLiveLocal||null,
+    message:customMsg,
+    scheduleUrl,
+    recipients:recipients.map(r=>({name:r.name,email:r.email})),
+  };
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  if(statusEl){statusEl.textContent='Enviando...';statusEl.style.color='var(--text3)';}
+  try{
+    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(d.ok){
+      if(statusEl){statusEl.textContent=`✓ Atualização enviada para ${recipients.length} pessoa${recipients.length!==1?'s':''}.`;statusEl.style.color='var(--green)';}
+      logChange(curKey,`Atualização enviada por e-mail para ${recipients.length} stakeholder${recipients.length!==1?'s':''}`,'#16a34a');
+      const msgEl=document.getElementById('sh-message');if(msgEl)msgEl.value='';
+    } else {
+      if(statusEl){statusEl.textContent='Erro: '+(d.error||'não foi possível enviar.');statusEl.style.color='var(--red)';}
+    }
+  }catch(e){
+    if(statusEl){statusEl.textContent='Erro ao conectar com o serviço de e-mail.';statusEl.style.color='var(--red)';}
+  }
+  if(btn){btn.disabled=false;btn.style.opacity='';}
+}
+
 
 // ── JIRA SYNC ──
 // ── IMPORT FROM MS PROJECT / EXCEL ───────────────────────
@@ -3025,7 +3308,7 @@ function confirmImport(){
   if(!confirm(`Importar ${importedData.milestones.length} etapas e ${importedData.tasks.length} tarefas? Isso ADICIONA ao cronograma existente.`))return;
   const sched=schedules[curKey];
   importedData.milestones.forEach(ms=>sched.milestones.push(ms));
-  importedData.tasks.forEach(t=>sched.tasks.push(t));
+  importedData.tasks.forEach(t=>{if(!t.origDeadline)t.origDeadline=t.deadline;sched.tasks.push(t);});
   logChange(curKey,`Importação: ${importedData.milestones.length} etapas, ${importedData.tasks.length} tarefas`,'#6924E1');
   closeM('import-modal');renderSchedule();renderPortfolio();persistSchedule(curKey);
   importedData=null;
@@ -3067,16 +3350,17 @@ async function persistSchedule(key) {
   try {
     if (firebaseReady && db) {
       await db.collection('schedules').doc(key).set({
-        milestones: schedules[key].milestones || [],
-        tasks:      schedules[key].tasks      || [],
-        access:     schedules[key].access     || [],
-        auditLog:   (schedules[key].auditLog  || []).slice(0, 50),
-        calendar:   schedules[key].calendar   || 'BR',
-        holidays:   schedules[key].holidays   || [],
-        baseline:   schedules[key].baseline   || null,
-        scoring:    schedules[key].scoring    || null,
-        updatedAt:  firebase.firestore.FieldValue.serverTimestamp(),
-        updatedBy:  currentUser?.name || '',
+        milestones:    schedules[key].milestones    || [],
+        tasks:         schedules[key].tasks         || [],
+        access:        schedules[key].access        || [],
+        auditLog:      (schedules[key].auditLog     || []).slice(0, 50),
+        calendar:      schedules[key].calendar      || 'BR',
+        holidays:      schedules[key].holidays      || [],
+        baseline:      schedules[key].baseline      || null,
+        scoring:       schedules[key].scoring       || null,
+        stakeholders:  schedules[key].stakeholders  || [],
+        updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy:     currentUser?.name || '',
       });
       setSyncTxt('ok', '✓ Salvo');
       setTimeout(() => setSyncTxt('idle', ''), 2500);
@@ -3116,15 +3400,16 @@ async function autoLoadOnLogin() {
           // JSON round-trip to strip Firestore Timestamp objects
           const raw = JSON.parse(JSON.stringify(doc.data()));
           schedules[doc.id] = {
-            milestones: raw.milestones || [],
-            tasks:      raw.tasks      || [],
-            access:     raw.access     || [],
-            auditLog:   raw.auditLog   || [],
-            calendar:   raw.calendar   || 'BR',
-            holidays:   raw.holidays   || [],
-            baseline:   raw.baseline   || null,
-            scoring:    raw.scoring    || null,
-            updates:    schedules[doc.id]?.updates || [],
+            milestones:    raw.milestones    || [],
+            tasks:         raw.tasks         || [],
+            access:        raw.access        || [],
+            auditLog:      raw.auditLog      || [],
+            calendar:      raw.calendar      || 'BR',
+            holidays:      raw.holidays      || [],
+            baseline:      raw.baseline      || null,
+            scoring:       raw.scoring       || null,
+            stakeholders:  raw.stakeholders  || [],
+            updates:       schedules[doc.id]?.updates || [],
           };
         } catch(e) { console.warn('Error loading schedule', doc.id, e); }
       });
@@ -3134,7 +3419,7 @@ async function autoLoadOnLogin() {
         try {
           const raw = JSON.parse(JSON.stringify(doc.data()));
           if (schedules[doc.id]) schedules[doc.id].updates = raw.updates || [];
-          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null };
+          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[] };
         } catch(e) { console.warn('Error loading updates', doc.id, e); }
       });
       // Load users
@@ -3345,11 +3630,13 @@ function applyJiraSync(freshProjects){
       PROJECTS[idx].type     = fp.type     ?? PROJECTS[idx].type;
       PROJECTS[idx].priority = fp.priority ?? PROJECTS[idx].priority;
       PROJECTS[idx].gp       = fp.gp       ?? PROJECTS[idx].gp;
-      PROJECTS[idx].golive   = fp.golive   ?? PROJECTS[idx].golive;
       PROJECTS[idx].duedate  = fp.duedate  ?? PROJECTS[idx].duedate;
       PROJECTS[idx].times    = fp.times    ?? PROJECTS[idx].times;
       PROJECTS[idx].created  = fp.created  ?? PROJECTS[idx].created;
       PROJECTS[idx].segment  = fp.segment  ?? PROJECTS[idx].segment;
+      // golive agora vem só de "Data limite" (duedate) — sobrescreve sempre, mesmo quando
+      // o Jira vier vazio, para não manter preso um valor antigo do campo "Go Live" (customfield_29150)
+      PROJECTS[idx].golive   = fp.golive   ?? null;
     } else {
       PROJECTS.push(fp);
     }
@@ -3401,7 +3688,7 @@ function openSyncModal(){
     </div>
     <div class="info-box" style="margin-top:4px;font-size:10px">
       <b>JQL usado:</b> <code>${JIRA_JQL}</code><br>
-      <b>Campos:</b> summary, status, GP Alocado, Nova Prioridade, Go Live, Expectativa de Entrega, Times Impactados
+      <b>Campos:</b> summary, status, GP Alocado, Nova Prioridade, Data limite (Go Live), Expectativa de Entrega, Times Impactados
     </div>`,
     `<button class="btn-c" onclick="closeM('sync-modal')">Fechar</button>
      <button class="btn-s" onclick="parseSyncJson()"><i class="ti ti-refresh"></i> Aplicar JSON</button>`
@@ -3428,7 +3715,7 @@ function parseSyncJson(){
       duedate:i.fields.customfield_27831||i.fields.duedate||null,
       gp:(()=>{const u=i.fields.customfield_28494;return Array.isArray(u)&&u.length?u.map(x=>x.displayName).join(', '):(i.fields.customfield_28201||'—');})(),
       priority:i.fields.customfield_28488||null,
-      golive:i.fields.customfield_29150||null,
+      golive:i.fields.duedate||null, // "Data limite" (campo nativo do Jira) — fonte do Go Live
       segment:i.fields.customfield_29858?.value||'Produtos',
       created:(i.fields.created||'').slice(0,10),
       times:(i.fields.customfield_29719||[]).map(t=>t.value).filter(Boolean),
