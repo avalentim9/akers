@@ -522,6 +522,9 @@ table.pft tr:hover td{background:var(--bg2)}
       <h2 id="upd-proj-title">Selecione um projeto</h2>
       <span class="upd-golive-chip" id="upd-golive" style="display:none"><i class="ti ti-calendar-check" style="font-size:10px"></i> Go Live: <b id="upd-golive-val"></b></span>
       <a class="se-jira" id="upd-jira-lnk" href="#" target="_blank" style="display:none"><i class="ti ti-brand-jira"></i><span id="upd-jira-key"></span></a>
+      <a class="upd-golive-chip" id="upd-scope-lnk" href="#" target="_blank" style="display:none;text-decoration:none"><i class="ti ti-file-text" style="font-size:10px"></i> Escopo detalhado</a>
+      <button class="tn-btn" id="upd-scope-edit-btn" style="display:none;font-size:9.5px;padding:3px 8px" onclick="editScopeLink()" title="Editar link do escopo (Confluence)"><i class="ti ti-pencil" style="font-size:9px"></i></button>
+      <button class="tn-btn" id="upd-scope-add-btn" style="display:none;font-size:9.5px;padding:3px 8px" onclick="editScopeLink()"><i class="ti ti-link" style="font-size:9px"></i> Escopo (Confluence)</button>
     </div>
     <div id="upd-feed"><div id="upd-empty"><i class="ti ti-speakerphone"></i><p style="font-size:11px;text-align:center;max-width:260px;line-height:1.6">Selecione um projeto na lista ao lado para ver e adicionar atualizações.</p></div></div>
     <div id="upd-composer" style="display:none">
@@ -1069,7 +1072,7 @@ let editMsId = null, editTaskId = null, editTaskMsId = null;
 let depModeVal2 = 'blocked';
 let curUpdKey = null;
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
-const EMAIL_RECIPIENTS = ['julia.machareth@bemobi.com', 'erik.moulin@bemobi.com'];
+const EMAIL_RECIPIENTS = ['tainah.andrade@bemobi.com', 'julia.machareth@bemobi.com', 'gabriel.oliveira@bemobi.com', 'erik.moulin@bemobi.com', 'amanda.valentim@bemobi.com'];
 
 // ── Helpers ──
 function pd(s){if(!s)return null;const[y,m,d]=s.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setHours(0,0,0,0);return dt;}
@@ -1861,8 +1864,40 @@ function openUpdatesProject(key){
   if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
   else glChip.style.display='none';
   document.getElementById('upd-composer').style.display=isEditorOrAbove()?'':'none';
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null};
+  renderScopeLinkChip(key);
   renderUpdates(key);renderUpdatesProjectList();
+}
+// ── Link do escopo detalhado (página do Confluence) ──
+// Fica salvo por projeto (schedules[key].scopeLink) e vai automaticamente no corpo do
+// Email Executivo Semanal e da atualização enviada aos Stakeholders, quando preenchido.
+function renderScopeLinkChip(key){
+  const sched=schedules[key];const link=sched&&sched.scopeLink;
+  const lnk=document.getElementById('upd-scope-lnk');
+  const editBtn=document.getElementById('upd-scope-edit-btn');
+  const addBtn=document.getElementById('upd-scope-add-btn');
+  if(!lnk||!editBtn||!addBtn)return;
+  if(link){
+    lnk.href=link;lnk.style.display='flex';
+    editBtn.style.display=isEditorOrAbove()?'':'none';
+    addBtn.style.display='none';
+  } else {
+    lnk.style.display='none';
+    editBtn.style.display='none';
+    addBtn.style.display=isEditorOrAbove()?'':'none';
+  }
+}
+function editScopeLink(){
+  if(!curUpdKey)return;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o link do escopo.');return;}
+  const sched=schedules[curUpdKey];if(!sched)return;
+  const val=prompt('Link do escopo detalhado (página do Confluence):',sched.scopeLink||'https://one-bemobi.atlassian.net/wiki/...');
+  if(val===null)return;
+  const trimmed=val.trim();
+  sched.scopeLink=trimmed||null;
+  logChange(curUpdKey,trimmed?'Link do escopo atualizado':'Link do escopo removido','#0369a1');
+  renderScopeLinkChip(curUpdKey);
+  persistSchedule(curUpdKey);
 }
 function renderUpdates(key){
   const feed=document.getElementById('upd-feed');
@@ -1915,7 +1950,10 @@ function fmtText(t){const ta=document.getElementById('composer-text');if(t==='bo
 // ── EMAIL MODAL ──
 function openEmailModal(){
   const modal=getOrBuildModal('email-modal','Email Executivo Semanal',`
-    <div class="info-box"><b>Destinatários pré-configurados:</b><br>${EMAIL_RECIPIENTS.join(', ')}<br><br>Selecione os projetos a incluir e clique em Enviar ou Copiar.</div>
+    <div class="info-box"><b>Destinatários pré-configurados:</b>
+      <div id="email-preconf-list" style="margin-top:6px;display:flex;flex-direction:column;gap:4px"></div>
+      <div style="margin-top:8px">Desmarque quem não deve receber este envio específico. Selecione os projetos a incluir e clique em Enviar ou Copiar.</div>
+    </div>
     <div class="section-lbl">Projetos com atualizações para email</div>
     <div id="email-proj-list" class="proj-select-list" style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:3px"></div>
     <div class="section-lbl" style="margin-top:10px" id="email-sh-title">Stakeholders</div>
@@ -1938,6 +1976,8 @@ function openEmailModal(){
      <button class="btn-s" onclick="copyEmail()"><i class="ti ti-copy"></i> Copiar</button>
      <button class="btn-s" id="email-send-btn" style="background:linear-gradient(135deg,#16a34a,#059669)" onclick="sendEmail()"><i class="ti ti-mail-forward"></i> Enviar</button>`
   );
+  const preList=document.getElementById('email-preconf-list');
+  if(preList)preList.innerHTML=EMAIL_RECIPIENTS.map(em=>`<label style="display:flex;align-items:center;gap:7px;cursor:pointer"><input type="checkbox" class="email-preconf-cb" value="${em}" checked style="width:12px;height:12px;accent-color:var(--purple)"> <span style="font-size:10.5px">${em}</span></label>`).join('');
   const list=document.getElementById('email-proj-list');list.innerHTML='';
   PROJECTS.forEach(p=>{
     const sc=schedules[p.key];const hasUpd=(sc?.updates||[]).some(u=>u.includeEmail);if(!hasUpd)return;
@@ -1999,6 +2039,7 @@ function buildEmailBody(){
     body+=`   Status: ${p.status} | GP: ${p.gp}\n`;
     body+=`   Saúde: ${st.health==='on-track'?'✓ Nos trilhos':st.health==='alert'?'⚠ Em alerta':st.health==='off-track'?'✗ Fora dos trilhos':'Sem cronograma'}\n`;
     if(glDate)body+=`   Go Live: ${fmtBRFull(glDate)}\n`;
+    if(sc&&sc.scopeLink)body+=`   Escopo detalhado: ${sc.scopeLink}\n`;
     upds.forEach(u=>{body+=`\n   [${u.when}] ${u.author}${u.tag?' — '+{ok:'✅ No prazo',warn:'⚠️ Em alerta',risk:'🔴 Em risco',info:'ℹ️ Informativo',date:'📅 Mudança de data'}[u.tag]:''}\n   ${u.body.replace(/<br>/g,'\n   ').replace(/<[^>]+>/g,'')}\n`;});
     body+=`\n${'─'.repeat(50)}\n\n`;
   });
@@ -2014,7 +2055,8 @@ async function sendEmail(){
   const statusEl=document.getElementById('email-send-status');
   const btn=document.getElementById('email-send-btn');
   const extra=document.getElementById('email-extra').value.trim();
-  const recipients=[...EMAIL_RECIPIENTS,...collectEmailStakeholderRecipients()];
+  const preconf=Array.from(document.querySelectorAll('.email-preconf-cb:checked')).map(x=>x.value);
+  const recipients=[...preconf,...collectEmailStakeholderRecipients()];
   if(extra&&/^[^@]+@[^@]+\.[^@]+$/.test(extra))recipients.push(extra);
   const uniqueRecipients=[...new Set(recipients)];
   if(!uniqueRecipients.length){if(statusEl){statusEl.textContent='Nenhum destinatário definido.';statusEl.style.color='var(--red)';}return;}
@@ -2054,7 +2096,7 @@ function openProject(key){
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null};
   collapsed.clear();viewOffset=0;selectedMs.clear();
   document.getElementById('se-title').textContent=p.summary.length>35?p.summary.slice(0,35)+'…':p.summary;
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
@@ -3089,6 +3131,7 @@ async function sendStakeholderUpdate(){
     progress:st.prog,
     health:st.health,
     goLive:(p&&p.golive)||st.goLiveLocal||null,
+    scopeLink:sched.scopeLink||null,
     message:customMsg,
     scheduleUrl,
     recipients:recipients.map(r=>({name:r.name,email:r.email})),
@@ -3449,6 +3492,7 @@ async function persistSchedule(key) {
         baseline:      schedules[key].baseline      || null,
         scoring:       schedules[key].scoring       || null,
         stakeholders:  schedules[key].stakeholders  || [],
+        scopeLink:     schedules[key].scopeLink     || null,
         updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
         updatedBy:     currentUser?.name || '',
       });
@@ -3499,6 +3543,7 @@ async function autoLoadOnLogin() {
             baseline:      raw.baseline      || null,
             scoring:       raw.scoring       || null,
             stakeholders:  raw.stakeholders  || [],
+            scopeLink:     raw.scopeLink     || null,
             updates:       schedules[doc.id]?.updates || [],
           };
         } catch(e) { console.warn('Error loading schedule', doc.id, e); }
@@ -3509,7 +3554,7 @@ async function autoLoadOnLogin() {
         try {
           const raw = JSON.parse(JSON.stringify(doc.data()));
           if (schedules[doc.id]) schedules[doc.id].updates = raw.updates || [];
-          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[] };
+          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null };
         } catch(e) { console.warn('Error loading updates', doc.id, e); }
       });
       // Load users
