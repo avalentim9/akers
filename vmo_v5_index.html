@@ -470,6 +470,7 @@ table.pft tr:hover td{background:var(--bg2)}
   <button class="tn-btn" id="export-btn" onclick="openExportModal()" style="display:none"><i class="ti ti-download" style="font-size:10px"></i> Exportar</button>
   <button class="tn-btn" id="audit-btn" onclick="openAuditModal()" style="display:none"><i class="ti ti-history" style="font-size:10px"></i> Histórico</button>
   <button class="tn-btn" id="stakeholders-btn" onclick="openStakeholdersModal()" style="display:none"><i class="ti ti-users" style="font-size:10px"></i> Stakeholders</button>
+  <button class="tn-btn" id="decisions-btn" onclick="openDecisionsModal()" style="display:none"><i class="ti ti-gavel" style="font-size:10px"></i> Decisões</button>
   <div class="tn-sep"></div>
   <!-- Profile button -->
   <div class="tn-profile" id="tn-profile" onclick="toggleProfileMenu(event)">
@@ -1107,6 +1108,7 @@ function showView(v){
   document.getElementById('export-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('audit-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('stakeholders-btn').style.display=v==='schedule'?'':'none';
+  document.getElementById('decisions-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('template-btn').style.display=(v==='schedule'&&curKey&&showEdit)?'':'none';
   if(v==='updates')renderUpdatesProjectList();
   if(v==='scoring')renderScoringView();
@@ -1864,7 +1866,7 @@ function openUpdatesProject(key){
   if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
   else glChip.style.display='none';
   document.getElementById('upd-composer').style.display=isEditorOrAbove()?'':'none';
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,decisions:[]};
   renderScopeLinkChip(key);
   renderUpdates(key);renderUpdatesProjectList();
 }
@@ -1887,17 +1889,41 @@ function renderScopeLinkChip(key){
     addBtn.style.display=isEditorOrAbove()?'':'none';
   }
 }
-function editScopeLink(){
-  if(!curUpdKey)return;
-  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o link do escopo.');return;}
-  const sched=schedules[curUpdKey];if(!sched)return;
+// Núcleo compartilhado — usado tanto pela aba Atualizações quanto pelo modal
+// de Stakeholders no Cronograma, para configurar o mesmo link de uma vez só.
+function promptScopeLink(key){
+  if(!key||!schedules[key])return false;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o link do escopo.');return false;}
+  const sched=schedules[key];
   const val=prompt('Link do escopo detalhado (página do Confluence):',sched.scopeLink||'https://one-bemobi.atlassian.net/wiki/...');
-  if(val===null)return;
+  if(val===null)return false;
   const trimmed=val.trim();
   sched.scopeLink=trimmed||null;
-  logChange(curUpdKey,trimmed?'Link do escopo atualizado':'Link do escopo removido','#0369a1');
-  renderScopeLinkChip(curUpdKey);
-  persistSchedule(curUpdKey);
+  logChange(key,trimmed?'Link do escopo atualizado':'Link do escopo removido','#0369a1');
+  persistSchedule(key);
+  return true;
+}
+function editScopeLink(){
+  if(!curUpdKey)return;
+  if(promptScopeLink(curUpdKey))renderScopeLinkChip(curUpdKey);
+}
+function editScopeLinkFromStakeholders(){
+  if(!curKey)return;
+  if(promptScopeLink(curKey))renderStakeholdersScopeRow();
+}
+function renderStakeholdersScopeRow(){
+  const row=document.getElementById('sh-scope-row');if(!row||!curKey)return;
+  const sched=schedules[curKey];const link=sched&&sched.scopeLink;
+  const canEdit=isEditorOrAbove();
+  if(link){
+    row.innerHTML=`<a href="${link}" target="_blank" class="upd-golive-chip" style="text-decoration:none">
+        <i class="ti ti-file-text" style="font-size:10px"></i> Escopo detalhado
+      </a>${canEdit?`<button class="btn-c" style="font-size:9.5px;padding:3px 8px" onclick="editScopeLinkFromStakeholders()" title="Editar link do escopo"><i class="ti ti-pencil" style="font-size:9px"></i></button>`:''}`;
+  } else if(canEdit){
+    row.innerHTML=`<button class="btn-c" style="font-size:9.5px;padding:3px 8px;display:flex;gap:4px;align-items:center" onclick="editScopeLinkFromStakeholders()"><i class="ti ti-link" style="font-size:9px"></i> Adicionar link do escopo (Confluence)</button>`;
+  } else {
+    row.innerHTML=`<span style="font-size:9.5px;color:var(--text3)">Nenhum link de escopo cadastrado ainda.</span>`;
+  }
 }
 function renderUpdates(key){
   const feed=document.getElementById('upd-feed');
@@ -2040,6 +2066,7 @@ function buildEmailBody(){
     body+=`   Saúde: ${st.health==='on-track'?'✓ Nos trilhos':st.health==='alert'?'⚠ Em alerta':st.health==='off-track'?'✗ Fora dos trilhos':'Sem cronograma'}\n`;
     if(glDate)body+=`   Go Live: ${fmtBRFull(glDate)}\n`;
     if(sc&&sc.scopeLink)body+=`   Escopo detalhado: ${sc.scopeLink}\n`;
+    body+=`   Cronograma completo: ${window.location.href.split('?')[0]}?project=${key}\n`;
     upds.forEach(u=>{body+=`\n   [${u.when}] ${u.author}${u.tag?' — '+{ok:'✅ No prazo',warn:'⚠️ Em alerta',risk:'🔴 Em risco',info:'ℹ️ Informativo',date:'📅 Mudança de data'}[u.tag]:''}\n   ${u.body.replace(/<br>/g,'\n   ').replace(/<[^>]+>/g,'')}\n`;});
     body+=`\n${'─'.repeat(50)}\n\n`;
   });
@@ -2096,7 +2123,7 @@ function openProject(key){
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,decisions:[]};
   collapsed.clear();viewOffset=0;selectedMs.clear();
   document.getElementById('se-title').textContent=p.summary.length>35?p.summary.slice(0,35)+'…':p.summary;
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
@@ -3045,6 +3072,8 @@ function openStakeholdersModal(){
     <div class="info-box">
       Cadastre aqui as pessoas interessadas neste projeto. O envio de atualização por e-mail é <b>manual</b> — cadastrar não dispara nada sozinho, você decide quando clicar em "Enviar atualização".
     </div>
+    <div class="section-lbl">Escopo detalhado</div>
+    <div id="sh-scope-row" style="display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap"></div>
     <div class="section-lbl">Adicionar stakeholder</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <input type="text" id="sh-name" placeholder="Nome" style="flex:1;min-width:110px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
@@ -3060,6 +3089,7 @@ function openStakeholdersModal(){
   `,`<button class="btn-c" onclick="closeM('stakeholders-modal')">Fechar</button>
      <button class="btn-s" id="sh-send-btn" onclick="sendStakeholderUpdate()" style="background:linear-gradient(135deg,#16a34a,#059669);display:${canSend?'flex':'none'}"><i class="ti ti-mail-forward"></i> Enviar atualização</button>`);
   renderStakeholdersList();
+  renderStakeholdersScopeRow();
   openM('stakeholders-modal');
 }
 function renderStakeholdersList(){
@@ -3152,6 +3182,97 @@ async function sendStakeholderUpdate(){
     if(statusEl){statusEl.textContent='Erro ao conectar com o serviço de e-mail.';statusEl.style.color='var(--red)';}
   }
   if(btn){btn.disabled=false;btn.style.opacity='';}
+}
+
+// ── DECISÕES (log formal: mudança de data, escopo, canal, etc.) ──
+const DECISION_TYPES={
+  data:{label:'Atualização de data',color:'#0369a1'},
+  escopo:{label:'Atualização de escopo',color:'#6924E1'},
+  canal:{label:'Mudança de canal',color:'#ea580c'},
+  outro:{label:'Outro',color:'#6b7280'},
+};
+function openDecisionsModal(){
+  if(!curKey||!schedules[curKey])return;
+  const sched=schedules[curKey];if(!sched.decisions)sched.decisions=[];
+  const opts=Object.entries(DECISION_TYPES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join('');
+  const modal=getOrBuildModal('decisions-modal','Decisões',`
+    <div class="info-box">
+      Registre aqui as decisões formais tomadas neste projeto — mudança de data, de escopo, de canal, ou qualquer outra decisão relevante. Fica salvo como um histórico permanente, com data e responsável.
+    </div>
+    <div class="section-lbl">Registrar nova decisão</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+      <select id="dec-type" onchange="toggleDecTypeCustom()" style="flex:1;min-width:150px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">${opts}</select>
+      <input type="text" id="dec-custom-type" placeholder="Especifique o tipo" style="display:none;flex:1;min-width:130px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+    </div>
+    <textarea id="dec-desc" rows="3" placeholder="Descreva a decisão tomada..." style="width:100%;border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:10.5px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px">
+      <button class="btn-s" onclick="addDecision()"><i class="ti ti-plus" style="font-size:10px"></i> Registrar decisão</button>
+    </div>
+    <div class="section-lbl" style="margin-top:10px">Decisões registradas</div>
+    <div id="decisions-list" style="max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:5px"></div>
+  `,`<button class="btn-c" onclick="closeM('decisions-modal')">Fechar</button>`);
+  renderDecisionsList();
+  openM('decisions-modal');
+}
+function toggleDecTypeCustom(){
+  const type=document.getElementById('dec-type')?.value;
+  const el=document.getElementById('dec-custom-type');
+  if(el)el.style.display=type==='outro'?'':'none';
+}
+function renderDecisionsList(){
+  const sched=schedules[curKey];const list=document.getElementById('decisions-list');if(!sched||!list)return;
+  list.innerHTML='';
+  const decisions=(sched.decisions||[]);
+  decisions.forEach(d=>{
+    const meta=DECISION_TYPES[d.type]||DECISION_TYPES.outro;
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;gap:8px;padding:7px 9px;background:var(--bg2);border-radius:6px';
+    div.innerHTML=`<div style="width:7px;height:7px;border-radius:50%;background:${meta.color};flex-shrink:0;margin-top:4px"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.02em;color:${meta.color}">${d.typeLabel||meta.label}</span>
+          <span style="font-size:9px;color:var(--text3)">${d.who} · ${d.when}</span>
+        </div>
+        <div style="font-size:10.5px;color:var(--text2);margin-top:2px;white-space:pre-wrap">${d.description}</div>
+      </div>
+      <button class="rm" onclick="removeDecision('${d.id}')">×</button>`;
+    list.appendChild(div);
+  });
+  if(!decisions.length)list.innerHTML='<div style="font-size:10.5px;color:var(--text3);padding:4px">Nenhuma decisão registrada ainda.</div>';
+}
+function addDecisionToProject(key,type,customType,description){
+  const desc=(description||'').trim();
+  if(!desc)return{ok:false,error:'Descreva a decisão antes de registrar.'};
+  const sched=schedules[key];if(!sched)return{ok:false,error:'Projeto não encontrado'};
+  if(!sched.decisions)sched.decisions=[];
+  const meta=DECISION_TYPES[type]||DECISION_TYPES.outro;
+  const typeLabel=type==='outro'?((customType||'').trim()||'Outro'):meta.label;
+  const entry={id:uid(),type:type||'outro',typeLabel,description:desc,who:currentUser?.name||'Sistema',when:nowStr(),addedAt:nowStr()};
+  sched.decisions.unshift(entry);
+  logChange(key,`Decisão registrada (${typeLabel}): ${desc}`,meta.color);
+  persistSchedule(key);
+  return{ok:true};
+}
+function removeDecisionFromProject(key,id){
+  const sched=schedules[key];if(!sched)return false;
+  const d=(sched.decisions||[]).find(x=>x.id===id);if(!d)return false;
+  sched.decisions=sched.decisions.filter(x=>x.id!==id);
+  logChange(key,`Decisão removida (${d.typeLabel}): ${d.description}`,'#dc2626');
+  persistSchedule(key);
+  return true;
+}
+function addDecision(){
+  const typeEl=document.getElementById('dec-type');const customEl=document.getElementById('dec-custom-type');const descEl=document.getElementById('dec-desc');
+  const res=addDecisionToProject(curKey,typeEl.value,customEl.value.trim(),descEl.value);
+  if(!res.ok){alert(res.error);return;}
+  descEl.value='';customEl.value='';
+  renderDecisionsList();
+}
+function removeDecision(id){
+  const sched=schedules[curKey];const d=(sched.decisions||[]).find(x=>x.id===id);if(!d)return;
+  if(!confirm('Remover este registro de decisão? Essa ação não pode ser desfeita.'))return;
+  removeDecisionFromProject(curKey,id);
+  renderDecisionsList();
 }
 
 
@@ -3493,6 +3614,7 @@ async function persistSchedule(key) {
         scoring:       schedules[key].scoring       || null,
         stakeholders:  schedules[key].stakeholders  || [],
         scopeLink:     schedules[key].scopeLink     || null,
+        decisions:     schedules[key].decisions     || [],
         updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
         updatedBy:     currentUser?.name || '',
       });
@@ -3544,6 +3666,7 @@ async function autoLoadOnLogin() {
             scoring:       raw.scoring       || null,
             stakeholders:  raw.stakeholders  || [],
             scopeLink:     raw.scopeLink     || null,
+            decisions:     raw.decisions     || [],
             updates:       schedules[doc.id]?.updates || [],
           };
         } catch(e) { console.warn('Error loading schedule', doc.id, e); }
@@ -3554,7 +3677,7 @@ async function autoLoadOnLogin() {
         try {
           const raw = JSON.parse(JSON.stringify(doc.data()));
           if (schedules[doc.id]) schedules[doc.id].updates = raw.updates || [];
-          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null };
+          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null, decisions:[] };
         } catch(e) { console.warn('Error loading updates', doc.id, e); }
       });
       // Load users
