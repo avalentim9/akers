@@ -1916,9 +1916,19 @@ function fmtText(t){const ta=document.getElementById('composer-text');if(t==='bo
 function openEmailModal(){
   const modal=getOrBuildModal('email-modal','Email Executivo Semanal',`
     <div class="info-box"><b>Destinatários pré-configurados:</b><br>${EMAIL_RECIPIENTS.join(', ')}<br><br>Selecione os projetos a incluir e clique em Enviar ou Copiar.</div>
-    <div class="fg" style="margin-top:4px"><label>Adicionar destinatário</label><input type="email" id="email-extra" placeholder="outro@bemobi.com"></div>
     <div class="section-lbl">Projetos com atualizações para email</div>
-    <div id="email-proj-list" class="proj-select-list" style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:3px"></div>
+    <div id="email-proj-list" class="proj-select-list" style="max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:3px"></div>
+    <div class="section-lbl" style="margin-top:10px">Stakeholders dos projetos selecionados</div>
+    <div style="font-size:9.5px;color:var(--text3);margin:-2px 0 6px">Cadastrados aqui ficam gravados no projeto (o mesmo cadastro do Cronograma) e entram automaticamente nos destinatários deste e-mail.</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+      <select id="email-sh-project" style="min-width:130px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px"></select>
+      <input type="text" id="email-sh-name" placeholder="Nome" style="flex:1;min-width:90px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <input type="email" id="email-sh-email" placeholder="email" style="flex:1;min-width:130px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <input type="text" id="email-sh-role" placeholder="Papel (opcional)" style="width:105px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <button class="btn-s" onclick="addStakeholderFromEmailModal()">+</button>
+    </div>
+    <div id="email-sh-list" style="max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-bottom:4px"></div>
+    <div class="fg" style="margin-top:8px"><label>Adicionar destinatário avulso (só para este envio, não fica salvo)</label><input type="email" id="email-extra" placeholder="outro@bemobi.com"></div>
     <div id="email-preview" style="margin-top:10px;display:none">
       <div class="section-lbl">Prévia</div>
       <div id="email-body" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:10.5px;line-height:1.7;max-height:240px;overflow-y:auto;white-space:pre-wrap;font-family:monospace"></div>
@@ -1932,11 +1942,60 @@ function openEmailModal(){
   PROJECTS.forEach(p=>{
     const sc=schedules[p.key];const hasUpd=(sc?.updates||[]).some(u=>u.includeEmail);if(!hasUpd)return;
     const lbl=document.createElement('label');lbl.className='proj-sel-item';lbl.style.cssText='display:flex;align-items:center;gap:7px;padding:4px 7px;border-radius:5px;cursor:pointer';
-    lbl.innerHTML=`<input type="checkbox" checked value="${p.key}" style="width:12px;height:12px;accent-color:var(--purple)"> <span style="font-size:10.5px">${p.key} — ${p.summary.slice(0,40)}</span>`;
+    lbl.innerHTML=`<input type="checkbox" checked value="${p.key}" style="width:12px;height:12px;accent-color:var(--purple)" onchange="refreshEmailStakeholders()"> <span style="font-size:10.5px">${p.key} — ${p.summary.slice(0,40)}</span>`;
     list.appendChild(lbl);
   });
   if(!list.innerHTML)list.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px">Nenhum projeto com atualizações marcadas para email ainda.</div>';
+  refreshEmailStakeholders();
   openM('email-modal');
+}
+// ── Stakeholders dentro do Email Executivo Semanal ──
+// Reaproveita schedules[key].stakeholders (o mesmo cadastro do botão Stakeholders no Cronograma).
+function checkedEmailProjectKeys(){
+  return Array.from(document.querySelectorAll('#email-proj-list input[type=checkbox]:checked')).map(x=>x.value);
+}
+function refreshEmailStakeholders(){
+  const checked=checkedEmailProjectKeys();
+  const sel=document.getElementById('email-sh-project');
+  if(sel){
+    const prevVal=sel.value;
+    sel.innerHTML=checked.map(k=>{const p=PROJECTS.find(x=>x.key===k);return `<option value="${k}">${k} — ${(p?p.summary:'').slice(0,26)}</option>`;}).join('')||'<option value="">Nenhum projeto selecionado</option>';
+    if(checked.includes(prevVal))sel.value=prevVal;
+  }
+  const list=document.getElementById('email-sh-list');if(!list)return;
+  list.innerHTML='';
+  let total=0;
+  checked.forEach(k=>{
+    const sched=schedules[k];const sts=(sched&&sched.stakeholders)||[];
+    sts.forEach(st=>{
+      total++;
+      const div=document.createElement('div');
+      div.style.cssText='display:flex;align-items:center;gap:7px;padding:5px 7px;background:var(--bg2);border-radius:5px';
+      div.innerHTML=`<span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 5px;border-radius:3px;font-weight:700;flex-shrink:0">${k}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${st.name||st.email}${st.role?' <span style="font-weight:400;color:var(--text3)">· '+st.role+'</span>':''}</div>
+          <div style="font-size:9.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${st.email}</div>
+        </div>
+        <button class="rm" onclick="removeStakeholderFromProject('${k}','${st.id}');refreshEmailStakeholders()">×</button>`;
+      list.appendChild(div);
+    });
+  });
+  if(!total)list.innerHTML='<div style="font-size:10.5px;color:var(--text3);padding:4px">Nenhum stakeholder cadastrado nos projetos selecionados ainda.</div>';
+}
+function addStakeholderFromEmailModal(){
+  const projSel=document.getElementById('email-sh-project');const key=projSel&&projSel.value;
+  if(!key){alert('Selecione ao menos um projeto na lista acima primeiro.');return;}
+  const nameEl=document.getElementById('email-sh-name');const emailEl=document.getElementById('email-sh-email');const roleEl=document.getElementById('email-sh-role');
+  const res=addStakeholderToProject(key,nameEl.value.trim(),emailEl.value.trim(),roleEl.value.trim());
+  if(!res.ok){alert(res.error);return;}
+  nameEl.value='';emailEl.value='';roleEl.value='';
+  refreshEmailStakeholders();
+}
+function collectEmailStakeholderRecipients(){
+  const checked=checkedEmailProjectKeys();
+  const emails=new Set();
+  checked.forEach(k=>{((schedules[k]&&schedules[k].stakeholders)||[]).forEach(st=>emails.add(st.email));});
+  return [...emails];
 }
 function buildEmailBody(){
   const checked=Array.from(document.querySelectorAll('#email-proj-list input:checked')).map(x=>x.value);
@@ -1960,13 +2019,15 @@ function copyEmail(){previewEmail();navigator.clipboard.writeText(document.getEl
 function sendEmail(){
   previewEmail();
   const extra=document.getElementById('email-extra').value.trim();
-  const recipients=[...EMAIL_RECIPIENTS];
+  const recipients=[...EMAIL_RECIPIENTS,...collectEmailStakeholderRecipients()];
   if(extra&&/^[^@]+@[^@]+\.[^@]+$/.test(extra))recipients.push(extra);
+  const uniqueRecipients=[...new Set(recipients)];
   const body=document.getElementById('email-body').textContent;
   const subject=`Atualização Semanal VMO · ${TODAY.toLocaleDateString('pt-BR')}`;
-  const mailto=`mailto:${recipients.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  const mailto=`mailto:${uniqueRecipients.join(',')}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   window.open(mailto);
 }
+
 
 // ═══════════════════════════════════════════
 //  SCHEDULE
@@ -2960,23 +3021,38 @@ function renderStakeholdersList(){
   });
   if(!list.children.length)list.innerHTML='<div style="font-size:10.5px;color:var(--text3);padding:4px">Nenhum stakeholder cadastrado ainda.</div>';
 }
+// Núcleo compartilhado — usado tanto pelo modal de Stakeholders do Cronograma
+// quanto pelo bloco de Stakeholders dentro do Email Executivo Semanal.
+function addStakeholderToProject(key,name,email,role){
+  if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email))return{ok:false,error:'E-mail inválido'};
+  const sched=schedules[key];if(!sched)return{ok:false,error:'Projeto não encontrado'};
+  if(!sched.stakeholders)sched.stakeholders=[];
+  if(sched.stakeholders.find(s=>s.email.toLowerCase()===email.toLowerCase()))return{ok:false,error:'Esse e-mail já está cadastrado para este projeto.'};
+  sched.stakeholders.push({id:uid(),name:name||email,email,role,addedAt:nowStr()});
+  logChange(key,`Stakeholder adicionado: ${name||email}`,'#0369a1');
+  persistSchedule(key);
+  return{ok:true};
+}
+function removeStakeholderFromProject(key,id){
+  const sched=schedules[key];if(!sched)return false;
+  const st=(sched.stakeholders||[]).find(s=>s.id===id);if(!st)return false;
+  sched.stakeholders=sched.stakeholders.filter(s=>s.id!==id);
+  logChange(key,`Stakeholder removido: ${st.name||st.email}`,'#dc2626');
+  persistSchedule(key);
+  return true;
+}
 function addStakeholder(){
   const nameEl=document.getElementById('sh-name');const emailEl=document.getElementById('sh-email');const roleEl=document.getElementById('sh-role');
-  const name=nameEl.value.trim();const email=emailEl.value.trim();const role=roleEl.value.trim();
-  if(!email||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){alert('E-mail inválido');return;}
-  const sched=schedules[curKey];if(!sched.stakeholders)sched.stakeholders=[];
-  if(sched.stakeholders.find(s=>s.email.toLowerCase()===email.toLowerCase())){alert('Esse e-mail já está cadastrado para este projeto.');return;}
-  sched.stakeholders.push({id:uid(),name:name||email,email,role,addedAt:nowStr()});
-  logChange(curKey,`Stakeholder adicionado: ${name||email}`,'#0369a1');
+  const res=addStakeholderToProject(curKey,nameEl.value.trim(),emailEl.value.trim(),roleEl.value.trim());
+  if(!res.ok){alert(res.error);return;}
   nameEl.value='';emailEl.value='';roleEl.value='';
-  renderStakeholdersList();persistSchedule(curKey);
+  renderStakeholdersList();
 }
 function removeStakeholder(id){
   const sched=schedules[curKey];const st=(sched.stakeholders||[]).find(s=>s.id===id);if(!st)return;
   if(!confirm(`Remover "${st.name||st.email}" da lista de stakeholders?`))return;
-  sched.stakeholders=sched.stakeholders.filter(s=>s.id!==id);
-  logChange(curKey,`Stakeholder removido: ${st.name||st.email}`,'#dc2626');
-  renderStakeholdersList();persistSchedule(curKey);
+  removeStakeholderFromProject(curKey,id);
+  renderStakeholdersList();
 }
 async function sendStakeholderUpdate(){
   const sched=schedules[curKey];const recipients=(sched.stakeholders||[]);
