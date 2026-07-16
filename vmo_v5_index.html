@@ -2161,6 +2161,7 @@ function openEmailModal(){
     `<button class="btn-c" onclick="closeM('email-modal')">Fechar</button>
      <button class="btn-c" onclick="previewEmail()">Prévia</button>
      <button class="btn-s" onclick="copyEmail()"><i class="ti ti-copy"></i> Copiar</button>
+     <button class="btn-c" id="email-slack-btn" onclick="sendExecutiveSlack()" style="border-color:#4A154B;color:#4A154B"><i class="ti ti-brand-slack"></i> Enviar no Slack</button>
      <button class="btn-s" id="email-send-btn" style="background:linear-gradient(135deg,#16a34a,#059669)" onclick="sendEmail()"><i class="ti ti-mail-forward"></i> Enviar</button>`
   );
   const preList=document.getElementById('email-preconf-list');
@@ -2332,6 +2333,89 @@ async function sendEmail(){
   if(btn){btn.disabled=false;btn.style.opacity='';}
 }
 
+// ── ENVIO VIA SLACK (canal fixo, via Incoming Webhook configurado no GAS) ──
+function collectEmailProjectsData(){
+  const checked=Array.from(document.querySelectorAll('#email-proj-list input:checked')).map(x=>x.value);
+  return checked.map(key=>{
+    const p=PROJECTS.find(x=>x.key===key);if(!p)return null;
+    const sc=schedules[key];const st=getStats(key);
+    const glDate=p.golive||st.goLiveLocal;
+    const upds=(sc?.updates||[]).filter(u=>u.includeEmail).slice(-3).map(u=>({
+      when:u.when,author:u.author,tag:u.tag||'',
+      body:String(u.body||'').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,''),
+    }));
+    return{
+      key,summary:p.summary,gp:p.gp||'—',status:p.status,health:st.health,
+      goLive:glDate?fmtBRFull(glDate):null,
+      scopeLink:(sc&&sc.scopeLink)||null,
+      scheduleUrl:window.location.href.split('?')[0]+'?project='+key,
+      updates:upds,
+    };
+  }).filter(Boolean);
+}
+async function sendExecutiveSlack(){
+  const statusEl=document.getElementById('email-send-status');
+  const btn=document.getElementById('email-slack-btn');
+  const projects=collectEmailProjectsData();
+  if(!projects.length){if(statusEl){statusEl.textContent='Selecione ao menos um projeto para enviar ao Slack.';statusEl.style.color='var(--red)';}return;}
+  if(!GAS_URL||GAS_URL.includes('COLE_AQUI')){
+    if(statusEl){statusEl.textContent='Envio não configurado (GAS_URL). Fale com o time técnico.';statusEl.style.color='var(--red)';}
+    return;
+  }
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  if(statusEl){statusEl.textContent='Enviando para o Slack...';statusEl.style.color='var(--text3)';}
+  try{
+    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({
+      action:'sendSlackExecutive',
+      dateLabel:`${TODAY.getDate()} de ${MONTHS_FULL[TODAY.getMonth()]} de ${TODAY.getFullYear()}`,
+      author:currentUser?.name||'VMO Tool',
+      projects,
+    })});
+    const d=await r.json();
+    if(d.ok){if(statusEl){statusEl.textContent='✓ Enviado para o Slack.';statusEl.style.color='var(--green)';}}
+    else{if(statusEl){statusEl.textContent='Erro: '+(d.error||'não foi possível enviar ao Slack.');statusEl.style.color='var(--red)';}}
+  }catch(e){
+    if(statusEl){statusEl.textContent='Erro ao conectar com o Slack.';statusEl.style.color='var(--red)';}
+  }
+  if(btn){btn.disabled=false;btn.style.opacity='';}
+}
+async function sendStakeholderSlack(){
+  const sched=schedules[curKey];if(!sched)return;
+  const statusEl=document.getElementById('sh-send-status');
+  const btn=document.getElementById('sh-slack-btn');
+  if(!GAS_URL||GAS_URL.includes('COLE_AQUI')){
+    if(statusEl){statusEl.textContent='Envio não configurado (GAS_URL). Fale com o time técnico.';statusEl.style.color='var(--red)';}
+    return;
+  }
+  const p=PROJECTS.find(x=>x.key===curKey);
+  const st=getStats(curKey);
+  const customMsg=(document.getElementById('sh-message')?.value||'').trim();
+  const scheduleUrl=window.location.href.split('?')[0]+'?project='+curKey;
+  const payload={
+    action:'sendSlackUpdate',
+    issueKey:curKey,
+    projectName:p?p.summary:curKey,
+    status:p?p.status:'',
+    progress:st.prog,
+    health:st.health,
+    goLive:(p&&p.golive)||st.goLiveLocal||null,
+    scopeLink:sched.scopeLink||null,
+    message:customMsg,
+    scheduleUrl,
+  };
+  if(btn){btn.disabled=true;btn.style.opacity='.6';}
+  if(statusEl){statusEl.textContent='Enviando para o Slack...';statusEl.style.color='var(--text3)';}
+  try{
+    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    const d=await r.json();
+    if(d.ok){if(statusEl){statusEl.textContent='✓ Enviado para o Slack.';statusEl.style.color='var(--green)';}}
+    else{if(statusEl){statusEl.textContent='Erro: '+(d.error||'não foi possível enviar ao Slack.');statusEl.style.color='var(--red)';}}
+  }catch(e){
+    if(statusEl){statusEl.textContent='Erro ao conectar com o Slack.';statusEl.style.color='var(--red)';}
+  }
+  if(btn){btn.disabled=false;btn.style.opacity='';}
+}
+
 
 // ═══════════════════════════════════════════
 //  SCHEDULE
@@ -2340,7 +2424,12 @@ function openProject(key){
   if(!canViewProject(key)){
     alert('Você não tem acesso a este projeto.');return;
   }
-  curKey=key;const p=PROJECTS.find(x=>x.key===key);
+  const p=PROJECTS.find(x=>x.key===key);
+  if(!p){
+    alert('Projeto '+key+' não encontrado. Aguarde a sincronização terminar (alguns segundos) e tente novamente.');
+    return;
+  }
+  curKey=key;
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
@@ -3308,6 +3397,7 @@ function openStakeholdersModal(){
     <textarea id="sh-message" rows="3" placeholder="Mensagem opcional — vai junto com o status atual do projeto (etapa, progresso, próxima entrega)" style="width:100%;border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:10.5px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
     <div id="sh-send-status" style="font-size:9.5px;color:var(--text3);margin-top:5px"></div>
   `,`<button class="btn-c" onclick="closeM('stakeholders-modal')">Fechar</button>
+     <button class="btn-c" id="sh-slack-btn" onclick="sendStakeholderSlack()" style="border-color:#4A154B;color:#4A154B;display:${canSend?'flex':'none'}"><i class="ti ti-brand-slack"></i> Enviar no Slack</button>
      <button class="btn-s" id="sh-send-btn" onclick="sendStakeholderUpdate()" style="background:linear-gradient(135deg,#16a34a,#059669);display:${canSend?'flex':'none'}"><i class="ti ti-mail-forward"></i> Enviar atualização</button>`);
   renderStakeholdersList();
   renderStakeholdersScopeRow();
@@ -3923,12 +4013,24 @@ async function autoLoadOnLogin() {
   renderPortfolio();
   renderUpdatesProjectList();
   // Step 3: Sync fresh data from Jira in background
-  autoSyncProjectsFromJira();
+  const syncPromise = autoSyncProjectsFromJira();
   // Step 4: Check URL param for direct project link
   const urlParams = new URLSearchParams(window.location.search);
   const projectParam = urlParams.get('project');
-  if (projectParam && canViewProject(projectParam)) {
-    openProject(projectParam);
+  if (projectParam) {
+    // If the project isn't in the locally-embedded PROJECTS array yet (e.g. it
+    // was created/synced after this HTML was generated), wait for the
+    // background Jira/Firebase sync to finish before giving up on it — avoids
+    // silently falling back to Visão Geral for links to newer projects.
+    if (!PROJECTS.find(p => p.key === projectParam)) {
+      try { await syncPromise; } catch(e) { console.warn('sync wait error:', e); }
+    }
+    if (PROJECTS.find(p => p.key === projectParam) && canViewProject(projectParam)) {
+      openProject(projectParam);
+    } else if (currentUser?.role === 'external') {
+      const myProjects = PROJECTS.filter(p => canViewProject(p.key));
+      if (myProjects.length === 1) openProject(myProjects[0].key);
+    }
   } else if (currentUser?.role === 'external') {
     // External users go to their project
     const myProjects = PROJECTS.filter(p => canViewProject(p.key));
