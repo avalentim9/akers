@@ -226,10 +226,11 @@ table.pft tr:hover td{background:var(--bg2)}
 /* Impacto por Time (Visão Geral) */
 .team-impact-grid{display:flex;flex-direction:column;gap:14px;padding:12px 14px 14px}
 .team-card-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
-.team-card-row .kc2{min-width:0}
-@media(max-width:1300px){.team-card-row{grid-template-columns:repeat(5,minmax(0,1fr))}}
-@media(max-width:900px){.team-card-row{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.team-card-row .kc2{min-width:0;padding-left:4px;padding-right:4px}
 @media(max-width:600px){.team-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.gp-card-row{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.gp-card-row .kc2{min-width:0;padding-left:4px;padding-right:4px}
+@media(max-width:600px){.gp-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .ti-panel{background:var(--bg);border:1px solid var(--border2);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
 .ti-panel-hdr{padding:9px 12px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg2);flex-wrap:wrap}
 .ti-panel-title{font-size:10.5px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:6px;white-space:nowrap}
@@ -250,6 +251,7 @@ table.pft tr:hover td{background:var(--bg2)}
 .ti-bar-track{flex:1;height:17px;background:var(--bg2);border-radius:4px;overflow:hidden;position:relative}
 .ti-bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;transition:width .4s ease;min-width:20px}
 .ti-bar-fill.low{background:#93c5fd}
+.ti-bar-fill.mid{background:#fbbf24}
 .ti-bar-fill.high{background:#f87171}
 .ti-bar-val{font-size:9px;font-weight:700;color:#fff}
 .ti-legend{display:flex;align-items:center;gap:16px;padding:9px 12px;border-top:1px solid var(--border2);font-size:9.5px;color:var(--text3);flex-wrap:wrap}
@@ -1124,7 +1126,8 @@ function initFilters(){
     const sc2=PROJECTS.filter(p=>p.status===b).length - PROJECTS.filter(p=>p.status===a).length;return sc2;
   });
   buildDD('dd-status','dd-status-menu','dd-status-lbl','status',statuses,'Todos os status');
-  const gps=[...new Set(PROJECTS.map(p=>p.gp).filter(g=>g&&g!=='—'))].sort();
+  const gps=[...new Set(PROJECTS.map(p=>p.gp).filter(g=>!isNoGP(g)))].sort();
+  if(PROJECTS.some(p=>isNoGP(p.gp)))gps.push('TBD');
   buildDD('dd-gp','dd-gp-menu','dd-gp-lbl','gp',gps,'Todos os GPs');
   const healthOpts=[{v:'on-track',l:'✓ Nos trilhos'},{v:'alert',l:'⚠ Em alerta'},{v:'off-track',l:'✗ Fora dos trilhos'},{v:'none',l:'Sem cronograma'}];
   buildDD('dd-health','dd-health-menu','dd-health-lbl','health',healthOpts.map(h=>h.v),'Saúde do cronograma',healthOpts);
@@ -1266,7 +1269,7 @@ function renderPortfolio(){
     }
     if(msFilters.tipo.size>0&&!msFilters.tipo.has(p.type))return;
     if(statusF.size>0&&!statusF.has(p.status))return;
-    if(gpF.size>0&&![...gpF].some(g=>p.gp===g||p.gp.startsWith(g)))return;
+    if(gpF.size>0&&![...gpF].some(g=>g==='TBD'?isNoGP(p.gp):(p.gp===g||p.gp.startsWith(g))))return;
     if(healthF.size>0&&!healthF.has(st.health))return;
     if(timesF.size>0&&![...timesF].some(t=>(p.times||[]).includes(t)))return;
     rowNum++;
@@ -1362,31 +1365,28 @@ function renderKPI(){
     if(pa!==pb)return pa-pb;
     return etapaGroups[b].length-etapaGroups[a].length;
   });
+  const escEtapa=v=>String(v).replace(/'/g,"\\'");
   const etapaCols=etapaOrder.map(s=>{
     const list=etapaGroups[s].slice().sort((a,b)=>(a.priority!=null?a.priority:9999)-(b.priority!=null?b.priority:9999));
     const [bg,fg]=(SC2[s]||'#f0f1fa|#4b5675').split('|');
-    const top10=list.slice(0,10);
+    const isExp=etapaExpanded.has(s);
+    const toShow=isExp?list:list.slice(0,10);
+    const rest=list.length-10;
     return `<div class="cal-col" style="min-width:195px;flex:0 0 195px">
       <div class="cal-col-hdr" style="display:flex;justify-content:space-between;align-items:center;gap:5px">
         <span title="${s}" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-transform:uppercase">${s}</span>
         <span class="spill" style="background:${bg};color:${fg};flex-shrink:0">${list.length}</span>
       </div>
       <div class="cal-items">
-        ${top10.map(p=>`<div class="cal-item no-sched" style="cursor:pointer" onclick="openProject('${p.key}')"><b>${p.key}</b> · ${p.summary.length>32?p.summary.slice(0,32)+'…':p.summary}</div>`).join('')}
-        ${list.length>10?`<div style="font-size:8.5px;color:var(--text3);padding:3px 7px">+${list.length-10} mais</div>`:''}
+        ${toShow.map(p=>`<div class="cal-item no-sched" style="cursor:pointer" onclick="openProject('${p.key}')"><b>${p.key}</b> · ${p.summary.length>32?p.summary.slice(0,32)+'…':p.summary}</div>`).join('')}
+        ${rest>0?`<div style="font-size:8.5px;color:var(--purple);font-weight:600;padding:3px 7px;cursor:pointer" onclick="toggleEtapaCol('${escEtapa(s)}')">${isExp?'Ver menos':'+'+rest+' mais'}</div>`:''}
       </div>
     </div>`;
   }).join('');
 
   document.getElementById('pf-kpi').innerHTML=
-    secHdr('status','#ede9fe','#6924E1','ti-chart-pie','Status do Portfólio',total+' projetos na carteira VMO')+
-    `<div class="kpi-row2">
-      <div class="kc2 total-card" title="Filtrar: Todos os projetos" onclick="filterAllStatus()">
-        <div style="font-size:26px;font-weight:700;color:var(--navy);line-height:1">${total}</div>
-        <div style="font-size:9px;color:var(--text3);margin-top:2px">TOTAL</div>
-      </div>${statusCardsTop}
-    </div>
-    <div class="kpi-row2" style="margin-top:6px">${statusCardsBottom}</div></div>`+
+    secHdr('etapas','#fef3c7','#92400e','ti-columns','Status do Portfólio','Top 10 projetos por fase (ativos)')+
+    `<div id="etapa-grid" style="display:flex;gap:8px;overflow-x:auto;padding:10px 14px 12px">${etapaCols||'<div style="font-size:11px;color:var(--text3);padding:8px">Nenhum projeto ativo.</div>'}</div></div>`+
 
     secHdr('alertas','#fee2e2','#b91c1c','ti-alert-triangle','Alertas','Pontos de atenção do portfólio ativo · '+activeProjects.length+' projetos')+
     `<div class="kpi-row2">
@@ -1404,8 +1404,14 @@ function renderKPI(){
       </div>
     </div></div>`+
 
-    secHdr('etapas','#fef3c7','#92400e','ti-columns','Por Etapa','Top 10 projetos por fase (ativos)')+
-    `<div id="etapa-grid" style="display:flex;gap:8px;overflow-x:auto;padding:10px 14px 12px">${etapaCols||'<div style="font-size:11px;color:var(--text3);padding:8px">Nenhum projeto ativo.</div>'}</div></div>`+
+    secHdr('status','#ede9fe','#6924E1','ti-chart-pie','Dados Gerais',total+' projetos na carteira VMO')+
+    `<div class="kpi-row2">
+      <div class="kc2 total-card" title="Filtrar: Todos os projetos" onclick="filterAllStatus()">
+        <div style="font-size:26px;font-weight:700;color:var(--navy);line-height:1">${total}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px">TOTAL</div>
+      </div>${statusCardsTop}
+    </div>
+    <div class="kpi-row2" style="margin-top:6px">${statusCardsBottom}</div></div>`+
 
     secHdr('cronogramas','#e0f2fe','#0369a1','ti-calendar-stats','Cronogramas','Cobertura e saúde dos cronogramas cadastrados')+
     `<div class="kpi-row2">
@@ -1441,6 +1447,10 @@ function renderKPI(){
     `<div id="team-impact-body"></div>
     </div>`+
 
+    secHdr('gpimpacto','#f5f3ff','#5b21b6','ti-user-check','Distribuição de Projetos por GP','Quantidade de projetos ativos que cada GP está tocando · '+getAllGPs().filter(g=>g!=='TBD').length+' GP'+(getAllGPs().filter(g=>g!=='TBD').length!==1?'s':''))+
+    `<div id="gp-impact-body"></div>
+    </div>`+
+
     secHdr('cal','#e0f9ff','#0369a1','ti-calendar-check','Próximas Entregas','Datas de Go Live cadastradas no Jira','')+
     `<div style="padding:8px 14px 8px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border2)">
       <span style="font-size:10px;color:var(--text3);font-weight:500">Visualizar por:</span>
@@ -1465,6 +1475,7 @@ function renderKPI(){
     </div>`;
   renderHistorico(delivered);
   renderTeamImpact();
+  renderGPImpact();
   renderPrioridadesShell(activeProjects.length);
   // Apply collapse state immediately (no setTimeout)
   Object.keys(sectionState).forEach(sec=>{
@@ -1507,8 +1518,10 @@ function filterByHealth(h){
 let teamImpactSelected='';
 let teamChartExpanded=false;
 function toggleTeamChartExpand(){teamChartExpanded=!teamChartExpanded;renderTeamImpact();}
+let etapaExpanded=new Set();
+function toggleEtapaCol(stage){if(etapaExpanded.has(stage))etapaExpanded.delete(stage);else etapaExpanded.add(stage);renderKPI();}
 function computeTeamImpactData(){
-  const relevant=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&p.status!=='CANCELADO');
+  const relevant=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&!['CANCELADO','PAUSADO','BACKLOG'].includes(p.status));
   return getAllTeams().map(t=>({name:t,count:relevant.filter(p=>(p.times||[]).includes(t)).length}));
 }
 function filterByTeamLink(team){
@@ -1530,7 +1543,7 @@ function renderTeamImpact(){
   const cardsSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
   const chartSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
   const maxCount=Math.max(1,...data.map(d=>d.count));
-  const totalActive=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&p.status!=='CANCELADO').length||1;
+  const totalActive=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS&&!['CANCELADO','PAUSADO','BACKLOG'].includes(p.status)).length||1;
   const esc=s=>String(s).replace(/'/g,"\\'");
   const cardsHtml=cardsSorted.map(d=>{
     const high=d.count>5;
@@ -1539,7 +1552,7 @@ function renderTeamImpact(){
     return `<div class="kc2" style="background:${bg};border-color:${bg};cursor:pointer" title="Ver Portfólio: ${d.name}" onclick="filterByTeamLink('${esc(d.name)}')">
       <div style="font-size:20px;font-weight:700;color:${fg};line-height:1">${d.count}</div>
       <div style="font-size:8.5px;color:${fg};opacity:.75;margin-top:1px;font-weight:600">${pctv}%</div>
-      <div style="font-size:9px;color:${fg};margin-top:2px;line-height:1.3;font-weight:500;text-transform:uppercase">${d.name}</div>
+      <div style="font-size:9px;color:${fg};margin-top:2px;line-height:1.3;font-weight:500;text-transform:uppercase;overflow-wrap:break-word;word-break:break-word">${d.name}</div>
     </div>`;
   }).join('');
   const TEAM_CHART_PAGE_SIZE=5;
@@ -1572,6 +1585,116 @@ function renderTeamImpact(){
       <div class="ti-legend">
         <span><span class="ti-legend-dot" style="background:#93c5fd"></span>≤ 5 projetos (carga normal)</span>
         <span><span class="ti-legend-dot" style="background:#f87171"></span>&gt; 5 projetos (alta carga · alerta)</span>
+      </div>
+    </div>
+  </div>`;
+}
+// ── DISTRIBUIÇÃO DE PROJETOS POR GP (Visão Geral) ──
+// Mesmo formato do Impacto por Time, mas com faixas de carga em 3 níveis:
+// 1-2 projetos = Normal, 3-4 = Média, 5+ = Alta.
+let gpChartExpanded=false;
+function toggleGPChartExpand(){gpChartExpanded=!gpChartExpanded;renderGPImpact();}
+function isNoGP(gp){const v=(gp||'').trim();return !v||v==='—'||v==='-';}
+function gpRelevantProjects(){
+  return PROJECTS.filter(p=>{
+    const st=(p.status||'').trim();
+    return st!==DELIVERED_STATUS&&!['CANCELADO','PAUSADO','BACKLOG','NEG. COMERCIAL / PRÉ VENDA'].includes(st);
+  });
+}
+function getAllGPs(){
+  const names=new Set();
+  let hasTBD=false;
+  PROJECTS.forEach(p=>{
+    if(!isNoGP(p.gp))p.gp.split(',').map(x=>x.trim()).filter(Boolean).forEach(n=>names.add(n));
+    else hasTBD=true;
+  });
+  const sorted=[...names].sort();
+  return hasTBD?[...sorted,'TBD']:sorted;
+}
+function computeGPImpactData(){
+  const relevant=gpRelevantProjects();
+  return getAllGPs()
+    .map(g=>({name:g,count:g==='TBD'?relevant.filter(p=>isNoGP(p.gp)).length:relevant.filter(p=>(p.gp||'').split(',').map(x=>x.trim()).includes(g)).length}))
+    .filter(d=>d.count>0);
+}
+function gpLoadTier(count){
+  if(count>=5)return{label:'Alta',bg:'#fee2e2',fg:'#b91c1c',bar:'high'};
+  if(count>=3)return{label:'Média',bg:'#fef3c7',fg:'#92400e',bar:'mid'};
+  return{label:'Normal',bg:'#e0f2fe',fg:'#0369a1',bar:'low'};
+}
+function filterByGPLink(gp){
+  msFilters.gp.clear();msFilters.gp.add(gp);
+  const safe=gp.replace(/[^a-z0-9]/gi,'_');
+  document.querySelectorAll('#dd-gp-menu .ms-dd-item').forEach(item=>{
+    const cb=item.querySelector('input');
+    const match=!!cb&&cb.id==='chk-gp-'+safe;
+    if(cb)cb.checked=match;
+    item.classList.toggle('checked',match);
+  });
+  updateDD('dd-gp','dd-gp-lbl','gp','Todos os GPs');
+  showView('prioridades');
+}
+function renderGPImpact(){
+  const wrap=document.getElementById('gp-impact-body');if(!wrap)return;
+  const data=computeGPImpactData();
+  if(!data.length){wrap.innerHTML='<div class="ti-empty">Nenhum GP cadastrado ainda.</div>';return;}
+  const cardsSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+  const chartSorted=data.slice().sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+  const maxCount=Math.max(1,...data.map(d=>d.count));
+  const esc=s=>String(s).replace(/'/g,"\\'");
+  const cardHtmlFor=d=>{
+    const tier=gpLoadTier(d.count);
+    return `<div class="kc2" style="background:${tier.bg};border-color:${tier.bg};cursor:pointer" title="Ver Portfólio: ${d.name}" onclick="filterByGPLink('${esc(d.name)}')">
+      <div style="font-size:20px;font-weight:700;color:${tier.fg};line-height:1">${d.count}</div>
+      <div style="font-size:8.5px;color:${tier.fg};opacity:.75;margin-top:1px;font-weight:600">${tier.label}</div>
+      <div style="font-size:9px;color:${tier.fg};margin-top:2px;line-height:1.3;font-weight:500;text-transform:uppercase;overflow-wrap:break-word;word-break:break-word">${d.name}</div>
+    </div>`;
+  };
+  // Distribui os cards em 3 linhas o mais equilibrado possível (sobra vai pra última linha).
+  // Ex.: 16 GPs → 5, 5 e 6 por linha.
+  const GP_ROWS=3;
+  const nCards=cardsSorted.length;
+  const baseRow=Math.floor(nCards/GP_ROWS);
+  const extraRow=nCards%GP_ROWS;
+  const rowSizes=[];
+  for(let i=0;i<GP_ROWS;i++)rowSizes.push(baseRow+(i>=GP_ROWS-extraRow?1:0));
+  const cardRows=[];
+  let _ci=0;
+  rowSizes.forEach(sz=>{if(sz>0){cardRows.push(cardsSorted.slice(_ci,_ci+sz));_ci+=sz;}});
+  const cardsHtml=cardRows.map(row=>
+    `<div class="gp-card-row" style="grid-template-columns:repeat(${row.length},minmax(0,1fr))">${row.map(cardHtmlFor).join('')}</div>`
+  ).join('');
+  const GP_CHART_PAGE_SIZE=5;
+  const chartToShow=gpChartExpanded?chartSorted:chartSorted.slice(0,GP_CHART_PAGE_SIZE);
+  const chartRest=chartSorted.length-GP_CHART_PAGE_SIZE;
+  const barsHtml=chartToShow.map(d=>{
+    const wpct=Math.max(4,Math.round(d.count/maxCount*100));
+    const tier=gpLoadTier(d.count);
+    return `<div class="ti-bar-row">
+      <span class="ti-bar-label" title="${d.name}">${d.name}</span>
+      <div class="ti-bar-track"><div class="ti-bar-fill ${tier.bar}" style="width:${wpct}%"><span class="ti-bar-val">${d.count}</span></div></div>
+    </div>`;
+  }).join('');
+  const chartMoreBtn=chartRest>0?`<div style="text-align:center;padding:6px 0 2px">
+      <button class="pf-act" onclick="toggleGPChartExpand()">${gpChartExpanded?'Ver menos':'Ver mais ('+chartRest+')'}</button>
+    </div>`:'';
+  wrap.innerHTML=`<div class="team-impact-grid">
+    <div class="ti-panel">
+      <div class="ti-panel-hdr">
+        <div class="ti-panel-title"><i class="ti ti-user-check" style="font-size:13px"></i> GPs &amp; Projetos Impactados</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px">${cardsHtml}</div>
+    </div>
+    <div class="ti-panel">
+      <div class="ti-panel-hdr">
+        <div class="ti-panel-title"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por GP · Top ${Math.min(GP_CHART_PAGE_SIZE,chartSorted.length)}${gpChartExpanded?' (todos)':''}</div>
+      </div>
+      <div style="padding:8px 2px">${barsHtml}</div>
+      ${chartMoreBtn}
+      <div class="ti-legend">
+        <span><span class="ti-legend-dot" style="background:#93c5fd"></span>1 a 2 projetos (Normal)</span>
+        <span><span class="ti-legend-dot" style="background:#fbbf24"></span>3 a 4 projetos (Média)</span>
+        <span><span class="ti-legend-dot" style="background:#f87171"></span>5 ou mais projetos (Alta)</span>
       </div>
     </div>
   </div>`;
@@ -1705,7 +1828,7 @@ function renderHistorico(delivered){
 
 // Section state persists across filter changes
 // status=open, cronogramas=closed, cal=closed, portfolio=closed
-const sectionState={status:true, alertas:true, etapas:false, cronogramas:false, impacto:false, cal:false, historico:false, prioridades:true};
+const sectionState={status:true, alertas:true, etapas:false, cronogramas:false, impacto:false, gpimpacto:false, cal:false, historico:false, prioridades:true};
 
 function toggleSection(sec){
   sectionState[sec]=!sectionState[sec];
@@ -1724,6 +1847,8 @@ function initSections(){
 
 // ── CALENDAR ──
 let calModeVal='month';
+let calColExpanded=new Set();
+function toggleCalCol(lbl){if(calColExpanded.has(lbl))calColExpanded.delete(lbl);else calColExpanded.add(lbl);renderCalendar();}
 // Próximas Entregas agrupadas por Categoria = Segmento de mercado (Jira: Segmento/Segment).
 // Projetos comerciais entram no segmento cadastrado (Utilities/Education/Telco/Health/Others);
 // projetos de Produtos (que não têm esse campo no Jira) caem todos juntos em 'Produtos'.
@@ -1776,7 +1901,7 @@ function renderCalendarByCategory(grid){
 function setCalMode(m,el){calModeVal=m;document.querySelectorAll('.cmb').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderCalendar();}
 function renderCalendar(){
   const grid=document.getElementById('cal-grid');grid.innerHTML='';
-  if(calModeVal==='category'){renderCalendarByCategory(grid);return;}
+  if(calModeVal==='category'){grid.style.display='flex';grid.style.flexWrap='';grid.style.gridTemplateColumns='';renderCalendarByCategory(grid);return;}
   // Collect ALL relevant dates (Go Live from Jira + local schedule end dates)
   const allDates=[];
   PROJECTS.forEach(p=>{
@@ -1785,14 +1910,17 @@ function renderCalendar(){
   });
   if(!allDates.length){grid.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px">Nenhuma data de Go Live cadastrada ainda.</div>';return;}
   const minDate=new Date(Math.min(...allDates));const maxDate=new Date(Math.max(...allDates));
+  // Layout: em todos os modos é uma linha só com rolagem horizontal (sem quebrar em várias linhas).
+  grid.style.display='flex';grid.style.gridTemplateColumns='';
   // Build buckets based on mode, only within range
   const buckets=[];
   if(calModeVal==='month'){
-    let cur=new Date(minDate.getFullYear(),minDate.getMonth(),1);
-    const endCur=new Date(maxDate.getFullYear(),maxDate.getMonth()+1,1);
-    while(cur<endCur&&buckets.length<24){
-      buckets.push({lbl:MONTHS_PT[cur.getMonth()]+' '+cur.getFullYear(),s:new Date(cur),e:new Date(cur.getFullYear(),cur.getMonth()+1,0)});
-      cur=new Date(cur.getFullYear(),cur.getMonth()+1,1);
+    // Ano fixo Jan/2026 a Dez/2026 (calendário do ano, não depende dos dados cadastrados).
+    // Mostra os 12 meses sempre; a barra fica com 1 linha só — rola de 6 em 6 pro lado.
+    const CAL_YEAR=2026;
+    for(let m=0;m<12;m++){
+      const s0=new Date(CAL_YEAR,m,1);
+      buckets.push({lbl:MONTHS_PT[m]+' '+CAL_YEAR,s:s0,e:new Date(CAL_YEAR,m+1,0)});
     }
   } else if(calModeVal==='fortnight'){
     let cur=new Date(minDate.getFullYear(),minDate.getMonth(),1);
@@ -1814,26 +1942,59 @@ function renderCalendar(){
       cur.setDate(cur.getDate()+7);
     }
   }
-  // Only render buckets that have at least one project
-  const filledBuckets=buckets.filter(b=>{
-    return PROJECTS.some(p=>{
-      const d1=p.golive?pd(p.golive):null;const st=getStats(p.key);const d2=st.goLiveLocal?pd(st.goLiveLocal):null;
-      return (d1&&d1>=b.s&&d1<=b.e)||(d2&&!p.golive&&d2>=b.s&&d2<=b.e);
+  // No modo Mês sempre mostra os 12 meses, mesmo os vazios. Nos outros modos,
+  // só mostra os períodos que têm pelo menos uma entrega (senão a rolagem fica infinita).
+  let toRender;
+  if(calModeVal==='month'){
+    toRender=buckets;
+  } else {
+    const filledBuckets=buckets.filter(b=>{
+      return PROJECTS.some(p=>{
+        const d1=p.golive?pd(p.golive):null;const st=getStats(p.key);const d2=st.goLiveLocal?pd(st.goLiveLocal):null;
+        return (d1&&d1>=b.s&&d1<=b.e)||(d2&&!p.golive&&d2>=b.s&&d2<=b.e);
+      });
     });
-  });
-  // If no filled buckets at all, show all
-  const toRender=filledBuckets.length?filledBuckets:buckets.slice(0,8);
+    toRender=filledBuckets.length?filledBuckets:buckets.slice(0,8);
+  }
+  const CAL_COL_PAGE_SIZE=5;
   toRender.forEach(b=>{
-    const col=document.createElement('div');col.className='cal-col';
-    col.style.cssText='min-width:145px;flex:0 0 145px';
-    col.innerHTML='<div class="cal-col-hdr">'+b.lbl+'</div><div class="cal-items"></div>';
-    const items=col.querySelector('.cal-items');
+    // Junta os dois tipos de data (Go Live do Jira + fim de cronograma local) num único array,
+    // ordena por data crescente e mostra só os 5 primeiros (com "+N mais" pra expandir).
+    const bucketItems=[];
     PROJECTS.forEach(p=>{
       const glDate=p.golive;
-      if(glDate){const d=pd(glDate);if(d>=b.s&&d<=b.e){const st=getStats(p.key);const cls=st.health==='on-track'?'on-track':st.health==='alert'?'alert':st.health==='off-track'?'off-track':'no-sched';const el=document.createElement('div');el.className='cal-item '+cls;el.innerHTML='<b>'+p.key+'</b> · '+p.summary+'<br><span style="font-size:8px;opacity:.75">Go Live: '+fmtBR(glDate)+(p.gp&&p.gp!=='—'?' · GP: '+p.gp.split(' ')[0]:'')+'</span>';el.onclick=()=>openProject(p.key);items.appendChild(el);}}
+      if(glDate){const d=pd(glDate);if(d>=b.s&&d<=b.e){
+        const st=getStats(p.key);const cls=st.health==='on-track'?'on-track':st.health==='alert'?'alert':st.health==='off-track'?'off-track':'no-sched';
+        bucketItems.push({date:d,key:p.key,html:'<b>'+p.key+'</b> · '+p.summary+'<br><span style="font-size:8px;opacity:.75">Go Live: '+fmtBR(glDate)+(p.gp&&p.gp!=='—'?' · GP: '+p.gp.split(' ')[0]:'')+'</span>',cls});
+      }}
     });
-    PROJECTS.forEach(p=>{if(p.golive)return;const st=getStats(p.key);if(!st.has||!st.goLiveLocal)return;const d=pd(st.goLiveLocal);if(d>=b.s&&d<=b.e){const cls=st.health==='on-track'?'on-track':st.health==='alert'?'alert':st.health==='off-track'?'off-track':'no-sched';const el=document.createElement('div');el.className='cal-item '+cls;el.innerHTML='<b>'+p.key+'</b> · '+p.summary+'<br><span style="font-size:8px;opacity:.75">Fim cron.: '+fmtBR(ds(d))+'</span>';el.onclick=()=>openProject(p.key);items.appendChild(el);}});
-    if(!items.children.length)return;
+    PROJECTS.forEach(p=>{
+      if(p.golive)return;const st=getStats(p.key);if(!st.has||!st.goLiveLocal)return;const d=pd(st.goLiveLocal);
+      if(d>=b.s&&d<=b.e){
+        const cls=st.health==='on-track'?'on-track':st.health==='alert'?'alert':st.health==='off-track'?'off-track':'no-sched';
+        bucketItems.push({date:d,key:p.key,html:'<b>'+p.key+'</b> · '+p.summary+'<br><span style="font-size:8px;opacity:.75">Fim cron.: '+fmtBR(ds(d))+'</span>',cls});
+      }
+    });
+    if(!bucketItems.length&&calModeVal!=='month')return;
+    bucketItems.sort((x,y)=>x.date-y.date);
+    const isExp=calColExpanded.has(b.lbl);
+    const toShowItems=isExp?bucketItems:bucketItems.slice(0,CAL_COL_PAGE_SIZE);
+    const restCount=bucketItems.length-CAL_COL_PAGE_SIZE;
+    const col=document.createElement('div');col.className='cal-col';
+    col.style.cssText=calModeVal==='month'?'flex:0 0 calc((100% - 50px)/6);min-width:140px':'min-width:145px;flex:0 0 145px';
+    col.innerHTML='<div class="cal-col-hdr">'+b.lbl+'</div><div class="cal-items"></div>';
+    const items=col.querySelector('.cal-items');
+    toShowItems.forEach(it=>{
+      const el=document.createElement('div');el.className='cal-item '+it.cls;el.innerHTML=it.html;el.onclick=()=>openProject(it.key);items.appendChild(el);
+    });
+    if(restCount>0){
+      const more=document.createElement('div');
+      more.style.cssText='font-size:8.5px;color:var(--purple);font-weight:600;padding:3px 7px;cursor:pointer';
+      more.textContent=isExp?'Ver menos':'+'+restCount+' mais';
+      more.onclick=()=>toggleCalCol(b.lbl);
+      items.appendChild(more);
+    }
+    if(!bucketItems.length)items.innerHTML='<div style="font-size:9px;color:var(--text3);padding:4px 7px">Nenhuma entrega.</div>';
     grid.appendChild(col);
   });
   if(!grid.children.length)grid.innerHTML='<div style="font-size:11px;color:var(--text3);padding:8px">Nenhuma entrega no período.</div>';
@@ -1994,7 +2155,7 @@ function openEmailModal(){
     <div class="fg" style="margin-top:8px"><label>Adicionar destinatário avulso (só para este envio, não fica salvo)</label><input type="email" id="email-extra" placeholder="outro@bemobi.com"></div>
     <div id="email-preview" style="margin-top:10px;display:none">
       <div class="section-lbl">Prévia</div>
-      <div id="email-body" style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:10.5px;line-height:1.7;max-height:240px;overflow-y:auto;white-space:pre-wrap;font-family:monospace"></div>
+      <iframe id="email-html-preview" title="Prévia do e-mail" style="width:100%;height:420px;border:1px solid var(--border);border-radius:6px;background:#fff" sandbox=""></iframe>
     </div>
     <div id="email-send-status" style="font-size:9.5px;color:var(--text3);margin-top:8px"></div>`,
     `<button class="btn-c" onclick="closeM('email-modal')">Fechar</button>
@@ -2073,8 +2234,67 @@ function buildEmailBody(){
   body+=`VMO · Bemobi · ${window.location.href.split('?')[0]}`;
   return body;
 }
-function previewEmail(){const b=buildEmailBody();document.getElementById('email-body').textContent=b;document.getElementById('email-preview').style.display='';}
-function copyEmail(){previewEmail();navigator.clipboard.writeText(document.getElementById('email-body').textContent).then(()=>alert('Email copiado!'));}
+function buildEmailHtml(){
+  const checked=Array.from(document.querySelectorAll('#email-proj-list input:checked')).map(x=>x.value);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const healthMeta={
+    'on-track':{lbl:'✓ Nos trilhos',bg:'#dcfce7',fg:'#166534'},
+    'alert':{lbl:'⚠ Em alerta',bg:'#fef9c3',fg:'#854d0e'},
+    'off-track':{lbl:'✗ Fora dos trilhos',bg:'#fee2e2',fg:'#b91c1c'},
+    'none':{lbl:'Sem cronograma',bg:'#f1f5f9',fg:'#475569'},
+  };
+  const tagMeta={ok:{lbl:'✅ No prazo',bg:'#dcfce7',fg:'#166534'},warn:{lbl:'⚠️ Em alerta',bg:'#fef9c3',fg:'#854d0e'},risk:{lbl:'🔴 Em risco',bg:'#fee2e2',fg:'#b91c1c'},info:{lbl:'ℹ️ Informativo',bg:'#e0f2fe',fg:'#0369a1'},date:{lbl:'📅 Mudança de data',bg:'#ede9fe',fg:'#5b21b6'}};
+  const baseUrl=window.location.href.split('?')[0];
+  const cardsHtml=checked.map(key=>{
+    const p=PROJECTS.find(x=>x.key===key);if(!p)return'';
+    const sc=schedules[key];const st=getStats(key);
+    const glDate=p.golive||st.goLiveLocal;
+    const upds=(sc?.updates||[]).filter(u=>u.includeEmail).slice(-3);
+    const hm=healthMeta[st.health]||healthMeta.none;
+    const scheduleUrl=baseUrl+'?project='+key;
+    const updsHtml=upds.map(u=>{
+      const tm=u.tag?tagMeta[u.tag]:null;
+      return `<div style="border-top:1px solid #f0f1fa;padding-top:10px;margin-top:10px">
+        <div style="font-size:11px;color:#9aa0c3;margin-bottom:3px">${esc(u.when)} · ${esc(u.author)}${tm?` · <span style="background:${tm.bg};color:${tm.fg};padding:2px 8px;border-radius:10px;font-weight:600">${tm.lbl}</span>`:''}</div>
+        <div style="font-size:13px;color:#4a5180;line-height:1.55">${String(u.body||'').replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]+>/g,'').replace(/\n/g,'<br>')}</div>
+      </div>`;
+    }).join('');
+    return `<div style="background:#ffffff;border-radius:16px;padding:22px 24px;margin:16px 0;box-shadow:0 2px 8px rgba(11,27,115,.06)">
+      <div style="font-size:17px;font-weight:700;color:#0b1b73;margin-bottom:2px">${esc(p.summary)}</div>
+      <div style="font-size:12px;color:#6924e1;font-weight:600;margin-bottom:12px">${esc(key)} · GP: ${esc(p.gp||'—')}</div>
+      <div style="margin-bottom:12px">
+        <span style="display:inline-block;background:#f0f1fa;color:#0b1b73;font-size:11px;font-weight:600;padding:5px 12px;border-radius:14px;margin:0 6px 6px 0">${esc(p.status)}</span>
+        <span style="display:inline-block;background:${hm.bg};color:${hm.fg};font-size:11px;font-weight:600;padding:5px 12px;border-radius:14px;margin:0 6px 6px 0">${hm.lbl}</span>
+      </div>
+      ${glDate?`<div style="font-size:13px;color:#4a5180;margin-bottom:6px"><b style="color:#0b1b73">Go Live:</b> ${esc(fmtBRFull(glDate))}</div>`:''}
+      ${sc&&sc.scopeLink?`<div style="margin-bottom:6px"><a href="${esc(sc.scopeLink)}" style="font-size:12px;color:#027bff;text-decoration:none;font-weight:600">📄 Escopo detalhado →</a></div>`:''}
+      <div style="margin-top:14px">
+        <a href="${scheduleUrl}" style="display:inline-block;background:linear-gradient(135deg,#6924e1,#027bff);color:#ffffff;padding:9px 18px;border-radius:9px;text-decoration:none;font-weight:700;font-size:12.5px">Ver cronograma completo</a>
+      </div>
+      ${updsHtml}
+    </div>`;
+  }).join('');
+  return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f0f1fa;font-family:'Segoe UI',Arial,Helvetica,sans-serif">
+<div style="max-width:640px;margin:0 auto;padding:24px 12px">
+  <div style="background:linear-gradient(135deg,#6924e1 0%,#027bff 100%);border-radius:16px;padding:32px 28px;text-align:center">
+    <div style="color:rgba(255,255,255,.85);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Atualização Semanal · HUB VMO</div>
+    <div style="color:#ffffff;font-size:24px;font-weight:800;line-height:1.3">Portfólio VMO</div>
+    <div style="color:rgba(255,255,255,.9);font-size:13px;font-weight:600;margin-top:6px">${TODAY.getDate()} de ${MONTHS_FULL[TODAY.getMonth()]} de ${TODAY.getFullYear()} · Gerado por ${esc(currentUser?.name||'VMO Tool')}</div>
+  </div>
+  ${cardsHtml||'<p style="text-align:center;color:#4a5180;font-size:13px;padding:20px">Nenhum projeto selecionado.</p>'}
+  <div style="text-align:center;color:#9aa0c3;font-size:11px;padding:20px 8px 0;line-height:1.5">VMO · Bemobi · <a href="${baseUrl}" style="color:#9aa0c3">${baseUrl}</a></div>
+</div>
+</body></html>`;
+}
+
+function previewEmail(){
+  const html=buildEmailHtml();
+  const frame=document.getElementById('email-html-preview');
+  if(frame)frame.srcdoc=html;
+  document.getElementById('email-preview').style.display='';
+}
+function copyEmail(){previewEmail();navigator.clipboard.writeText(buildEmailBody()).then(()=>alert('Email copiado (versão texto)!'));}
 // Envia direto pelo servidor (GAS/MailApp) — igual ao botão de atualização do Cronograma,
 // sem abrir o app de e-mail nem exigir que a pessoa saia do HUB.
 async function sendEmail(){
@@ -2091,13 +2311,14 @@ async function sendEmail(){
     if(statusEl){statusEl.textContent='Envio direto não configurado (GAS_URL). Fale com o time técnico.';statusEl.style.color='var(--red)';}
     return;
   }
-  const body=document.getElementById('email-body').textContent;
+  const plainBody=buildEmailBody();
+  const htmlBody=buildEmailHtml();
   const subject=`Atualização Semanal VMO · ${TODAY.toLocaleDateString('pt-BR')}`;
   if(btn){btn.disabled=true;btn.style.opacity='.6';}
   if(statusEl){statusEl.textContent='Enviando...';statusEl.style.color='var(--text3)';}
   try{
     const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({
-      action:'sendExecutiveEmail',subject,body,recipients:uniqueRecipients,
+      action:'sendExecutiveEmail',subject,body:plainBody,htmlBody,recipients:uniqueRecipients,
     })});
     const d=await r.json();
     if(d.ok){
