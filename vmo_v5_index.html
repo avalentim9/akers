@@ -228,6 +228,9 @@ table.pft tr:hover td{background:var(--bg2)}
 .team-card-row{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
 .team-card-row .kc2{min-width:0;padding-left:4px;padding-right:4px}
 @media(max-width:600px){.team-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.status-card-row{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.status-card-row .kc2{min-width:0;padding-left:4px;padding-right:4px}
+@media(max-width:600px){.status-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .gp-card-row{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
 .gp-card-row .kc2{min-width:0;padding-left:4px;padding-right:4px}
 @media(max-width:600px){.gp-card-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -1350,6 +1353,22 @@ function renderKPI(){
   };
   const statusCardsTop=statusOrder.slice(0,7).map(statusCardHtml).join('');
   const statusCardsBottom=statusOrder.slice(7,15).map(statusCardHtml).join('');
+  const statusChartData=statusOrder.map(s=>({name:s,count:byStatus[s]||0})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
+  const maxStatusCount=Math.max(1,...statusChartData.map(d=>d.count));
+  const STATUS_CHART_PAGE_SIZE=5;
+  const statusChartToShow=statusChartExpanded?statusChartData:statusChartData.slice(0,STATUS_CHART_PAGE_SIZE);
+  const statusChartRest=statusChartData.length-STATUS_CHART_PAGE_SIZE;
+  const statusBarsHtml=statusChartToShow.map(d=>{
+    const [bg,fg]=(SC2[d.name]||'#f0f1fa|#4b5675').split('|');
+    const wpct=Math.max(4,Math.round(d.count/maxStatusCount*100));
+    return `<div class="ti-bar-row">
+      <span class="ti-bar-label" title="${d.name}">${d.name.toUpperCase()}</span>
+      <div class="ti-bar-track"><div class="ti-bar-fill" style="width:${wpct}%;background:${bg};border:1px solid ${fg}33"><span class="ti-bar-val" style="color:${fg}">${d.count}</span></div></div>
+    </div>`;
+  }).join('');
+  const statusChartMoreBtn=statusChartRest>0?`<div style="text-align:center;padding:6px 0 2px">
+      <button class="pf-act" onclick="toggleStatusChartExpand()">${statusChartExpanded?'Ver menos':'Ver mais ('+statusChartRest+')'}</button>
+    </div>`:'';
 
   // ── Alertas (projetos ativos apenas) ──
   const noSchedActive=activeProjects.filter(p=>!getStats(p.key).has).length;
@@ -1405,13 +1424,20 @@ function renderKPI(){
     </div></div>`+
 
     secHdr('status','#ede9fe','#6924E1','ti-chart-pie','Dados Gerais',total+' projetos na carteira VMO')+
-    `<div class="kpi-row2">
+    `<div class="status-card-row">
       <div class="kc2 total-card" title="Filtrar: Todos os projetos" onclick="filterAllStatus()">
         <div style="font-size:26px;font-weight:700;color:var(--navy);line-height:1">${total}</div>
         <div style="font-size:9px;color:var(--text3);margin-top:2px">TOTAL</div>
       </div>${statusCardsTop}
     </div>
-    <div class="kpi-row2" style="margin-top:6px">${statusCardsBottom}</div></div>`+
+    <div class="status-card-row" style="margin-top:6px">${statusCardsBottom}</div>
+    <div class="ti-panel" style="margin:10px 14px 2px">
+      <div class="ti-panel-hdr">
+        <div class="ti-panel-title"><i class="ti ti-chart-bar" style="font-size:13px"></i> Distribuição por Status${statusChartExpanded?' (todos)':''}</div>
+      </div>
+      <div style="padding:8px 2px">${statusBarsHtml}</div>
+      ${statusChartMoreBtn}
+    </div></div>`+
 
     secHdr('cronogramas','#e0f2fe','#0369a1','ti-calendar-stats','Cronogramas','Cobertura e saúde dos cronogramas cadastrados')+
     `<div class="kpi-row2">
@@ -1518,6 +1544,8 @@ function filterByHealth(h){
 let teamImpactSelected='';
 let teamChartExpanded=false;
 function toggleTeamChartExpand(){teamChartExpanded=!teamChartExpanded;renderTeamImpact();}
+let statusChartExpanded=false;
+function toggleStatusChartExpand(){statusChartExpanded=!statusChartExpanded;renderKPI();}
 let etapaExpanded=new Set();
 function toggleEtapaCol(stage){if(etapaExpanded.has(stage))etapaExpanded.delete(stage);else etapaExpanded.add(stage);renderKPI();}
 function computeTeamImpactData(){
@@ -1572,13 +1600,13 @@ function renderTeamImpact(){
   wrap.innerHTML=`<div class="team-impact-grid">
     <div class="ti-panel">
       <div class="ti-panel-hdr">
-        <div class="ti-panel-title"><i class="ti ti-list-check" style="font-size:13px"></i> Times &amp; Projetos Impactados</div>
+        <div class="ti-panel-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-list-check" style="font-size:13px"></i> Times &amp; Projetos Impactados <i class="ti ti-info-circle" style="font-size:13px;color:#94a3b8;cursor:help" title="Considera apenas projetos ativos. Os projetos que estão com o status de Cancelados, Backlog, Pausados, Pós-Produção e Neg. Comercial/Pré-venda são filtrados dessa contagem"></i></div>
       </div>
       <div class="team-card-row" style="padding:10px 12px">${cardsHtml}</div>
     </div>
     <div class="ti-panel">
       <div class="ti-panel-hdr">
-        <div class="ti-panel-title"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por Time · Top ${Math.min(TEAM_CHART_PAGE_SIZE,chartSorted.length)}${teamChartExpanded?' (todos)':''}</div>
+        <div class="ti-panel-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por Time${teamChartExpanded?' (todos)':''} <i class="ti ti-info-circle" style="font-size:13px;color:#94a3b8;cursor:help" title="Considera apenas projetos ativos. Os projetos que estão com o status de Cancelados, Backlog, Pausados, Pós-Produção e Neg. Comercial/Pré-venda são filtrados dessa contagem"></i></div>
       </div>
       <div style="padding:8px 2px">${barsHtml}</div>
       ${chartMoreBtn}
@@ -1657,7 +1685,7 @@ function renderGPImpact(){
   const baseRow=Math.floor(nCards/GP_ROWS);
   const extraRow=nCards%GP_ROWS;
   const rowSizes=[];
-  for(let i=0;i<GP_ROWS;i++)rowSizes.push(baseRow+(i>=GP_ROWS-extraRow?1:0));
+  for(let i=0;i<GP_ROWS;i++)rowSizes.push(baseRow+(i<extraRow?1:0));
   const cardRows=[];
   let _ci=0;
   rowSizes.forEach(sz=>{if(sz>0){cardRows.push(cardsSorted.slice(_ci,_ci+sz));_ci+=sz;}});
@@ -1681,13 +1709,13 @@ function renderGPImpact(){
   wrap.innerHTML=`<div class="team-impact-grid">
     <div class="ti-panel">
       <div class="ti-panel-hdr">
-        <div class="ti-panel-title"><i class="ti ti-user-check" style="font-size:13px"></i> GPs &amp; Projetos Impactados</div>
+        <div class="ti-panel-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-user-check" style="font-size:13px"></i> GPs &amp; Projetos Impactados <i class="ti ti-info-circle" style="font-size:13px;color:#94a3b8;cursor:help" title="Considera apenas projetos ativos. Os projetos que estão com o status de Cancelados, Backlog, Pausados, Pós-Produção e Neg. Comercial/Pré-venda são filtrados dessa contagem"></i></div>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px;padding:10px 12px">${cardsHtml}</div>
     </div>
     <div class="ti-panel">
       <div class="ti-panel-hdr">
-        <div class="ti-panel-title"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por GP · Top ${Math.min(GP_CHART_PAGE_SIZE,chartSorted.length)}${gpChartExpanded?' (todos)':''}</div>
+        <div class="ti-panel-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-chart-bar" style="font-size:13px"></i> Carga de Projetos por GP${gpChartExpanded?' (todos)':''} <i class="ti ti-info-circle" style="font-size:13px;color:#94a3b8;cursor:help" title="Considera apenas projetos ativos. Os projetos que estão com o status de Cancelados, Backlog, Pausados, Pós-Produção e Neg. Comercial/Pré-venda são filtrados dessa contagem"></i></div>
       </div>
       <div style="padding:8px 2px">${barsHtml}</div>
       ${chartMoreBtn}
