@@ -1237,7 +1237,40 @@ function logChange(key,desc,color){const s=schedules[key];if(!s)return;if(!s.aud
 // ═══════════════════════════════════════════
 //  PORTFOLIO
 // ═══════════════════════════════════════════
+function clearOtherFilterCategories(except){
+  if(except!=='pf'){
+    pfFilter=new Set(['all']);
+    document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('fbtn-all')?.classList.add('on');
+  }
+  if(except!=='status'){
+    msFilters.status.clear();
+    document.querySelectorAll('#dd-status-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-status','dd-status-lbl','status','Todos os status');
+  }
+  if(except!=='gp'){
+    msFilters.gp.clear();
+    document.querySelectorAll('#dd-gp-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-gp','dd-gp-lbl','gp','Todos os GPs');
+  }
+  if(except!=='health'){
+    msFilters.health.clear();
+    document.querySelectorAll('#dd-health-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-health','dd-health-lbl','health','Saúde do cronograma');
+  }
+  if(except!=='times'){
+    msFilters.times.clear();
+    document.querySelectorAll('#dd-times-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-times','dd-times-lbl','times','Todos os times');
+  }
+  if(except!=='tipo'){
+    msFilters.tipo.clear();
+    document.querySelectorAll('#dd-tipo-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-tipo','dd-tipo-lbl','tipo','Tipo');
+  }
+}
 function setF(f,el){
+  clearOtherFilterCategories('pf');
   if(f==='all'){pfFilter=new Set(['all']);document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
   else{pfFilter.delete('all');document.getElementById('fbtn-all').classList.remove('on');
     if(pfFilter.has(f)){pfFilter.delete(f);el.classList.remove('on');}
@@ -1514,6 +1547,7 @@ function renderKPI(){
 }
 
 function filterAllStatus(){
+  clearOtherFilterCategories(null);
   msFilters.status.clear();
   document.querySelectorAll('#dd-status-menu .ms-dd-item').forEach(item=>{
     const cb=item.querySelector('input');if(cb){cb.checked=false;}item.classList.remove('checked');
@@ -1522,6 +1556,7 @@ function filterAllStatus(){
   showView('prioridades');
 }
 function filterByStatus(s){
+  clearOtherFilterCategories('status');
   msFilters.status.clear();msFilters.status.add(s);
   document.querySelectorAll('#dd-status-menu .ms-dd-item').forEach(item=>{
     const cb=item.querySelector('input');const lbl=item.querySelector('label');
@@ -1531,6 +1566,7 @@ function filterByStatus(s){
   showView('prioridades');
 }
 function filterByHealth(h){
+  clearOtherFilterCategories('health');
   if(msFilters.health.has(h))msFilters.health.delete(h);else{msFilters.health.clear();msFilters.health.add(h);}
   const safe=h.replace(/[^a-z0-9]/gi,'_');
   const cb=document.getElementById('chk-health-'+safe);
@@ -1553,6 +1589,7 @@ function computeTeamImpactData(){
   return getAllTeams().map(t=>({name:t,count:relevant.filter(p=>(p.times||[]).includes(t)).length}));
 }
 function filterByTeamLink(team){
+  clearOtherFilterCategories('times');
   msFilters.times.clear();msFilters.times.add(team);
   const safe=team.replace(/[^a-z0-9]/gi,'_');
   document.querySelectorAll('#dd-times-menu .ms-dd-item').forEach(item=>{
@@ -1651,6 +1688,7 @@ function gpLoadTier(count){
   return{label:'Normal',bg:'#e0f2fe',fg:'#0369a1',bar:'low'};
 }
 function filterByGPLink(gp){
+  clearOtherFilterCategories('gp');
   msFilters.gp.clear();msFilters.gp.add(gp);
   const safe=gp.replace(/[^a-z0-9]/gi,'_');
   document.querySelectorAll('#dd-gp-menu .ms-dd-item').forEach(item=>{
