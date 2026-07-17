@@ -2548,54 +2548,78 @@ function buildUnits(){
   const needed=Math.ceil((endDate-vs)/cfg.unitMs)+1;
   const cap={day:90,week:26,month:18,year:12};
   const range=Math.min(Math.max(needed,4),cap[zoom]);
-  // Manual override (usuário arrastou a largura das colunas do Gantt) tem prioridade
-  if(ganttDWOverride[zoom]!=null){
-    DW=ganttDWOverride[zoom];
-  }else{
-    // Responsiveness: calculate available pixel width and adjust DW
-    const container=document.getElementById('se-right');
-    if(container&&container.offsetWidth>100){
-      const availW=container.offsetWidth-20;
-      // For month/year: make bars fill available space if few columns
-      if((zoom==='month'||zoom==='year')&&range>0){
-        const idealDW=Math.floor(availW/range);
-        DW=Math.max(ZOOM_CFG[zoom].dw, Math.min(idealDW, zoom==='month'?80:40));
-      }
+  // Responsiveness: calculate available pixel width and adjust the DEFAULT column width (DW).
+  // Individual columns can still be resized on top of this via ganttColWidths (per-column override).
+  const container=document.getElementById('se-right');
+  if(container&&container.offsetWidth>100){
+    const availW=container.offsetWidth-20;
+    // For month/year: make bars fill available space if few columns
+    if((zoom==='month'||zoom==='year')&&range>0){
+      const idealDW=Math.floor(availW/range);
+      DW=Math.max(ZOOM_CFG[zoom].dw, Math.min(idealDW, zoom==='month'?80:40));
     }
   }
   return Array.from({length:range},(_,i)=>new Date(vs.getTime()+i*cfg.unitMs));
 }
 
-// ── Largura das colunas do Gantt ajustável (arrastar), persistida por zoom ──
-let ganttDWOverride={};
-const GANTT_DW_KEY='vmo_gantt_dw';
-(function loadGanttDW(){
-  try{ganttDWOverride=JSON.parse(localStorage.getItem(GANTT_DW_KEY)||'{}');}catch(e){ganttDWOverride={};}
+// ── Largura das colunas do Gantt ajustável individualmente (arrastar), persistida por coluna ──
+// Cada coluna (dia/semana/mês/ano, conforme o zoom) tem sua própria largura, igual às colunas
+// da tabela. Colunas sem ajuste manual usam a largura padrão (DW), calculada acima.
+let ganttColWidths={};
+const GANTT_COLW_KEY='vmo_gantt_colw';
+(function loadGanttColWidths(){
+  try{ganttColWidths=JSON.parse(localStorage.getItem(GANTT_COLW_KEY)||'{}');}catch(e){ganttColWidths={};}
 })();
-function saveGanttDW(){try{localStorage.setItem(GANTT_DW_KEY,JSON.stringify(ganttDWOverride));}catch(e){}}
+function saveGanttColWidths(){try{localStorage.setItem(GANTT_COLW_KEY,JSON.stringify(ganttColWidths));}catch(e){}}
+function unitKey(u){return zoom+'|'+u.getFullYear()+'-'+String(u.getMonth()+1).padStart(2,'0')+'-'+String(u.getDate()).padStart(2,'0');}
+function getColWidth(u){const w=ganttColWidths[unitKey(u)];return (w!=null&&w>0)?w:DW;}
+// Layout calculado (posições cumulativas) a partir da última chamada de computeGanttLayout —
+// usado por dateToX/unitWidthAt para posicionar barras corretamente mesmo com larguras variáveis.
+let _ganttLayout={vs:null,widths:[],cumX:[],totalW:0};
+function computeGanttLayout(units){
+  const vs=getViewStart();let x=0;const widths=[],cumX=[];
+  units.forEach(u=>{const w=getColWidth(u);widths.push(w);cumX.push(x);x+=w;});
+  _ganttLayout={vs,widths,cumX,totalW:x};
+}
 let ganttResizeState=null;
-function startGanttColResize(e){
+function startGanttColResize(e,u){
   e.preventDefault();e.stopPropagation();
-  ganttResizeState={startX:e.clientX,startDW:DW};
+  ganttResizeState={startX:e.clientX,startW:getColWidth(u),key:unitKey(u)};
   document.body.style.cursor='col-resize';
 }
 document.addEventListener('mousemove',e=>{
   if(!ganttResizeState)return;
   const delta=e.clientX-ganttResizeState.startX;
-  const newDW=Math.max(10,Math.min(160,ganttResizeState.startDW+delta));
-  if(newDW!==DW){
-    DW=newDW;
-    ganttDWOverride[zoom]=DW;
-    renderGhdr();renderBars();
-  }
+  const newW=Math.max(10,Math.min(200,ganttResizeState.startW+delta));
+  ganttColWidths[ganttResizeState.key]=newW;
+  renderGhdr();renderBars();
 });
 document.addEventListener('mouseup',()=>{
   if(!ganttResizeState)return;
   ganttResizeState=null;
   document.body.style.cursor='';
-  saveGanttDW();
+  saveGanttColWidths();
 });
-function dateToX(s){if(!s)return 0;const vs=getViewStart();const diff=pd(s)-vs;return Math.round(diff/ZOOM_CFG[zoom].unitMs*DW);}
+function dateToX(s){
+  if(!s)return 0;
+  const{vs,widths,cumX,totalW}=_ganttLayout;
+  if(!widths.length)return 0;
+  const cfg=ZOOM_CFG[zoom];
+  const diff=pd(s)-vs;
+  let idx=Math.floor(diff/cfg.unitMs);
+  const frac=(diff-idx*cfg.unitMs)/cfg.unitMs;
+  if(idx<0)return Math.round(cumX[0]+frac*widths[0]);
+  if(idx>=widths.length){const lastW=widths[widths.length-1]||DW;return Math.round(totalW+(idx-(widths.length-1))*lastW+frac*lastW);}
+  return Math.round(cumX[idx]+frac*widths[idx]);
+}
+function unitWidthAt(s){
+  const{vs,widths}=_ganttLayout;
+  if(!widths.length)return DW;
+  const cfg=ZOOM_CFG[zoom];
+  let idx=Math.floor((pd(s)-vs)/cfg.unitMs);
+  if(idx<0)idx=0;if(idx>=widths.length)idx=widths.length-1;
+  return widths[idx]||DW;
+}
 function shiftV(d){viewOffset+=d*(ZOOM_CFG[zoom].range/3*ZOOM_CFG[zoom].unitMs/86400000);renderSchedule();}
 function scrollToToday(){viewOffset=0;renderSchedule();}
 function getSeqLabel(u,idx){
@@ -2809,18 +2833,18 @@ function toggleMs(id){if(collapsed.has(id))collapsed.delete(id);else collapsed.a
 
 // ── GANTT ──
 function renderGhdr(){
-  const units=buildUnits();const totalW=units.length*DW;
+  const units=buildUnits();computeGanttLayout(units);const totalW=_ganttLayout.totalW;
   const mr=document.getElementById('month-row');const dr=document.getElementById('days-row');
   mr.innerHTML='';dr.innerHTML='';mr.style.minWidth=totalW+'px';dr.style.minWidth=totalW+'px';
   const groups=[];let cur=null;
-  units.forEach(u=>{
+  units.forEach((u,i)=>{
     let lbl=zoom==='year'?String(u.getFullYear()):MONTHS_PT[u.getMonth()]+' '+u.getFullYear();
-    if(!cur||cur.lbl!==lbl){cur={lbl,count:0};groups.push(cur);}cur.count++;
+    if(!cur||cur.lbl!==lbl){cur={lbl,w:0};groups.push(cur);}cur.w+=_ganttLayout.widths[i];
   });
-  groups.forEach(g=>{const el=document.createElement('div');el.className='ghm';el.style.width=(g.count*DW)+'px';el.textContent=g.lbl;mr.appendChild(el);});
+  groups.forEach(g=>{const el=document.createElement('div');el.className='ghm';el.style.width=g.w+'px';el.textContent=g.lbl;mr.appendChild(el);});
   units.forEach((u,i)=>{
     const el=document.createElement('div');const we=isWE(u);const tod=zoom==='day'&&u.getTime()===TODAY.getTime();
-    el.className='ghd'+(we?' we':'')+(tod?' tod':'');el.style.width=DW+'px';
+    el.className='ghd'+(we?' we':'')+(tod?' tod':'');el.style.width=_ganttLayout.widths[i]+'px';
     let lbl2;
     if(showSeqNums){lbl2=getSeqLabel(u,i);}
     else if(zoom==='day')lbl2=u.getDate();
@@ -2829,18 +2853,19 @@ function renderGhdr(){
     else lbl2=['J','F','M','A','M','J','J','A','S','O','N','D'][u.getMonth()];
     el.textContent=lbl2;
     if(tod){const b=document.createElement('span');b.className='tod-lbl';b.textContent='Hoje';el.appendChild(b);}
-    const rz=document.createElement('div');rz.className='gh-col-resize';rz.title='Arraste para ajustar a largura das colunas';
-    rz.onmousedown=startGanttColResize;
+    const rz=document.createElement('div');rz.className='gh-col-resize';rz.title='Arraste para ajustar a largura desta coluna';
+    rz.onmousedown=(e)=>startGanttColResize(e,u);
     el.appendChild(rz);
     dr.appendChild(el);
   });
 }
 function renderBars(){
-  const sched=schedules[curKey];const units=buildUnits();const totalW=units.length*DW;
+  const sched=schedules[curKey];const units=buildUnits();computeGanttLayout(units);const totalW=_ganttLayout.totalW;
   const cont=document.getElementById('chart-rows');cont.innerHTML='';cont.style.minWidth=totalW+'px';
   units.forEach((u,i)=>{
-    if(isWE(u)){const wk=document.createElement('div');wk.className='gcol we-bg';wk.style.cssText=`left:${i*DW}px;width:${DW}px;top:0;bottom:0;position:absolute;pointer-events:none`;cont.appendChild(wk);}
-    else{const gl=document.createElement('div');gl.className='gcol';gl.style.left=(i*DW)+'px';cont.appendChild(gl);}
+    const cx=_ganttLayout.cumX[i],cw=_ganttLayout.widths[i];
+    if(isWE(u)){const wk=document.createElement('div');wk.className='gcol we-bg';wk.style.cssText=`left:${cx}px;width:${cw}px;top:0;bottom:0;position:absolute;pointer-events:none`;cont.appendChild(wk);}
+    else{const gl=document.createElement('div');gl.className='gcol';gl.style.left=cx+'px';cont.appendChild(gl);}
   });
   const tx=dateToX(ds(TODAY));
   if(tx>=0&&tx<=totalW){const tl=document.createElement('div');tl.className='today-ln';tl.style.left=tx+'px';cont.appendChild(tl);}
@@ -2852,14 +2877,14 @@ function renderBars(){
     const mrow=document.createElement('div');mrow.className='crow ms-bg';mrow.style.width=totalW+'px';
     if(ms.start&&ms.deadline){
       const x=dateToX(ms.start);const endD=autoEr&&ms.status==='done'?autoEr:ms.deadline;
-      const ex=dateToX(endD)+DW;const bw=Math.max(ex-x,DW);
+      const ex=dateToX(endD)+unitWidthAt(endD);const bw=Math.max(ex-x,unitWidthAt(ms.start));
       const isLate=ms.status!=='done'&&ms.deadline&&pd(ms.deadline)<now;const isEarly=ms.status==='done'&&autoEr&&ms.deadline&&pd(autoEr)<pd(ms.deadline);
       const isCrit=crit.milestones.has(ms.id);
       const bar=document.createElement('div');bar.className='gbar ms-bar'+(isLate?' bar-late':isEarly?' bar-early':'')+(isCrit?' bar-critical':'');
       bar.style.cssText=`left:${x}px;width:${bw}px;background:${ms.color}`;
       const pg=document.createElement('div');pg.className='gbar-prog';pg.style.width=(msTasks.length?Math.round(msTasks.reduce((a,t)=>a+taskProg(t),0)/msTasks.length):0)+'%';bar.appendChild(pg);
       if(bw>45){const l=document.createElement('span');l.className='gbar-lbl';l.textContent=ms.name;bar.appendChild(l);}
-      if(showBaseline&&sched.baseline){const bms=sched.baseline.milestones?.find(b=>b.id===ms.id);if(bms&&bms.deadline!==ms.deadline){const bx=dateToX(bms.start);const bex=dateToX(bms.deadline)+DW;const bb=document.createElement('div');bb.className='gbar-baseline';bb.style.cssText=`left:${bx}px;width:${Math.max(bex-bx,DW)}px;background:${ms.color}`;mrow.appendChild(bb);}}
+      if(showBaseline&&sched.baseline){const bms=sched.baseline.milestones?.find(b=>b.id===ms.id);if(bms&&bms.deadline!==ms.deadline){const bx=dateToX(bms.start);const bex=dateToX(bms.deadline)+unitWidthAt(bms.deadline);const bb=document.createElement('div');bb.className='gbar-baseline';bb.style.cssText=`left:${bx}px;width:${Math.max(bex-bx,unitWidthAt(bms.start))}px;background:${ms.color}`;mrow.appendChild(bb);}}
       bar.addEventListener('mouseenter',e=>showTip({ttl:ms.name,st:SL[ms.status]||ms.status,s:ms.start,dl:ms.deadline,er:autoEr,de:ms.start&&ms.deadline?diffD(pd(ms.start),pd(ms.deadline))+'d':'—',dr:ms.start&&autoEr?diffD(pd(ms.start),pd(autoEr))+'d':'—',dep:'',resp:(ms.assignees||[]).map(a=>a.name).join(', '),late:isLate,early:isEarly,lateD:isLate?diffD(pd(ms.deadline),now):0,earlyD:isEarly?diffD(pd(autoEr),pd(ms.deadline)):0},e));
       bar.addEventListener('mousemove',e=>moveTip(e));bar.addEventListener('mouseleave',hideTip);
       mrow.appendChild(bar);
@@ -2869,7 +2894,7 @@ function renderBars(){
       const trow=document.createElement('div');trow.className='crow'+(isCl?' hidden':'');trow.style.width=totalW+'px';
       if(t.start&&t.deadline){
         const x=dateToX(t.start);const endD=t.endReal&&t.status==='done'?t.endReal:t.deadline;
-        const ex=dateToX(endD)+DW;const bw=Math.max(ex-x,DW);
+        const ex=dateToX(endD)+unitWidthAt(endD);const bw=Math.max(ex-x,unitWidthAt(t.start));
         const isLate=t.status!=='done'&&pd(t.deadline)<now;const isEarly=t.status==='done'&&t.endReal&&pd(t.endReal)<pd(t.deadline);
         const depT=tasks.find(x=>x.id===t.depId);const isBlocked=t.depId&&depT&&depT.status!=='done';
         const isCritT=crit.tasks.has(t.id);
@@ -2880,7 +2905,7 @@ function renderBars(){
         bar.style.left=x+'px';bar.style.width=bw+'px';bar.style.background=barC;
         const pg=document.createElement('div');pg.className='gbar-prog';pg.style.width=taskProg(t)+'%';bar.appendChild(pg);
         if(bw>38){const l=document.createElement('span');l.className='gbar-lbl';l.textContent=t.name;bar.appendChild(l);}
-        if(showBaseline&&sched.baseline){const bt=(sched.baseline.tasks||[]).find(b=>b.id===t.id);if(bt&&bt.deadline!==t.deadline){const bx=dateToX(bt.start);const bex=dateToX(bt.deadline)+DW;const bb=document.createElement('div');bb.className='gbar-baseline';bb.style.cssText=`left:${bx}px;width:${Math.max(bex-bx,DW)}px;background:${ms.color};opacity:.4`;trow.appendChild(bb);}}
+        if(showBaseline&&sched.baseline){const bt=(sched.baseline.tasks||[]).find(b=>b.id===t.id);if(bt&&bt.deadline!==t.deadline){const bx=dateToX(bt.start);const bex=dateToX(bt.deadline)+unitWidthAt(bt.deadline);const bb=document.createElement('div');bb.className='gbar-baseline';bb.style.cssText=`left:${bx}px;width:${Math.max(bex-bx,unitWidthAt(bt.start))}px;background:${ms.color};opacity:.4`;trow.appendChild(bb);}}
         bar.addEventListener('mouseenter',e=>{showTip({ttl:t.name,st:SL[t.status],s:t.start,dl:t.deadline,er:t.endReal,de:t.start&&t.deadline?diffD(pd(t.start),pd(t.deadline))+'d':'—',dr:t.start&&t.endReal?diffD(pd(t.start),pd(t.endReal))+'d':'—',dep:depT?`[${t.depType||'TI'}] ${depT.name}`:'',resp:(t.assignees||[]).map(a=>a.name).join(', ')||'—',late:isLate,early:isEarly,lateD:isLate?diffD(pd(t.deadline),now):0,earlyD:isEarly?diffD(pd(t.endReal),pd(t.deadline)):0},e);});
         bar.addEventListener('mousemove',e=>moveTip(e));bar.addEventListener('mouseleave',()=>{hideTip();});
         bar.addEventListener('dblclick',()=>openTaskModal(ms.id,t.id));
