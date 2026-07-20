@@ -508,6 +508,8 @@ table.pft tr:hover td{background:var(--bg2)}
     <button class="fbtn" id="fbtn-nosched" onclick="setF('nosched',this)">Sem cronograma</button>
     <div class="filter-sep"></div>
     <div class="ms-dd" id="dd-tipo"><button class="ms-dd-btn" onclick="toggleDD('dd-tipo')"><span id="dd-tipo-lbl">Tipo</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-tipo-menu"></div></div>
+    <div class="ms-dd" id="dd-segment"><button class="ms-dd-btn" onclick="toggleDD('dd-segment')"><span id="dd-segment-lbl">Segmento</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-segment-menu"></div></div>
+    <div class="ms-dd" id="dd-region"><button class="ms-dd-btn" onclick="toggleDD('dd-region')"><span id="dd-region-lbl">Região</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-region-menu"></div></div>
     <div class="ms-dd" id="dd-status"><button class="ms-dd-btn" onclick="toggleDD('dd-status')"><span id="dd-status-lbl">Todos os status</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-status-menu"></div></div>
     <div class="ms-dd" id="dd-gp"><button class="ms-dd-btn" onclick="toggleDD('dd-gp')"><span id="dd-gp-lbl">Todos os GPs</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-gp-menu"></div></div>
     <div class="ms-dd" id="dd-health"><button class="ms-dd-btn" onclick="toggleDD('dd-health')"><span id="dd-health-lbl">Saúde do cronograma</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-health-menu"></div></div>
@@ -1123,7 +1125,7 @@ function showView(v){
 }
 
 // ── MULTI-SELECT FILTER STATE ──
-const msFilters={status:new Set(),gp:new Set(),health:new Set(),times:new Set(),tipo:new Set()};
+const msFilters={status:new Set(),gp:new Set(),health:new Set(),times:new Set(),tipo:new Set(),segment:new Set(),region:new Set()};
 
 // ── INIT FILTERS ──
 function initFilters(){
@@ -1140,6 +1142,12 @@ function initFilters(){
   buildDD('dd-times','dd-times-menu','dd-times-lbl','times',allTimes,'Todos os times');
   const tipos=[...new Set(PROJECTS.map(p=>p.type).filter(Boolean))].sort();
   buildDD('dd-tipo','dd-tipo-menu','dd-tipo-lbl','tipo',tipos,'Tipo');
+  const SEGMENT_FILTER_OPTIONS=['Telco','Utilities','Education','Health','Others'];
+  buildDD('dd-segment','dd-segment-menu','dd-segment-lbl','segment',SEGMENT_FILTER_OPTIONS,'Segmento');
+  const REGION_ORDER=['Brasil','LATAM','International','Todas'];
+  const regsPresent=[...new Set(PROJECTS.map(p=>p.region).filter(Boolean))];
+  const regions=REGION_ORDER.filter(r=>regsPresent.includes(r)).concat(regsPresent.filter(r=>!REGION_ORDER.includes(r)));
+  buildDD('dd-region','dd-region-menu','dd-region-lbl','region',regions,'Região');
   // Close dropdowns on outside click
   document.addEventListener('click',function(e){
     document.querySelectorAll('.ms-dd.open').forEach(dd=>{if(!dd.contains(e.target))dd.classList.remove('open');});
@@ -1270,6 +1278,16 @@ function clearOtherFilterCategories(except){
     document.querySelectorAll('#dd-tipo-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
     updateDD('dd-tipo','dd-tipo-lbl','tipo','Tipo');
   }
+  if(except!=='segment'){
+    msFilters.segment.clear();
+    document.querySelectorAll('#dd-segment-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-segment','dd-segment-lbl','segment','Segmento');
+  }
+  if(except!=='region'){
+    msFilters.region.clear();
+    document.querySelectorAll('#dd-region-menu .ms-dd-item').forEach(item=>{item.classList.remove('checked');const cb=item.querySelector('input');if(cb)cb.checked=false;});
+    updateDD('dd-region','dd-region-lbl','region','Região');
+  }
 }
 function setF(f,el){
   clearOtherFilterCategories('pf');
@@ -1294,6 +1312,12 @@ function renderPortfolio(){
   const gpF=msFilters.gp;
   const healthF=msFilters.health;
   const timesF=msFilters.times;
+  const segF=msFilters.segment;
+  const regF=msFilters.region;
+  // Qualquer filtro ativo (busca, atalho com/sem cronograma, status, GP, saúde, times, tipo, segmento ou região)
+  // força a coluna de prioridade a virar um ranking sequencial (1,2,3...) só entre os itens visíveis,
+  // em vez de mostrar a "Nova Prioridade" bruta do Jira.
+  const filtersActive = !!q || !pfFilter.has('all') || statusF.size>0 || gpF.size>0 || healthF.size>0 || timesF.size>0 || msFilters.tipo.size>0 || segF.size>0 || regF.size>0;
   const tbody=document.getElementById('pf-body');tbody.innerHTML='';
   let shown=0;let rowNum=0;
   PROJECTS.forEach(p=>{
@@ -1306,6 +1330,8 @@ function renderPortfolio(){
       if(!matchSched&&!matchNoSched)return;
     }
     if(msFilters.tipo.size>0&&!msFilters.tipo.has(p.type))return;
+    if(segF.size>0&&!segF.has(p.segment||'Produtos'))return;
+    if(regF.size>0&&!regF.has(p.region))return;
     if(statusF.size>0&&!statusF.has(p.status))return;
     if(gpF.size>0&&![...gpF].some(g=>g==='TBD'?isNoGP(p.gp):(p.gp===g||p.gp.startsWith(g))))return;
     if(healthF.size>0&&!healthF.has(st.health))return;
@@ -1316,7 +1342,7 @@ function renderPortfolio(){
     const glOverdue=glDate&&pd(glDate)<TODAY&&p.status!=='CANCELADO'&&p.status!=='Pós produção';
     const tr=document.createElement('tr');
     tr.innerHTML=`
-      <td style="text-align:center;font-size:9px;color:var(--text3)">${p.priority!=null&&p.priority!==9999?`<span class="prio-badge">#${Math.trunc(p.priority)}</span>`:rowNum}</td>
+      <td style="text-align:center;font-size:9px;color:var(--text3)">${filtersActive?`<span class="prio-badge" title="Posição dentro do filtro aplicado">#${rowNum}</span>`:(p.priority!=null&&p.priority!==9999?`<span class="prio-badge">#${Math.trunc(p.priority)}</span>`:rowNum)}</td>
       <td><div style="display:flex;align-items:center;gap:5px;cursor:pointer;overflow:hidden" onclick="openProject('${p.key}')">
         <span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700;white-space:nowrap;flex-shrink:0">${p.key}</span>
         <span style="font-weight:500;font-size:clamp(8px,1vw,9.5px);overflow:hidden;flex:1;min-width:0;word-break:break-word;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" title="${p.summary}">${p.summary}</span>
@@ -1341,6 +1367,8 @@ function renderPortfolio(){
   if(afr){afr.innerHTML='';const filters2=[];
     if(!pfFilter.has('all')){pfFilter.forEach(f=>{filters2.push({label:f==='sched'?'Com cron.':f==='nosched'?'Sem cron.':f,clear:()=>{pfFilter.delete(f);if(!pfFilter.size){pfFilter.add('all');document.getElementById('fbtn-all').classList.add('on');}renderPortfolio();},col:'#6924E1',bg:'#ede9fe'});});}
     if(msFilters.tipo.size>0)msFilters.tipo.forEach(t=>filters2.push({label:'Tipo: '+t,clear:()=>{msFilters.tipo.delete(t);updateDD('dd-tipo','dd-tipo-lbl','tipo','Tipo');renderPortfolio();},col:'#0369a1',bg:'#e0f2fe'}));
+    if(segF.size>0)segF.forEach(s=>filters2.push({label:'Segmento: '+(s==='Produtos'?'TI/Produtos':s),clear:()=>{msFilters.segment.delete(s);updateDD('dd-segment','dd-segment-lbl','segment','Segmento');renderPortfolio();},col:'#9d174d',bg:'#fce7f3'}));
+    if(regF.size>0)regF.forEach(r=>filters2.push({label:'Região: '+r,clear:()=>{msFilters.region.delete(r);updateDD('dd-region','dd-region-lbl','region','Região');renderPortfolio();},col:'#166534',bg:'#dcfce7'}));
     if(statusF.size>0)statusF.forEach(s=>filters2.push({label:s.slice(0,14),clear:()=>{msFilters.status.delete(s);updateDD('dd-status','dd-status-lbl','status','Todos os status');renderPortfolio();},col:'#155e75',bg:'#cffafe'}));
     if(gpF.size>0)gpF.forEach(g=>filters2.push({label:'GP: '+g.split(' ')[0],clear:()=>{msFilters.gp.delete(g);updateDD('dd-gp','dd-gp-lbl','gp','Todos os GPs');renderPortfolio();},col:'#5b21b6',bg:'#ede9fe'}));
     if(healthF.size>0)healthF.forEach(h=>filters2.push({label:h==='on-track'?'Nos trilhos':h==='alert'?'Em alerta':h==='off-track'?'Fora dos trilhos':'Sem cron.',clear:()=>{msFilters.health.delete(h);updateDD('dd-health','dd-health-lbl','health','Saúde do cronograma');renderPortfolio();},col:'#166534',bg:'#dcfce7'}));
@@ -4037,7 +4065,7 @@ function initFirebase() {
 }
 
 const GAS_URL='https://script.google.com/macros/s/AKfycbyfLKNtWMYbUdhWmkzNgLF25ZgFruphvxiCKHChHWgLnKLhcJpYlAEraz6RRGJSgoJA0A/exec';
-const JIRA_SYNC_FIELDS='summary,status,issuetype,duedate,created,customfield_28494,customfield_28488,customfield_29150,customfield_27831,customfield_29719,customfield_29858';
+const JIRA_SYNC_FIELDS='summary,status,issuetype,duedate,created,customfield_28494,customfield_28488,customfield_29150,customfield_27831,customfield_29719,customfield_29858,customfield_29851';
 const JIRA_JQL='project = VMO AND issuetype in (Comercial, Produtos, Tarefa) ORDER BY customfield_28488 ASC';
 
 // ── PERSISTENCE ──────────────────────────────────────────
@@ -4347,6 +4375,7 @@ function applyJiraSync(freshProjects){
       PROJECTS[idx].times    = fp.times    ?? PROJECTS[idx].times;
       PROJECTS[idx].created  = fp.created  ?? PROJECTS[idx].created;
       PROJECTS[idx].segment  = fp.segment  ?? PROJECTS[idx].segment;
+      PROJECTS[idx].region   = fp.region   ?? PROJECTS[idx].region;
       // golive agora vem só de "Data limite" (duedate) — sobrescreve sempre, mesmo quando
       // o Jira vier vazio, para não manter preso um valor antigo do campo "Go Live" (customfield_29150)
       PROJECTS[idx].golive   = fp.golive   ?? null;
@@ -4430,6 +4459,7 @@ function parseSyncJson(){
       priority:i.fields.customfield_28488||null,
       golive:i.fields.duedate||null, // "Data limite" (campo nativo do Jira) — fonte do Go Live
       segment:i.fields.customfield_29858?.value||'Produtos',
+      region:i.fields.customfield_29851?.value||null,
       created:(i.fields.created||'').slice(0,10),
       times:(i.fields.customfield_29719||[]).map(t=>t.value).filter(Boolean),
     }));
