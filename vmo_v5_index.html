@@ -4375,7 +4375,7 @@ function applyJiraSync(freshProjects){
       PROJECTS[idx].times    = fp.times    ?? PROJECTS[idx].times;
       PROJECTS[idx].created  = fp.created  ?? PROJECTS[idx].created;
       PROJECTS[idx].segment  = fp.segment  ?? PROJECTS[idx].segment;
-      PROJECTS[idx].region   = fp.region   ?? PROJECTS[idx].region;
+      PROJECTS[idx].region   = (fp.region ?? PROJECTS[idx].region) ?? null;
       // golive agora vem só de "Data limite" (duedate) — sobrescreve sempre, mesmo quando
       // o Jira vier vazio, para não manter preso um valor antigo do campo "Go Live" (customfield_29150)
       PROJECTS[idx].golive   = fp.golive   ?? null;
@@ -4390,8 +4390,16 @@ function applyJiraSync(freshProjects){
   showSyncSuccess(freshProjects.length);
   // Persist updated project list to Firebase
   if(firebaseReady&&db){
+    // Rede de segurança: Firestore rejeita a escrita inteira se QUALQUER campo em QUALQUER
+    // projeto vier undefined (ex.: campo novo, como "region", que projetos antigos em cache
+    // ainda não têm). Normaliza pra null antes de persistir, pra nunca travar o sync inteiro.
+    const projectsToSave = PROJECTS.map(p=>{
+      const clean = {...p};
+      Object.keys(clean).forEach(k=>{ if(clean[k]===undefined) clean[k]=null; });
+      return clean;
+    });
     db.collection('app_config').doc('projects').set({
-      projects:  PROJECTS,
+      projects:  projectsToSave,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     }).catch(e=>console.warn('persistProjects error:',e));
   }
