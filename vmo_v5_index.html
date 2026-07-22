@@ -687,6 +687,12 @@ table.pft tr:hover td{background:var(--bg2)}
       </div>
       <div class="rsm-col">
         <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-star" style="font-size:11px;color:var(--text3)"></i><h4>Scoring</h4>
+            <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos Comerciais combinando porte financeiro, risco e complexidade técnica. Clique para ver o detalhe do cálculo." onclick="openScoringInfoModal()"></i>
+          </div>
+          <div class="rsm-card-body"><div id="rsm-scoring-body"></div></div>
+        </div>
+        <div class="rsm-card">
           <div class="rsm-card-hdr"><i class="ti ti-users" style="font-size:11px;color:var(--text3)"></i><h4>Ponto de Contato</h4>
             <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="openStakeholdersModal()">Gerenciar</button>
           </div>
@@ -1709,7 +1715,7 @@ function renderPortfolio(){
       <td style="text-align:center;font-size:9px;color:var(--text3)">${(!filtersActive)&&(p.lastPriority!=null)?Math.trunc(p.lastPriority):'—'}</td>
       <td style="text-align:center;font-size:9px;font-weight:700;color:var(--text3)">${(filtersActive&&!scopedReorder)?rowNum:(scopedReorder?rowNum:(p.priority!=null&&p.priority!==9999?Math.trunc(p.priority):rowNum))}</td>
       <td style="text-align:center;font-size:9px;font-weight:600;white-space:nowrap;color:${(!filtersActive)&&/⬆/.test(p.priorityVariation||'')?'var(--green)':(!filtersActive)&&/⬇/.test(p.priorityVariation||'')?'var(--red)':'var(--text3)'}" title="Variação de prioridade (Jira)">${(!filtersActive)&&p.priorityVariation?p.priorityVariation:'—'}</td>
-      <td><div style="display:flex;align-items:center;gap:5px;cursor:pointer;overflow:hidden" onclick="openProject('${p.key}')">
+      <td><div style="display:flex;align-items:center;gap:5px;cursor:pointer;overflow:hidden" onclick="openProjectSchedule('${p.key}')">
         <span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700;white-space:nowrap;flex-shrink:0">${p.key}</span>
         <span style="font-weight:500;font-size:clamp(8px,1vw,9.5px);overflow:hidden;flex:1;min-width:0;word-break:break-word;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" title="${p.summary}">${p.summary}</span>
         ${alertBadges?`<span style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">${alertBadges}</span>`:''}
@@ -1723,7 +1729,7 @@ function renderPortfolio(){
       <td>${healthBadge(st.health)}</td>
       <td>${st.has&&st.tasks>0?`<div style="display:flex;align-items:center;gap:4px"><div class="prog-track" style="width:55px"><div class="prog-fill" style="width:${st.prog}%;background:#6924E1"></div></div><span style="font-size:9.5px;color:var(--text3)">${st.prog}%</span></div>`:'—'}</td>
       <td>${(()=>{const sr=p.type==='Comercial'?computeScoring(schedules[p.key]?.scoring):null;return sr?`<b style="color:${sr.cls.color};font-size:10px">${sr.score.toFixed(2)} ${sr.cls.emoji}</b>`:'<span style="color:var(--text3);font-size:10px">—</span>';})()}</td>
-      <td><button class="pf-act ${st.has?'':'pri'}" onclick="openProject('${p.key}')">${st.has?'Ver cronograma':'Criar cronograma'}</button></td>`;
+      <td><button class="pf-act ${st.has?'':'pri'}" onclick="openProjectSchedule('${p.key}')">${st.has?'Ver cronograma':'Criar cronograma'}</button></td>`;
     if(dragEnabled){
       tr.draggable=true;
       tr.style.cursor='grab';
@@ -3041,14 +3047,17 @@ async function sendStakeholderSlack(){
 // ═══════════════════════════════════════════
 //  SCHEDULE
 // ═══════════════════════════════════════════
-function openProject(key){
+// Setup compartilhado por qualquer ponto de entrada num projeto (curKey, URL, schedule
+// default, campos do header do cronograma). Retorna false se não puder abrir (sem acesso
+// ou projeto ainda não sincronizado) — quem chamou já mostrou o alert nesse caso.
+function prepareProjectContext(key){
   if(!canViewProject(key)){
-    alert('Você não tem acesso a este projeto.');return;
+    alert('Você não tem acesso a este projeto.');return false;
   }
   const p=PROJECTS.find(x=>x.key===key);
   if(!p){
     alert('Projeto '+key+' não encontrado. Aguarde a sincronização terminar (alguns segundos) e tente novamente.');
-    return;
+    return false;
   }
   curKey=key;
   // Update browser URL so this page can be shared/bookmarked
@@ -3060,7 +3069,19 @@ function openProject(key){
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
   document.getElementById('se-jira-key').textContent=key;jl.href=`https://one-bemobi.atlassian.net/browse/${key}`;
   document.getElementById('template-btn').style.display='';
+  return true;
+}
+// Abre o Dashboard de Visão Geral (Resumo) do projeto — usado pela maioria dos pontos de
+// clique do app (Status do Portfólio, Carga de Trabalho, Histórico, Alertas, Resumo dos Projetos).
+function openProject(key){
+  if(!prepareProjectContext(key))return;
   showView('resumo');renderResumoDashboard();
+}
+// Abre o Cronograma completo direto — usado na aba Prioridades (e por extensão nos cards
+// do widget "Cronogramas" da Visão Geral, que já caem na aba Prioridades ao filtrar).
+function openProjectSchedule(key){
+  if(!prepareProjectContext(key))return;
+  showView('schedule');renderSchedule();
 }
 function goToCronograma(){
   if(!curKey)return;
@@ -3131,10 +3152,37 @@ function renderResumoDashboard(){
   else document.getElementById('resumo-timeline').style.display='none';
 
   renderResumoUpdatesList();
+  renderResumoScoringCard();
   renderContactCard();
   renderResumoDecisionsList();
   renderResumoMinutesList();
   renderResumoProjectList();
+}
+function renderResumoScoringCard(){
+  const p=PROJECTS.find(x=>x.key===curKey);const sched=schedules[curKey];
+  const body=document.getElementById('rsm-scoring-body');if(!body||!p||!sched)return;
+  const canEdSc=canEdit(curKey)&&p.status!==DELIVERED_STATUS;
+  if(p.type!=='Comercial'){
+    body.innerHTML=p.type==='Produtos'
+      ? '<div class="rsm-empty">Scoring de Produtos em definição.</div>'
+      : '<div class="rsm-empty">Scoring não se aplica a este tipo de projeto.</div>';
+    return;
+  }
+  const scRes=computeScoring(sched.scoring);
+  if(scRes){
+    body.innerHTML=`<div style="display:flex;align-items:center;gap:9px;${canEdSc?'cursor:pointer':''}"${canEdSc?` onclick="openScoringModal()" title="Editar scoring"`:''}>
+        <div style="font-size:22px;font-weight:700;color:${scRes.cls.color};line-height:1">${scRes.score.toFixed(2)}</div>
+        <div style="min-width:0">
+          <div style="font-size:11px;font-weight:600;color:${scRes.cls.color}">${scRes.cls.emoji} ${scRes.cls.label}</div>
+          ${scRes.alert?`<div style="font-size:9.5px;color:var(--red);margin-top:1px">${scRes.alert}</div>`:''}
+        </div>
+        ${canEdSc?`<i class="ti ti-pencil" style="font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0"></i>`:''}
+      </div>`;
+  } else if(canEdSc){
+    body.innerHTML=`<button class="btn-c" style="font-size:9.5px;padding:4px 9px;display:flex;gap:5px;align-items:center" onclick="openScoringModal()"><i class="ti ti-star" style="font-size:10px"></i> Preencher scoring</button>`;
+  } else {
+    body.innerHTML='<div class="rsm-empty">Scoring ainda não preenchido.</div>';
+  }
 }
 function editScopeLinkFromResumo(){
   if(!curKey)return;
