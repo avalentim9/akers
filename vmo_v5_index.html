@@ -385,6 +385,11 @@ table.pft tr:hover td{background:var(--bg2)}
 .vg{display:flex;gap:1px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px}
 .vbtn{font-size:9.5px;padding:2px 8px;border:none;background:transparent;border-radius:3px;cursor:pointer;color:var(--text3);font-weight:500;white-space:nowrap}
 .vbtn.on{background:var(--blue);color:#fff}
+.hdr-dd-menu{display:none;position:fixed;background:#fff;border-radius:10px;box-shadow:0 8px 32px rgba(11,27,115,.2);min-width:200px;z-index:9999;overflow:hidden;border:1px solid #e2e6f0;padding:4px 0}
+.hdr-dd-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;font-size:11px;color:#0f1623;transition:background .1s;white-space:nowrap}
+.hdr-dd-item:hover{background:#f8f9fc}
+.hdr-dd-item i{font-size:13px;color:#8a94a8;width:14px;flex-shrink:0}
+
 #proj-sum{display:flex;align-items:center;gap:10px;padding:5px 13px;background:var(--off);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap}
 .ps-item{display:flex;align-items:center;gap:3px;font-size:10px}
 .ps-lbl{color:var(--text3);font-size:9.5px}
@@ -544,10 +549,13 @@ table.pft tr:hover td{background:var(--bg2)}
     <i class="ti ti-refresh" style="font-size:11px" id="sync-icon"></i> Sync Jira
   </button>
   <div class="tn-sep"></div>
-  <button class="tn-btn" id="export-btn" onclick="openExportModal()" style="display:none"><i class="ti ti-download" style="font-size:10px"></i> Exportar</button>
-  <button class="tn-btn" id="audit-btn" onclick="openAuditModal()" style="display:none"><i class="ti ti-history" style="font-size:10px"></i> Histórico</button>
-  <button class="tn-btn" id="stakeholders-btn" onclick="openStakeholdersModal()" style="display:none"><i class="ti ti-users" style="font-size:10px"></i> Stakeholders</button>
-  <button class="tn-btn" id="decisions-btn" onclick="openDecisionsModal()" style="display:none"><i class="ti ti-gavel" style="font-size:10px"></i> Decisões</button>
+  <button class="tn-btn hdr-dd-trigger" id="sched-more-btn" onclick="toggleHdrMenu(event,'schedmore')" style="display:none"><i class="ti ti-dots" style="font-size:12px"></i></button>
+  <div class="hdr-dd-menu" id="hdr-menu-schedmore">
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openExportModal()"><i class="ti ti-download"></i> Exportar</div>
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openAuditModal()"><i class="ti ti-history"></i> Histórico</div>
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openStakeholdersModal()"><i class="ti ti-users"></i> Stakeholders</div>
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openDecisionsModal()"><i class="ti ti-gavel"></i> Decisões</div>
+  </div>
   <div class="tn-sep"></div>
   <!-- Profile button -->
   <div class="tn-profile" id="tn-profile" onclick="toggleProfileMenu(event)">
@@ -731,18 +739,24 @@ table.pft tr:hover td{background:var(--bg2)}
     <button class="seb" onclick="scrollToToday()"><i class="ti ti-calendar-event" style="font-size:10px"></i> Hoje</button>
     <button class="seb" onclick="shiftV(-1)"><i class="ti ti-chevron-left" style="font-size:10px"></i></button>
     <button class="seb" onclick="shiftV(1)"><i class="ti ti-chevron-right" style="font-size:10px"></i></button>
-    <button class="seb" id="seq-btn" onclick="toggleSeqNums()" title="Numerar unidades sequencialmente (D1/D2 ou S1/S2 ou M1/M2)"><i class="ti ti-list-numbers" style="font-size:10px"></i> Seq.</button>
-    <button class="seb" id="stms-btn" onclick="toggleStrike('ms')"><i class="ti ti-strikethrough" style="font-size:10px"></i> Etapas</button>
-    <button class="seb" id="sttask-btn" onclick="toggleStrike('task')"><i class="ti ti-strikethrough" style="font-size:10px"></i> Tarefas</button>
-    <button class="seb" id="cal-btn" onclick="openCalModal()"><i class="ti ti-calendar-cog" style="font-size:10px"></i> Calendário</button>
-    <button class="seb" id="baseline-btn" onclick="openBaselineViewModal()" title="Ver o cronograma original: a primeira versão registrada deste projeto (etapas e tarefas como foram criadas)."><i class="ti ti-git-compare" style="font-size:10px"></i> Baseline</button>
-    <button class="seb" id="baseline-compare-btn" onclick="openBaselineCompareModal()" title="Comparação detalhada: datas alteradas e tarefas/etapas criadas ou removidas desde o planejamento original."><i class="ti ti-list-details" style="font-size:10px"></i> Comparar</button>
-    <button class="seb" id="critical-btn" onclick="toggleCritical()" title="Caminho crítico: destaca com contorno tracejado as tarefas marcadas manualmente como 'críticas' — atrasá-las pode impactar a data final do projeto."><i class="ti ti-bolt" style="font-size:10px"></i> Caminho Crítico</button>
+    <button class="seb hdr-dd-trigger" onclick="toggleHdrMenu(event,'exibicao')"><i class="ti ti-adjustments" style="font-size:10px"></i> Exibição <i class="ti ti-chevron-down" style="font-size:9px"></i></button>
+    <button class="seb hdr-dd-trigger" onclick="toggleHdrMenu(event,'ferramentas')"><i class="ti ti-tools" style="font-size:10px"></i> Ferramentas <i class="ti ti-chevron-down" style="font-size:9px"></i></button>
     <div style="flex:1"></div>
-    <button class="seb" onclick="openImportModal()" id="import-btn" style="display:none"><i class="ti ti-file-import" style="font-size:10px"></i> Importar</button>
-    <button class="seb pri" onclick="openTemplateModal()" id="template-btn" style="display:none"><i class="ti ti-template" style="font-size:10px"></i> Modelos</button>
-    <button class="seb" id="gantt-toggle-btn" onclick="toggleGantt()" title="Exibir/ocultar o diagrama de Gantt"><i class="ti ti-layout-sidebar-right" style="font-size:10px"></i> Gantt</button>
     <button class="seb pri" id="new-ms-btn" onclick="openMsModal(null)"><i class="ti ti-flag-plus" style="font-size:10px"></i> Nova etapa</button>
+  </div>
+  <div class="hdr-dd-menu" id="hdr-menu-exibicao">
+    <div class="hdr-dd-item" id="seq-btn" onclick="toggleSeqNums()" title="Numerar unidades sequencialmente (D1/D2 ou S1/S2 ou M1/M2)"><i class="ti ti-list-numbers"></i> Seq.</div>
+    <div class="hdr-dd-item" id="stms-btn" onclick="toggleStrike('ms')"><i class="ti ti-strikethrough"></i> Riscar etapas concluídas</div>
+    <div class="hdr-dd-item" id="sttask-btn" onclick="toggleStrike('task')"><i class="ti ti-strikethrough"></i> Riscar tarefas concluídas</div>
+    <div class="hdr-dd-item" id="critical-btn" onclick="toggleCritical()" title="Caminho crítico: destaca com contorno tracejado as tarefas marcadas manualmente como 'críticas' — atrasá-las pode impactar a data final do projeto."><i class="ti ti-bolt"></i> Caminho Crítico</div>
+  </div>
+  <div class="hdr-dd-menu" id="hdr-menu-ferramentas">
+    <div class="hdr-dd-item" id="cal-btn" onclick="closeAllHdrMenus();openCalModal()"><i class="ti ti-calendar-cog"></i> Calendário</div>
+    <div class="hdr-dd-item" id="baseline-btn" onclick="closeAllHdrMenus();openBaselineViewModal()" title="Ver o cronograma original: a primeira versão registrada deste projeto (etapas e tarefas como foram criadas)."><i class="ti ti-git-compare"></i> Baseline</div>
+    <div class="hdr-dd-item" id="baseline-compare-btn" onclick="closeAllHdrMenus();openBaselineCompareModal()" title="Comparação detalhada: datas alteradas e tarefas/etapas criadas ou removidas desde o planejamento original."><i class="ti ti-list-details"></i> Comparar</div>
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openImportModal()" id="import-btn" style="display:none"><i class="ti ti-file-import"></i> Importar</div>
+    <div class="hdr-dd-item" onclick="closeAllHdrMenus();openTemplateModal()" id="template-btn" style="display:none"><i class="ti ti-template"></i> Modelos</div>
+    <div class="hdr-dd-item" id="gantt-toggle-btn" onclick="toggleGantt()" title="Exibir/ocultar o diagrama de Gantt"><i class="ti ti-layout-sidebar-right"></i> Gantt</div>
   </div>
   <div id="delivered-banner" style="display:none;padding:6px 14px;background:#f1f5f9;border-bottom:1px solid var(--border);font-size:10.5px;color:#475569;align-items:center;gap:6px"><i class="ti ti-archive" style="font-size:12px"></i><span id="delivered-banner-txt"></span></div>
   <div id="proj-sum"></div>
@@ -1084,6 +1098,26 @@ function closeProfileMenu() {
   const menu = document.getElementById('tn-profile-menu');
   if (menu) menu.style.display = 'none';
 }
+// ── Menus dropdown genéricos do header (Exibição / Ferramentas / "..." do topbar) ──
+function toggleHdrMenu(e,name){
+  if(e)e.stopPropagation();
+  const menu=document.getElementById('hdr-menu-'+name);
+  if(!menu)return;
+  const wasOpen=menu.style.display==='block';
+  closeAllHdrMenus();
+  if(!wasOpen){
+    const btn=e&&e.currentTarget;
+    if(btn){
+      const rect=btn.getBoundingClientRect();
+      menu.style.top=(rect.bottom+4)+'px';
+      menu.style.left=rect.left+'px';
+    }
+    menu.style.display='block';
+  }
+}
+function closeAllHdrMenus(){
+  document.querySelectorAll('.hdr-dd-menu').forEach(m=>m.style.display='none');
+}
 function doLogout() {
   if (!confirm('Deseja sair da sua conta?')) return;
   clearSession();
@@ -1120,6 +1154,7 @@ window.addEventListener('load', function() {
   document.addEventListener('click', function(e) {
     const profile = document.getElementById('tn-profile');
     if (profile && !profile.contains(e.target)) closeProfileMenu();
+    if (!e.target.closest('.hdr-dd-menu') && !e.target.closest('.hdr-dd-trigger')) closeAllHdrMenus();
   });
   // Try to restore session
   const session = loadSession();
@@ -1309,11 +1344,9 @@ function showView(v){
   // Show access/export/audit only for editors+
   const showEdit = isEditorOrAbove();
   document.getElementById('pm-access-btn').style.display=(v==='schedule'&&showEdit)?'flex':'none';
-  document.getElementById('export-btn').style.display=v==='schedule'?'':'none';
-  document.getElementById('audit-btn').style.display=v==='schedule'?'':'none';
-  document.getElementById('stakeholders-btn').style.display=v==='schedule'?'':'none';
-  document.getElementById('decisions-btn').style.display=v==='schedule'?'':'none';
+  document.getElementById('sched-more-btn').style.display=v==='schedule'?'':'none';
   document.getElementById('template-btn').style.display=(v==='schedule'&&curKey&&showEdit)?'':'none';
+  closeAllHdrMenus();
   if(v==='updates')renderUpdatesProjectList();
   if(v==='scoring')renderScoringView();
   if(v==='prioridades')renderPortfolio();
