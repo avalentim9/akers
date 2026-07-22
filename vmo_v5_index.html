@@ -175,6 +175,7 @@ input[type=checkbox]{width:13px;height:13px;accent-color:var(--purple);cursor:po
 .kpi-row2{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
 .kc2{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;min-width:90px;cursor:default;transition:filter .15s}
 .kc2:hover{filter:brightness(.97)}
+.alert-kc-on{outline:2px solid currentColor;outline-offset:-2px}
 .total-card{min-width:80px}
 /* KPI cards section OLD*/
 #pf-kpi{display:flex;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--border)}
@@ -317,6 +318,48 @@ table.pft tr:hover td{background:var(--bg2)}
 .upd-tag.date{background:#f0f9ff;color:#0369a1}
 .upd-del-btn{font-size:9px;background:transparent;border:1px solid #fca5a5;color:var(--red);padding:1px 6px;border-radius:4px;cursor:pointer;margin-left:auto}
 .upd-del-btn:hover{background:#fee2e2}
+
+/* ════════════ RESUMO (Dashboard de Visão Geral) ════════════ */
+#rsm-sidebar{width:250px;flex-shrink:0;border-right:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden}
+#rsm-sidebar-hdr{padding:8px 11px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:5px}
+#rsm-sidebar-hdr h3{font-size:11px;font-weight:600}
+#rsm-proj-list{flex:1;overflow-y:auto}
+.rsm-proj-item{display:flex;align-items:center;gap:6px;padding:6px 11px;cursor:pointer;border-bottom:.5px solid var(--border);transition:background .1s}
+.rsm-proj-item:hover{background:var(--bg)}.rsm-proj-item.active{background:#ede9fe;border-left:3px solid var(--purple)}
+#rsm-main{flex:1;display:flex;flex-direction:column;overflow-y:auto}
+#rsm-hdr{padding:11px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--bg);flex-wrap:wrap}
+#rsm-hdr h2{font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:120px}
+#rsm-body{flex:1;display:grid;grid-template-columns:1.4fr 1fr;gap:12px;padding:14px 16px;align-content:start}
+@media(max-width:900px){#rsm-body{grid-template-columns:1fr}}
+.rsm-col{display:flex;flex-direction:column;gap:12px;min-width:0}
+.rsm-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.rsm-card-hdr{display:flex;align-items:center;gap:6px;padding:8px 11px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.rsm-card-hdr h4{font-size:10.5px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.03em;flex:1}
+.rsm-card-body{padding:10px 11px;font-size:11px;color:var(--text);line-height:1.6}
+.rsm-empty{font-size:10.5px;color:var(--text3);font-style:italic}
+.rsm-mini-list{display:flex;flex-direction:column;gap:6px}
+.rsm-mini-item{display:flex;gap:7px;padding:6px 8px;background:var(--bg2);border-radius:6px;align-items:flex-start}
+.rsm-mini-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* ════════════ DOCUMENTOS ÚTEIS ════════════ */
+#view-docs{padding:16px 20px;overflow-y:auto;gap:12px}
+#docs-hdr{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#docs-hdr h2{font-size:15px;font-weight:600;flex:1}
+.docs-search{position:relative;width:240px}.docs-search input{width:100%;border:1px solid var(--border2);border-radius:5px;padding:5px 8px 5px 25px;font-size:10.5px;background:var(--bg)}
+.docs-search i{position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text3)}
+#docs-filters{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.doc-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:7px}
+.doc-card-top{display:flex;align-items:flex-start;gap:8px}
+.doc-cat-icon{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.doc-title{font-size:11.5px;font-weight:700;color:var(--text);line-height:1.35}
+.doc-desc{font-size:10.5px;color:var(--text2);line-height:1.5;flex:1}
+.doc-tags{display:flex;gap:4px;flex-wrap:wrap}
+.doc-tag{font-size:8.5px;background:var(--bg2);color:var(--text2);padding:2px 6px;border-radius:8px;white-space:nowrap}
+.doc-card-ftr{display:flex;align-items:center;gap:6px;margin-top:2px}
+.doc-empty{grid-column:1/-1;font-size:10.5px;color:var(--text3);text-align:center;padding:30px}
+
+
 .upd-react-row{display:flex;gap:6px;padding:6px 11px;border-top:1px solid var(--border);align-items:center}
 .upd-react-btn{font-size:12px;background:transparent;border:none;cursor:pointer;padding:1px 4px;border-radius:5px;transition:background .1s}
 .upd-react-btn:hover{background:var(--bg2)}
@@ -398,12 +441,15 @@ table.pft tr:hover td{background:var(--bg2)}
 .days-row{display:flex;height:16px}
 .ghd{display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text3);border-right:.5px solid var(--border);flex-shrink:0;position:relative}
 .ghd.we{background:rgba(239,68,68,.05);color:#ef4444}.ghd.tod{background:rgba(239,68,68,.2);color:#ef4444;font-weight:700}
+.ghd.wk-start{font-weight:700;color:var(--text2);border-left:1.5px solid var(--border2)}
+.ghd.wk-start.we{color:#ef4444}
 .tod-lbl{position:absolute;top:-13px;background:#ef4444;color:#fff;font-size:7px;font-weight:700;padding:1px 3px;border-radius:3px;white-space:nowrap;z-index:5}
 .chart-rows{position:relative}
 .crow{height:var(--rh);display:flex;align-items:center;border-bottom:.5px solid var(--border);position:relative}
 .crow.ms-bg{background:var(--off)}.crow.hidden{display:none}
 .gcol{position:absolute;top:0;bottom:0;width:.5px;background:var(--border);pointer-events:none}
 .gcol.we-bg{background:rgba(239,68,68,.07);pointer-events:none}
+.gcol.wk-start-ln{width:1.5px;background:var(--border2)}
 .today-ln{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;opacity:.5;pointer-events:none;z-index:2}
 .gbar{position:absolute;height:18px;top:7px;border-radius:4px;cursor:pointer;overflow:visible;min-width:3px;transition:filter .12s}
 .gbar:hover{filter:brightness(1.1);z-index:5}
@@ -483,9 +529,11 @@ table.pft tr:hover td{background:var(--bg2)}
   </div>
   <div class="nav-tab active" onclick="showView('portfolio')" data-view="portfolio"><i class="ti ti-layout-dashboard" style="font-size:13px"></i><span class="stlabel">Visão Geral</span><span class="nt-badge" id="badge-pf">83</span></div>
   <div class="nav-tab" onclick="showView('schedule')" data-view="schedule" id="nav-schedule"><i class="ti ti-calendar-stats" style="font-size:13px"></i><span class="stlabel">Cronogramas</span></div>
+  <div class="nav-tab" onclick="showView('resumo')" data-view="resumo" id="nav-resumo"><i class="ti ti-layout-grid" style="font-size:13px"></i><span class="stlabel">Resumo dos Projetos</span></div>
   <div class="nav-tab" onclick="showView('updates')" data-view="updates"><i class="ti ti-speakerphone" style="font-size:13px"></i><span class="stlabel">Atualizações</span></div>
   <div class="nav-tab" onclick="showView('prioridades')" data-view="prioridades"><i class="ti ti-sort-ascending" style="font-size:13px"></i><span class="stlabel">Prioridades</span></div>
   <div class="nav-tab" onclick="showView('scoring')" data-view="scoring"><i class="ti ti-star" style="font-size:13px"></i><span class="stlabel">Scoring</span></div>
+  <div class="nav-tab" onclick="showView('docs')" data-view="docs" id="nav-docs"><i class="ti ti-folder" style="font-size:13px"></i><span class="stlabel">Documentos Úteis</span></div>
   <div id="sidenav-spacer"></div>
   <span class="tn-sync" id="sync-txt"><i class="ti ti-brand-jira" style="font-size:11px"></i><span class="stlabel">one-bemobi.atlassian.net</span></span>
 </div>
@@ -584,6 +632,83 @@ table.pft tr:hover td{background:var(--bg2)}
   </div>
 </div>
 
+<!-- ══ RESUMO (Dashboard de Visão Geral) ══ -->
+<div class="view" id="view-resumo" style="flex-direction:row">
+  <div id="rsm-sidebar">
+    <div id="rsm-sidebar-hdr">
+      <div style="display:flex;align-items:center;gap:6px"><h3><i class="ti ti-layout-grid" style="font-size:12px;color:var(--purple)"></i> Resumo dos Projetos</h3></div>
+      <div class="upd-search"><i class="ti ti-search"></i><input type="text" id="rsm-search" placeholder="Buscar projeto..." oninput="renderResumoProjectList()"></div>
+    </div>
+    <div id="rsm-proj-list"></div>
+  </div>
+  <div id="rsm-main">
+    <div id="rsm-hdr">
+      <h2 id="rsm-title">Selecione um projeto</h2>
+      <a class="se-jira" id="rsm-jira-lnk" href="#" target="_blank" style="display:none"><i class="ti ti-brand-jira"></i><span id="rsm-jira-key"></span></a>
+      <span class="upd-golive-chip" id="rsm-golive" style="display:none"><i class="ti ti-calendar-check" style="font-size:10px"></i> Go Live: <b id="rsm-golive-val"></b></span>
+      <span id="rsm-health-slot"></span>
+      <button class="btn-c" id="rsm-goto-cronograma-btn" style="display:none;font-size:9.5px;padding:4px 9px;margin-left:auto" onclick="goToCronograma()"><i class="ti ti-calendar-stats" style="font-size:10px"></i> Ver Cronograma Completo</button>
+    </div>
+    <div id="rsm-hdr-meta" style="display:flex;align-items:center;gap:8px;padding:8px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg)">
+      <span class="upd-golive-chip" style="background:#ede9fe;color:#5b21b6"><i class="ti ti-building" style="font-size:10px"></i> Cliente: <b id="rsm-client-val">—</b><button class="btn-c" id="rsm-client-edit-btn" style="display:none;font-size:8px;padding:0 5px;margin-left:5px;border:none" onclick="editClientName()" title="Editar cliente"><i class="ti ti-pencil" style="font-size:8px"></i></button></span>
+      <span class="upd-golive-chip" style="background:#fce7f3;color:#9d174d"><i class="ti ti-tag" style="font-size:10px"></i> Segmento: <b id="rsm-segment-val">—</b></span>
+      <span class="upd-golive-chip" style="background:#dcfce7;color:#166534"><i class="ti ti-map-pin" style="font-size:10px"></i> Região: <b id="rsm-region-val">—</b></span>
+    </div>
+    <div id="rsm-empty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3)">
+      <i class="ti ti-layout-grid" style="font-size:26px"></i>
+      <p style="font-size:11px;text-align:center;max-width:260px;line-height:1.6">Selecione um projeto na lista ao lado para ver o Dashboard de Visão Geral.</p>
+    </div>
+    <div id="rsm-body" style="display:none">
+      <div class="rsm-col">
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-file-description" style="font-size:11px;color:var(--text3)"></i><h4>Escopo Macro</h4>
+            <button class="btn-c" id="rsm-scope-edit-btn" style="display:none;font-size:9px;padding:2px 7px" onclick="editScopeSummary()" title="Editar resumo do escopo"><i class="ti ti-pencil" style="font-size:9px"></i></button>
+          </div>
+          <div class="rsm-card-body">
+            <div id="rsm-scope-text"></div>
+            <div id="rsm-scope-link-row" style="margin-top:7px"></div>
+          </div>
+        </div>
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-timeline" style="font-size:11px;color:var(--text3)"></i><h4>Datas Macro</h4></div>
+          <div class="rsm-card-body">
+            <div id="resumo-timeline" style="display:none;align-items:center;gap:8px;position:relative;padding-top:16px">
+              <div id="resumo-timeline-track" style="position:relative;flex:1;height:28px"></div>
+            </div>
+            <div id="rsm-dates-empty" class="rsm-empty">Nenhuma etapa cadastrada ainda.</div>
+          </div>
+        </div>
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-speakerphone" style="font-size:11px;color:var(--text3)"></i><h4>Feed de Atualizações</h4>
+            <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="showView('updates');openUpdatesProject(curKey)">Ver todas</button>
+          </div>
+          <div class="rsm-card-body"><div id="rsm-updates-list" class="rsm-mini-list"></div></div>
+        </div>
+      </div>
+      <div class="rsm-col">
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-users" style="font-size:11px;color:var(--text3)"></i><h4>Ponto de Contato</h4>
+            <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="openStakeholdersModal()">Gerenciar</button>
+          </div>
+          <div class="rsm-card-body"><div id="rsm-contact-body"></div></div>
+        </div>
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-gavel" style="font-size:11px;color:var(--text3)"></i><h4>Principais Decisões</h4>
+            <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="openDecisionsModal()">Ver todas</button>
+          </div>
+          <div class="rsm-card-body"><div id="rsm-decisions-list" class="rsm-mini-list"></div></div>
+        </div>
+        <div class="rsm-card">
+          <div class="rsm-card-hdr"><i class="ti ti-notes" style="font-size:11px;color:var(--text3)"></i><h4>Atas de Reuniões</h4>
+            <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="openMinutesModal()">+ Nova / Ver todas</button>
+          </div>
+          <div class="rsm-card-body"><div id="rsm-minutes-list" class="rsm-mini-list"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ SCHEDULE ══ -->
 <div class="view" id="view-schedule">
   <div id="se-hdr">
@@ -604,7 +729,7 @@ table.pft tr:hover td{background:var(--bg2)}
     <button class="seb" id="stms-btn" onclick="toggleStrike('ms')"><i class="ti ti-strikethrough" style="font-size:10px"></i> Etapas</button>
     <button class="seb" id="sttask-btn" onclick="toggleStrike('task')"><i class="ti ti-strikethrough" style="font-size:10px"></i> Tarefas</button>
     <button class="seb" id="cal-btn" onclick="openCalModal()"><i class="ti ti-calendar-cog" style="font-size:10px"></i> Calendário</button>
-    <button class="seb" id="baseline-btn" onclick="toggleBaseline()" title="Baseline: mostra as datas ORIGINAIS (quando foi planejado) em barras semitransparentes abaixo das atuais, para comparar o quanto o cronograma mudou."><i class="ti ti-git-compare" style="font-size:10px"></i> Baseline</button>
+    <button class="seb" id="baseline-btn" onclick="openBaselineViewModal()" title="Ver o cronograma original: a primeira versão registrada deste projeto (etapas e tarefas como foram criadas)."><i class="ti ti-git-compare" style="font-size:10px"></i> Baseline</button>
     <button class="seb" id="baseline-compare-btn" onclick="openBaselineCompareModal()" title="Comparação detalhada: datas alteradas e tarefas/etapas criadas ou removidas desde o planejamento original."><i class="ti ti-list-details" style="font-size:10px"></i> Comparar</button>
     <button class="seb" id="critical-btn" onclick="toggleCritical()" title="Caminho crítico: destaca com contorno tracejado as tarefas marcadas manualmente como 'críticas' — atrasá-las pode impactar a data final do projeto."><i class="ti ti-bolt" style="font-size:10px"></i> Caminho Crítico</button>
     <div style="flex:1"></div>
@@ -620,6 +745,10 @@ table.pft tr:hover td{background:var(--bg2)}
     <span id="ms-bulk-count"></span>
     <button class="btn-c" style="margin-left:auto;padding:3px 9px;font-size:10px" onclick="clearMsSelection()">Cancelar</button>
     <button class="btn-c" style="padding:3px 9px;font-size:10px;color:#dc2626;border-color:#fca5a5" onclick="deleteSelectedMs()"><i class="ti ti-trash" style="font-size:10px"></i> Excluir selecionadas</button>
+  </div>
+  <div id="gantt-timeline" style="display:none;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid var(--border2);background:var(--bg2)">
+    <span style="font-size:8.5px;font-weight:700;color:var(--text3);letter-spacing:.4px;white-space:nowrap">LINHA DO TEMPO</span>
+    <div id="timeline-track" style="position:relative;flex:1;height:28px"></div>
   </div>
   <div id="se-body">
     <div id="se-left"><div class="tbl-hdr" id="tbl-hdr"></div><div id="tbl-rows"></div></div>
@@ -662,6 +791,23 @@ table.pft tr:hover td{background:var(--bg2)}
   </table>
 </div>
 
+<!-- ══ DOCUMENTOS ÚTEIS ══ -->
+<div class="view" id="view-docs">
+  <div id="docs-hdr">
+    <h2><i class="ti ti-folder" style="font-size:13px;color:var(--purple)"></i> Documentos Úteis</h2>
+    <div class="docs-search"><i class="ti ti-search"></i><input type="text" id="docs-search" placeholder="Buscar por título, descrição ou tag..." oninput="renderDocsLibrary()"></div>
+    <a class="btn-c" href="https://one-bemobi.atlassian.net/wiki/spaces/VHDGP/pages/5485232133/Materiais+Padronizados+do+VMO" target="_blank" style="font-size:9.5px;padding:4px 9px"><i class="ti ti-external-link" style="font-size:10px"></i> Ver página no Confluence</a>
+    <button class="tn-btn pri" id="docs-add-btn" style="display:none;font-size:9.5px;padding:4px 9px" onclick="openDocModal()"><i class="ti ti-plus" style="font-size:9px"></i> Adicionar material</button>
+  </div>
+  <div id="docs-filters">
+    <button class="fbtn on" data-doccat="all" onclick="setDocCat('all',this)">Todos</button>
+    <button class="fbtn" data-doccat="apresentacoes" onclick="setDocCat('apresentacoes',this)">🖼️ Apresentações</button>
+    <button class="fbtn" data-doccat="documentos" onclick="setDocCat('documentos',this)">📄 Documentos</button>
+    <button class="fbtn" data-doccat="planilhas" onclick="setDocCat('planilhas',this)">📊 Planilhas</button>
+  </div>
+  <div id="docs-grid"></div>
+</div>
+
 </div><!-- /content -->
 </div><!-- /main-col -->
 </div><!-- /shell -->
@@ -691,6 +837,21 @@ const ADMIN_EMAILS = [
 ];
 const EDITOR_EMAILS = [
   // 'gp.nome@bemobi.com',
+];
+
+// ── DOCUMENTOS ÚTEIS (Materiais Padronizados do VMO) ───────────────────────
+// Espelha a página do Confluence "Materiais Padronizados do VMO" (VHDGP/5485232133).
+// Fonte da verdade: https://one-bemobi.atlassian.net/wiki/spaces/VHDGP/pages/5485232133/
+// Somente admins podem cadastrar/editar/remover itens (pelo botão "Adicionar material").
+let DOCS_LIBRARY = [
+  { id:'doc1', category:'apresentacoes', title:'Apresentação de Go to Build / Kick Off', description:'Apresentação padrão para cerimônia de Go to Build/Kick Off', link:'https://docs.google.com/presentation/d/1_HeN6_F2Du99JOFV5Oi0fCYsP2MdXB6vZBIuBu9eU9c/edit?usp=sharing', tags:['kickoff','go-to-build','apresentação'] },
+  { id:'doc2', category:'apresentacoes', title:'Apresentação de Kick Off de Projetos', description:'Apresentação padrão para cerimônia de Kick Off de projetos', link:'https://docs.google.com/presentation/d/1EzUGPDpK9Z8Xbwq_rOGKI7WghkyAj1LKGIMJFqvVdho/edit?slide=id.g3ec60f589f9_0_1260#slide=id.g3ec60f589f9_0_1260', tags:['kickoff','apresentação'] },
+  { id:'doc3', category:'apresentacoes', title:'Kick Off Ampliado (Jornada Comercial)', description:'Versão ampliada com jornada comercial e contexto estratégico do cliente', link:'https://docs.google.com/presentation/d/1XSW312A6gFIRVj7t2RGtLR-FC1wr3rSleBfxJSk4yqg/edit?slide=id.g3f137758dc6_0_961#slide=id.g3f137758dc6_0_961', tags:['kickoff','comercial','apresentação'] },
+  { id:'doc4', category:'documentos', title:'Checklist por Blocos de Solução', description:'Checklist por blocos de solução (Checkout, Recorrência, POS, Grace, TOTEM, ISP)', link:'https://docs.google.com/document/d/16BuHq_F8W0WZ37VL3CFv5hF5mbt3jAqeweETozHKjVM/edit?usp=sharing', tags:['checklist','checkout','recorrência','pos','grace','totem','isp'] },
+  { id:'doc5', category:'documentos', title:'Template de Especificação Funcional (EF)', description:'Template de EF com Painel Macro, tabelas RF/RN por squad e bloco Recorrência', link:'https://docs.google.com/document/d/1dL0-uAuhqjaQKCf42PzxT6Pcqh885JYfb98nNYm3QgY/edit?usp=sharing', tags:['ef','rf-rn','recorrência','escopo'] },
+  { id:'doc6', category:'planilhas', title:'Modelo de Scoring de Projetos', description:'Modelo de scoring com 4 critérios (TPV, Alinhamento, Risco, Complexidade) e Painel de Projetos', link:'https://docs.google.com/spreadsheets/d/14alJiJRv19QpbR5UzceyIzNJsy48jD5G9EmhB3tlgyo/edit?usp=sharing', tags:['scoring','priorização'] },
+  { id:'doc7', category:'planilhas', title:'Consolidação de Projetos por Segmento', description:'Consolidação de projetos por segmento com sincronização Jira', link:'https://docs.google.com/spreadsheets/d/1Ivhobjv229KVq-ILhNY86RkP1XZpGdDlm0ICrgHEmsw/edit?usp=sharing', tags:['portfolio','segmento','jira'] },
+  { id:'doc8', category:'planilhas', title:'Template de Validação Funcional (UAT)', description:'Template de 12 abas para validação funcional de projetos (UAT, jornadas, bugs, evidências)', link:'https://docs.google.com/spreadsheets/d/1p6pquuQ7eOBZl_eLezQ8Zs5SUf-ePmLWpq04QFc1LyM/edit?usp=sharing', tags:['uat','validação','bugs','evidências'] },
 ];
 
 // ── USER REGISTRY ─────────────────────────────────────────────────────────
@@ -739,7 +900,7 @@ function canViewProject(projectKey) {
 function canViewTab(tab) {
   if (!currentUser) return false;
   if (currentUser.role !== 'external') return true;
-  return tab === 'schedule';
+  return tab === 'schedule' || tab === 'resumo';
 }
 function isAdmin()          { return currentUser?.role === 'admin'; }
 function isEditorOrAbove()  { return ['admin','editor'].includes(currentUser?.role); }
@@ -1092,6 +1253,7 @@ let collapsed = new Set();
 let selectedMs = new Set();
 let progressTouched = false;
 let pfFilter = new Set(['all']);
+let alertFilter = null; // null | 'critical' | 'stale' | 'atrisco' — filtro dos cards de Alertas (mutuamente exclusivo com os outros filtros)
 let calMode = 'month';
 let zoom = 'month';
 let DW = 22;
@@ -1149,6 +1311,9 @@ function showView(v){
   if(v==='updates')renderUpdatesProjectList();
   if(v==='scoring')renderScoringView();
   if(v==='prioridades')renderPortfolio();
+  if(v==='resumo'){renderResumoProjectList();if(curKey){renderResumoDashboard();}else{const re_=document.getElementById('rsm-empty');const rb_=document.getElementById('rsm-body');if(re_)re_.style.display='flex';if(rb_)rb_.style.display='none';}}
+  if(v==='schedule'&&curKey)renderSchedule();
+  if(v==='docs')renderDocsLibrary();
 }
 
 // ── MULTI-SELECT FILTER STATE ──
@@ -1332,7 +1497,85 @@ function timingBadge(item,isMilestone){
   if(item.status==='in_progress')return`<span class="tbadge2 tb-ip">Em andamento</span>`;
   return`<span class="tbadge2 tb-ns">Não iniciada</span>`;
 }
-function logChange(key,desc,color){const s=schedules[key];if(!s)return;if(!s.auditLog)s.auditLog=[];s.auditLog.unshift({id:uid(),who:currentUser?.name||'Sistema',when:nowStr(),desc,color:color||'#6924E1'});}
+function logChange(key,desc,color){const s=schedules[key];if(!s)return;if(!s.auditLog)s.auditLog=[];s.auditLog.unshift({id:uid(),who:currentUser?.name||'Sistema',when:nowStr(),ts:Date.now(),desc,color:color||'#6924E1'});}
+// ── ALERTAS AUTOMÁTICOS: Caminho Crítico de atraso e Projeto sem atualização ──
+// Limiares definidos com a Amanda (VMO): 5+ dias de atraso no prazo final = caminho crítico;
+// 7+ dias sem nenhuma atualização MANUAL no cronograma = projeto parado.
+const CRITICAL_PATH_SLIP_THRESHOLD=5;
+const STALE_DAYS_THRESHOLD=7;
+// 'when' é só texto (DD/MM HH:mm, sem ano) — usado como fallback pra entradas antigas do log que
+// ainda não tinham o campo 'ts' (timestamp bruto, adicionado agora pra cálculo de dias confiável).
+function parseWhenStr(whenStr){
+  if(!whenStr)return null;
+  const m=whenStr.match(/^(\d{2})\/(\d{2})\s+(\d{2}):(\d{2})$/);
+  if(!m)return null;
+  const now=new Date();
+  const d=new Date(now.getFullYear(),parseInt(m[2])-1,parseInt(m[1]),parseInt(m[3]),parseInt(m[4]));
+  if(d>now)d.setFullYear(d.getFullYear()-1); // virada de ano: se a data "no futuro", é do ano anterior
+  return d;
+}
+// Data da última atualização publicada na aba "Atualizações" do projeto (schedules[key].updates)
+// — é essa aba que representa a "atualização pelo responsável" de verdade (o GP publicando um
+// status pros stakeholders), diferente de qualquer edição de tarefa/etapa no cronograma.
+// Retorna timestamp (ms) ou null se o projeto nunca teve nenhuma atualização publicada.
+function getLastPublishedUpdateDate(key){
+  const s=schedules[key];if(!s||!s.updates||!s.updates.length)return null;
+  let best=null;
+  s.updates.forEach(e=>{
+    const t=(e.ts!=null)?e.ts:parseWhenStr(e.when)?.getTime();
+    if(t!=null&&(best===null||t>best))best=t;
+  });
+  return best;
+}
+// Gatilho 1 — "entrou no caminho crítico de atraso": existe uma tarefa-gargalo (atrasada AGORA
+// e que bloqueia pelo menos uma outra tarefa via depIds/'blocked'), E o prazo final do projeto
+// já foi empurrado pra além do planejamento original em pelo menos CRITICAL_PATH_SLIP_THRESHOLD dias.
+function getCriticalPathAlert(key){
+  const sched=schedules[key];
+  if(!sched||!sched.baseline||!sched.milestones||!sched.milestones.length)return null;
+  const curMs=sched.milestones||[];const curTasks=sched.tasks||[];const baseline=sched.baseline;
+  const msDates=curMs.map(m=>m.deadline).filter(Boolean).sort();
+  const currentFinish=msDates[msDates.length-1]||null;
+  const bAll=[...(baseline.milestones||[]).map(m=>m.deadline),...(baseline.tasks||[]).map(t=>t.deadline)].filter(Boolean).sort();
+  const baselineFinish=bAll.length?bAll[bAll.length-1]:null;
+  const slip=(baselineFinish&&currentFinish)?diffD(pd(baselineFinish),pd(currentFinish)):0;
+  if(!slip||slip<CRITICAL_PATH_SLIP_THRESHOLD)return null;
+  const blockedByIds=new Set();
+  curTasks.forEach(t=>{
+    if(t.depMode!=='blocked')return;
+    const depIds=(t.depIds&&t.depIds.length)?t.depIds:(t.depId?[t.depId]:[]);
+    depIds.forEach(id=>blockedByIds.add(id));
+  });
+  const bottleneck=curTasks.find(t=>blockedByIds.has(t.id)&&t.status!=='done'&&t.status!=='cancelled'&&t.deadline&&pd(t.deadline)<TODAY);
+  if(!bottleneck)return null;
+  return{slip,bottleneckName:bottleneck.name,bottleneckDays:diffD(pd(bottleneck.deadline),TODAY)};
+}
+// Gatilho 2 — "sem atualização há muito tempo": nenhuma atualização publicada na aba
+// Atualizações nos últimos STALE_DAYS_THRESHOLD dias, e o projeto não está num status
+// "terminal" (entregue/cancelado/pausado/backlog), onde isso é esperado e não é um problema.
+function getStaleAlert(key){
+  const p=PROJECTS.find(x=>x.key===key);if(!p)return null;
+  if([DELIVERED_STATUS,'CANCELADO','PAUSADO','BACKLOG'].includes(p.status))return null;
+  const sched=schedules[key];
+  if(!sched||!sched.milestones||!sched.milestones.length)return null; // sem cronograma, não dá pra medir
+  const lastTs=getLastPublishedUpdateDate(key);
+  if(lastTs==null)return null; // nunca publicou nenhuma atualização — sem referência de tempo confiável ainda
+  const days=Math.floor((Date.now()-lastTs)/86400000);
+  if(days<STALE_DAYS_THRESHOLD)return null;
+  return{days};
+}
+// Gatilho 3 — "em risco": a data de fim estimado do CRONOGRAMA (última etapa) diverge da data
+// de Go Live oficial registrada no Jira. Isso sinaliza que o cronograma interno e o compromisso
+// externo (Jira) estão desalinhados — alguém precisa corrigir um dos dois.
+function getAtRiscoAlert(key){
+  const p=PROJECTS.find(x=>x.key===key);if(!p)return null;
+  if([DELIVERED_STATUS,'CANCELADO','PAUSADO','BACKLOG'].includes(p.status))return null;
+  if(!p.golive)return null; // sem Go Live registrado no Jira ainda — nada pra comparar
+  const st=getStats(key);
+  if(!st.has||!st.goLiveLocal)return null; // sem cronograma/etapas — nada pra comparar
+  if(p.golive===st.goLiveLocal)return null;
+  return{goLiveJira:p.golive,goLiveLocal:st.goLiveLocal,diff:diffD(pd(p.golive),pd(st.goLiveLocal))};
+}
 
 // ═══════════════════════════════════════════
 //  PORTFOLIO
@@ -1342,6 +1585,10 @@ function clearOtherFilterCategories(except){
     pfFilter=new Set(['all']);
     document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
     document.getElementById('fbtn-all')?.classList.add('on');
+  }
+  if(except!=='alert'){
+    alertFilter=null;
+    document.querySelectorAll('.alert-kc').forEach(el=>el.classList.remove('alert-kc-on'));
   }
   if(except!=='status'){
     msFilters.status.clear();
@@ -1407,13 +1654,13 @@ function renderPortfolio(){
   // Qualquer filtro ativo (busca, atalho com/sem cronograma, status, GP, saúde, times, tipo, segmento ou região)
   // força a coluna de prioridade a virar um ranking sequencial (1,2,3...) só entre os itens visíveis,
   // em vez de mostrar a "Nova Prioridade" bruta do Jira.
-  const filtersActive = !!q || !pfFilter.has('all') || statusF.size>0 || gpF.size>0 || healthF.size>0 || timesF.size>0 || msFilters.tipo.size>0 || segF.size>0 || regF.size>0;
+  const filtersActive = !!q || !pfFilter.has('all') || statusF.size>0 || gpF.size>0 || healthF.size>0 || timesF.size>0 || msFilters.tipo.size>0 || segF.size>0 || regF.size>0 || !!alertFilter;
   lastFiltersActive = filtersActive; // lido por movePriority() — reordenar só faz sentido sem filtro ativo
   // Reorder "por segmento" ou "por região": só quando o ÚNICO filtro ativo é Segmento OU Região
   // (com um único valor selecionado). Nesse caso a lista passa a ser ordenada por um campo local
   // (segmentPriority/regionPriority — só do HUB VMO, não sincroniza com o Jira) em vez da prioridade
   // global, o arrastar-e-soltar continua liberado, e a numeração exibida começa em 0.
-  const soloFiltersOk = !q && pfFilter.has('all') && statusF.size===0 && gpF.size===0 && healthF.size===0 && timesF.size===0 && msFilters.tipo.size===0;
+  const soloFiltersOk = !q && pfFilter.has('all') && statusF.size===0 && gpF.size===0 && healthF.size===0 && timesF.size===0 && msFilters.tipo.size===0 && !alertFilter;
   const soloSeg = soloFiltersOk && segF.size===1 && regF.size===0;
   const soloReg = soloFiltersOk && regF.size===1 && segF.size===0;
   const scopedReorder = soloSeg?{field:'segment',value:[...segF][0],priKey:'segmentPriority'}:soloReg?{field:'region',value:[...regF][0],priKey:'regionPriority'}:null;
@@ -1436,6 +1683,9 @@ function renderPortfolio(){
     if(gpF.size>0&&![...gpF].some(g=>g==='TBD'?isNoGP(p.gp):(p.gp===g||p.gp.startsWith(g))))return false;
     if(healthF.size>0&&!healthF.has(getStats(p.key).health))return false;
     if(timesF.size>0&&![...timesF].some(t=>(p.times||[]).includes(t)))return false;
+    if(alertFilter==='critical'&&!getCriticalPathAlert(p.key))return false;
+    if(alertFilter==='stale'&&!getStaleAlert(p.key))return false;
+    if(alertFilter==='atrisco'&&!getAtRiscoAlert(p.key))return false;
     return true;
   });
   if(scopedReorder){
@@ -1449,6 +1699,10 @@ function renderPortfolio(){
     const ic=p.type==='Produtos'?'#7c3aed':'#0369a1';const ib=p.type==='Produtos'?'#ede9fe':'#e0f2fe';
     const glDate=p.golive||st.goLiveLocal;
     const glOverdue=glDate&&pd(glDate)<TODAY&&p.status!=='CANCELADO'&&p.status!=='Pós produção';
+    const pCrit=getCriticalPathAlert(p.key);
+    const pStale=getStaleAlert(p.key);
+    const pAtRisco=getAtRiscoAlert(p.key);
+    const alertBadges=(pCrit?`<span style="font-size:7.5px;font-weight:700;color:#b91c1c;background:#fee2e2;padding:1px 4px;border-radius:3px;white-space:nowrap" title="Caminho crítico: +${pCrit.slip}d — gargalo: ${pCrit.bottleneckName}">🔴 Caminho Crítico</span>`:'')+(pStale?`<span style="font-size:7.5px;font-weight:700;color:#c2410c;background:#ffedd5;padding:1px 4px;border-radius:3px;white-space:nowrap" title="Sem nenhuma atualização publicada há ${pStale.days} dias">🟠 Sem atualização ${pStale.days}d</span>`:'')+(pAtRisco?`<span style="font-size:7.5px;font-weight:700;color:#92400e;background:#fef3c7;padding:1px 4px;border-radius:3px;white-space:nowrap" title="Fim estimado do cronograma (${fmtBR(pAtRisco.goLiveLocal)}) diverge do Go Live no Jira (${fmtBR(pAtRisco.goLiveJira)})">⚠ Em Risco</span>`:'');
     const tr=document.createElement('tr');
     tr.innerHTML=`
       <td style="text-align:center;padding:2px">${dragEnabled?'<i class=\"ti ti-grip-vertical prio-grip\" title=\"Arraste a linha para reordenar livremente\"></i>':''}</td>
@@ -1458,6 +1712,7 @@ function renderPortfolio(){
       <td><div style="display:flex;align-items:center;gap:5px;cursor:pointer;overflow:hidden" onclick="openProject('${p.key}')">
         <span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700;white-space:nowrap;flex-shrink:0">${p.key}</span>
         <span style="font-weight:500;font-size:clamp(8px,1vw,9.5px);overflow:hidden;flex:1;min-width:0;word-break:break-word;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical" title="${p.summary}">${p.summary}</span>
+        ${alertBadges?`<span style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">${alertBadges}</span>`:''}
       </div></td>
       <td><span class="spill" style="background:${ib};color:${ic}">${p.type}</span></td>
       <td><span class="spill ${JIRA_SC[p.status]||'s-bkl'}" title="${p.status}">${p.status}</span></td>
@@ -1557,6 +1812,11 @@ function renderKPI(){
   const noSchedActive=activeProjects.filter(p=>!getStats(p.key).has).length;
   const offActive=activeProjects.filter(p=>getStats(p.key).health==='off-track').length;
   const novosCount=activeProjects.filter(p=>p.status==='Novos projetos').length;
+  // Caminho Crítico / Sem Atualização / Em Risco: contagem por projeto (getCriticalPathAlert/getStaleAlert/getAtRiscoAlert).
+  // Os cards abaixo são clicáveis e filtram o Portfólio (aba Prioridades) pra mostrar só esses projetos.
+  const criticalCount=activeProjects.filter(p=>getCriticalPathAlert(p.key)).length;
+  const staleCount=activeProjects.filter(p=>getStaleAlert(p.key)).length;
+  const atRiscoCount=activeProjects.filter(p=>getAtRiscoAlert(p.key)).length;
 
   // ── Por Etapa: Top 10 por fase (projetos ativos) ──
   const etapaGroups={};
@@ -1603,6 +1863,18 @@ function renderKPI(){
       <div class="kc2" style="background:#dbeafe;border-color:#bfdbfe;cursor:pointer" title="Filtrar: novos projetos" onclick="filterByStatus('Novos projetos')">
         <div style="font-size:20px;font-weight:700;color:#2563eb;line-height:1">${novosCount}</div>
         <div style="font-size:9px;color:#2563eb;margin-top:2px;font-weight:500">🆕 Novos projetos</div>
+      </div>
+      <div class="kc2 alert-kc${alertFilter==='critical'?' alert-kc-on':''}" style="background:#fee2e2;border-color:#fca5a5;cursor:pointer" title="Filtrar: caminho crítico — atraso já refletido no prazo final (5d+), causado por uma tarefa-gargalo em aberto" onclick="filterByAlert('critical',this)">
+        <div style="font-size:20px;font-weight:700;color:#b91c1c;line-height:1">${criticalCount}</div>
+        <div style="font-size:9px;color:#b91c1c;margin-top:2px;font-weight:500">🔴 Caminho Crítico</div>
+      </div>
+      <div class="kc2 alert-kc${alertFilter==='stale'?' alert-kc-on':''}" style="background:#ffedd5;border-color:#fdba74;cursor:pointer" title="Filtrar: sem nenhuma atualização publicada na aba Atualizações há 7+ dias" onclick="filterByAlert('stale',this)">
+        <div style="font-size:20px;font-weight:700;color:#c2410c;line-height:1">${staleCount}</div>
+        <div style="font-size:9px;color:#c2410c;margin-top:2px;font-weight:500">🟠 Sem Atualização</div>
+      </div>
+      <div class="kc2 alert-kc${alertFilter==='atrisco'?' alert-kc-on':''}" style="background:#fef3c7;border-color:#fde68a;cursor:pointer" title="Filtrar: fim estimado do cronograma diferente da data de Go Live registrada no Jira" onclick="filterByAlert('atrisco',this)">
+        <div style="font-size:20px;font-weight:700;color:#92400e;line-height:1">${atRiscoCount}</div>
+        <div style="font-size:9px;color:#92400e;margin-top:2px;font-weight:500">⚠ Em Risco</div>
       </div>
     </div></div>`+
 
@@ -1733,6 +2005,15 @@ function filterByHealth(h){
   const cb=document.getElementById('chk-health-'+safe);
   if(cb){cb.checked=msFilters.health.has(h);cb.closest('.ms-dd-item')?.classList.toggle('checked',cb.checked);}
   updateDD('dd-health','dd-health-lbl','health','Saúde do cronograma');
+  showView('prioridades');
+}
+// Filtro dos cards de Caminho Crítico / Sem Atualização / Em Risco (Alertas) — clique alterna
+// (clicar de novo no mesmo card remove o filtro), igual ao padrão dos outros cards de KPI.
+function filterByAlert(type,el){
+  clearOtherFilterCategories('alert');
+  alertFilter=(alertFilter===type)?null:type;
+  document.querySelectorAll('.alert-kc').forEach(e=>e.classList.remove('alert-kc-on'));
+  if(alertFilter&&el)el.classList.add('alert-kc-on');
   showView('prioridades');
 }
 // ── IMPACTO POR TIME (Visão Geral) ──
@@ -2367,7 +2648,7 @@ function openUpdatesProject(key){
   if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
   else glChip.style.display='none';
   document.getElementById('upd-composer').style.display=isEditorOrAbove()?'':'none';
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,decisions:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
   renderScopeLinkChip(key);
   renderUpdates(key);renderUpdatesProjectList();
 }
@@ -2468,7 +2749,7 @@ function submitUpdate(){
   const body=document.getElementById('composer-text').value.trim();if(!body){alert('Escreva a atualização');return;}
   const sc=schedules[curUpdKey];if(!sc.updates)sc.updates=[];
   const p=PROJECTS.find(x=>x.key===curUpdKey);const st=getStats(curUpdKey);
-  sc.updates.push({id:uid(),author:currentUser?.name||'Usuário',when:nowStr(),project:p?.summary||curUpdKey,body,tag:document.getElementById('upd-status-tag').value,includeEmail:document.getElementById('include-email').checked,health:st.health,reactions:{}});
+  sc.updates.push({id:uid(),author:currentUser?.name||'Usuário',when:nowStr(),ts:Date.now(),project:p?.summary||curUpdKey,body,tag:document.getElementById('upd-status-tag').value,includeEmail:document.getElementById('include-email').checked,health:st.health,reactions:{}});
   document.getElementById('composer-text').value='';document.getElementById('upd-status-tag').value='';
   logChange(curUpdKey,'Atualização publicada','#6924E1');renderUpdates(curUpdKey);renderUpdatesProjectList();persistUpdates(curUpdKey);persistUpdates(curUpdKey);
 }
@@ -2773,13 +3054,312 @@ function openProject(key){
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,decisions:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
   collapsed.clear();viewOffset=0;selectedMs.clear();
   document.getElementById('se-title').textContent=p.summary.length>35?p.summary.slice(0,35)+'…':p.summary;
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
   document.getElementById('se-jira-key').textContent=key;jl.href=`https://one-bemobi.atlassian.net/browse/${key}`;
   document.getElementById('template-btn').style.display='';
+  showView('resumo');renderResumoDashboard();
+}
+function goToCronograma(){
+  if(!curKey)return;
   showView('schedule');renderSchedule();
+}
+
+// ═══════════════════════════════════════════
+//  RESUMO DOS PROJETOS (Dashboard de Visão Geral)
+// ═══════════════════════════════════════════
+let curResumoKey=null;
+function renderResumoProjectList(){
+  const q=(document.getElementById('rsm-search')?.value||'').toLowerCase();
+  const list=document.getElementById('rsm-proj-list');if(!list)return;
+  list.innerHTML='';
+  PROJECTS.forEach(p=>{
+    if(!canViewProject(p.key))return;
+    if(q&&!p.summary.toLowerCase().includes(q)&&!p.key.toLowerCase().includes(q))return;
+    const div=document.createElement('div');
+    div.className='rsm-proj-item'+(curKey===p.key?' active':'');
+    div.innerHTML=`<span class="upd-proj-key">${p.key}</span><span class="upd-proj-name">${p.summary}</span>`;
+    div.onclick=()=>openProject(p.key);
+    list.appendChild(div);
+  });
+}
+function renderResumoDashboard(){
+  if(!curKey)return;
+  const p=PROJECTS.find(x=>x.key===curKey);const sched=schedules[curKey];
+  if(!p||!sched)return;
+  document.getElementById('rsm-empty').style.display='none';
+  document.getElementById('rsm-body').style.display='grid';
+  document.getElementById('rsm-title').textContent=p.summary;
+  const jl=document.getElementById('rsm-jira-lnk');jl.style.display='';
+  document.getElementById('rsm-jira-key').textContent=curKey;jl.href=`https://one-bemobi.atlassian.net/browse/${curKey}`;
+  const st=getStats(curKey);const glDate=p.golive||st.goLiveLocal;
+  const glChip=document.getElementById('rsm-golive');const glVal=document.getElementById('rsm-golive-val');
+  if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
+  else glChip.style.display='none';
+  document.getElementById('rsm-health-slot').innerHTML=st.has?healthBadge(st.health):'';
+  document.getElementById('rsm-goto-cronograma-btn').style.display=st.has?'':'none';
+
+  // Cliente / Segmento / Região
+  const clientVal=document.getElementById('rsm-client-val');if(clientVal)clientVal.textContent=sched.clientName||'—';
+  const clientEditBtn=document.getElementById('rsm-client-edit-btn');if(clientEditBtn)clientEditBtn.style.display=isEditorOrAbove()?'':'none';
+  const segVal=document.getElementById('rsm-segment-val');if(segVal)segVal.textContent=p.segment?(p.segment==='Produtos'?'TI/Produtos':p.segment):'—';
+  const regVal=document.getElementById('rsm-region-val');if(regVal)regVal.textContent=p.region||'—';
+
+  // Escopo Macro
+  const scopeEditBtn=document.getElementById('rsm-scope-edit-btn');
+  if(scopeEditBtn)scopeEditBtn.style.display=isEditorOrAbove()?'':'none';
+  const scopeTextEl=document.getElementById('rsm-scope-text');
+  scopeTextEl.innerHTML=sched.scopeSummary
+    ?`<div style="white-space:pre-wrap">${sched.scopeSummary}</div>`
+    :`<div class="rsm-empty">${isEditorOrAbove()?'Nenhum resumo de escopo cadastrado. Clique no lápis para adicionar.':'Nenhum resumo de escopo cadastrado ainda.'}</div>`;
+  const linkRow=document.getElementById('rsm-scope-link-row');
+  const link=sched.scopeLink;const canEditScope=isEditorOrAbove();
+  if(link){
+    linkRow.innerHTML=`<a href="${link}" target="_blank" class="upd-golive-chip" style="text-decoration:none"><i class="ti ti-file-text" style="font-size:10px"></i> Escopo detalhado</a>${canEditScope?` <button class="btn-c" style="font-size:9px;padding:2px 7px" onclick="editScopeLinkFromResumo()"><i class="ti ti-pencil" style="font-size:9px"></i></button>`:''}`;
+  } else if(canEditScope){
+    linkRow.innerHTML=`<button class="btn-c" style="font-size:9px;padding:3px 8px;display:flex;gap:4px;align-items:center" onclick="editScopeLinkFromResumo()"><i class="ti ti-link" style="font-size:9px"></i> Adicionar link do escopo (Confluence)</button>`;
+  } else {
+    linkRow.innerHTML='';
+  }
+
+  // Datas Macro
+  const hasMs=!!(sched.milestones&&sched.milestones.length);
+  document.getElementById('rsm-dates-empty').style.display=hasMs?'none':'block';
+  if(hasMs)renderMiniTimeline('resumo-timeline','resumo-timeline-track');
+  else document.getElementById('resumo-timeline').style.display='none';
+
+  renderResumoUpdatesList();
+  renderContactCard();
+  renderResumoDecisionsList();
+  renderResumoMinutesList();
+  renderResumoProjectList();
+}
+function editScopeLinkFromResumo(){
+  if(!curKey)return;
+  if(promptScopeLink(curKey))renderResumoDashboard();
+}
+function editClientName(){
+  if(!curKey||!schedules[curKey])return;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o cliente.');return;}
+  const sched=schedules[curKey];
+  const val=prompt('Nome do cliente:',sched.clientName||'');
+  if(val===null)return;
+  sched.clientName=val.trim();
+  logChange(curKey,sched.clientName?'Cliente atualizado':'Cliente removido','#5b21b6');
+  persistSchedule(curKey);
+  renderResumoDashboard();
+}
+function editScopeSummary(){
+  if(!curKey||!schedules[curKey])return;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o resumo do escopo.');return;}
+  const sched=schedules[curKey];
+  const val=prompt('Resumo do escopo macro (2-3 linhas):',sched.scopeSummary||'');
+  if(val===null)return;
+  sched.scopeSummary=val.trim();
+  logChange(curKey,sched.scopeSummary?'Resumo do escopo atualizado':'Resumo do escopo removido','#0369a1');
+  persistSchedule(curKey);
+  renderResumoDashboard();
+}
+function renderResumoUpdatesList(){
+  const sched=schedules[curKey];const list=document.getElementById('rsm-updates-list');if(!list)return;
+  const tagLabel={ok:'✅ No prazo',warn:'⚠️ Em alerta',risk:'🔴 Em risco',info:'ℹ️ Informativo',date:'📅 Mudança de data'};
+  const recent=(sched.updates||[]).slice().reverse().slice(0,3);
+  list.innerHTML=recent.length?recent.map(u=>`<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:var(--purple)"></div><div style="min-width:0"><div style="font-size:10px;color:var(--text2)">${u.body.length>110?u.body.slice(0,110)+'…':u.body}</div><div style="font-size:9px;color:var(--text3);margin-top:2px">${u.author} · ${u.when}${u.tag?' · '+(tagLabel[u.tag]||u.tag):''}</div></div></div>`).join(''):'<div class="rsm-empty">Nenhuma atualização publicada ainda.</div>';
+}
+function renderContactCard(){
+  const p=PROJECTS.find(x=>x.key===curKey);const sched=schedules[curKey];
+  const body=document.getElementById('rsm-contact-body');if(!body)return;
+  let html=`<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:var(--purple)"></div><div style="min-width:0"><div style="font-weight:600;font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.gp&&p.gp!=='—'?p.gp.split(',')[0]:'Sem GP definido'}</div><div style="font-size:9.5px;color:var(--text3)">GP responsável</div></div></div>`;
+  const stakeholders=(sched.stakeholders||[]);
+  if(stakeholders.length){
+    stakeholders.forEach(s=>{
+      html+=`<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:var(--blue)"></div><div style="min-width:0"><div style="font-weight:600;font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.name||s.email}${s.role?' <span style="font-weight:400;color:var(--text3)">· '+s.role+'</span>':''}</div><div style="font-size:9.5px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.email}</div></div></div>`;
+    });
+  } else {
+    html+=`<div class="rsm-empty" style="margin-top:6px">Nenhum stakeholder cadastrado ainda.</div>`;
+  }
+  body.innerHTML=html;
+}
+function renderResumoDecisionsList(){
+  const sched=schedules[curKey];const list=document.getElementById('rsm-decisions-list');if(!list)return;
+  const active=(sched.decisions||[]).filter(d=>!d.deleted).slice(0,4);
+  list.innerHTML=active.length?active.map(d=>{
+    const meta=DECISION_TYPES[d.type]||DECISION_TYPES.outro;
+    return `<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:${meta.color}"></div><div style="min-width:0"><div style="font-size:9px;font-weight:700;text-transform:uppercase;color:${meta.color}">${d.typeLabel||meta.label}</div><div style="font-size:10px;color:var(--text2);margin-top:1px">${d.description.length>90?d.description.slice(0,90)+'…':d.description}</div><div style="font-size:9px;color:var(--text3);margin-top:2px">${d.who} · ${d.when}</div></div></div>`;
+  }).join(''):'<div class="rsm-empty">Nenhuma decisão registrada ainda.</div>';
+}
+function renderResumoMinutesList(){
+  const sched=schedules[curKey];const list=document.getElementById('rsm-minutes-list');if(!list)return;
+  const recent=(sched.minutes||[]).slice(0,3);
+  list.innerHTML=recent.length?recent.map(m=>`<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:#0d9488"></div><div style="min-width:0"><div style="font-size:10.5px;font-weight:600">${m.title}</div><div style="font-size:9px;color:var(--text3);margin-top:1px">${fmtBRFull(m.date)}${m.link?' · <a href="'+m.link+'" target="_blank">link</a>':''}</div>${m.summary?`<div style="font-size:9.5px;color:var(--text2);margin-top:2px">${m.summary.length>90?m.summary.slice(0,90)+'…':m.summary}</div>`:''}</div></div>`).join(''):'<div class="rsm-empty">Nenhuma ata cadastrada ainda.</div>';
+}
+// ── Atas de Reuniões: modal de cadastro/consulta ──
+function openMinutesModal(){
+  if(!curKey||!schedules[curKey])return;
+  const sched=schedules[curKey];if(!sched.minutes)sched.minutes=[];
+  const canEd=isEditorOrAbove();
+  const modal=getOrBuildModal('minutes-modal','Atas de Reuniões',`
+    <div class="info-box">Registre aqui as atas das reuniões deste projeto — data, resumo e link para o documento completo (Confluence, Drive etc.), quando existir.</div>
+    ${canEd?`<div class="section-lbl">Registrar nova ata</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px">
+      <input type="text" id="min-title" placeholder="Título da reunião" style="flex:1;min-width:150px;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+      <input type="date" id="min-date" style="border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px">
+    </div>
+    <input type="text" id="min-link" placeholder="Link do documento (opcional)" style="width:100%;border:1px solid var(--border2);border-radius:5px;padding:5px 8px;font-size:10.5px;margin-bottom:6px;box-sizing:border-box">
+    <textarea id="min-summary" rows="3" placeholder="Resumo dos principais pontos discutidos..." style="width:100%;border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:10.5px;font-family:inherit;resize:vertical;box-sizing:border-box"></textarea>
+    <div style="display:flex;justify-content:flex-end;margin-top:6px">
+      <button class="btn-s" onclick="addMinute()"><i class="ti ti-plus" style="font-size:10px"></i> Registrar ata</button>
+    </div>`:''}
+    <div class="section-lbl" style="margin-top:10px">Atas registradas</div>
+    <div id="minutes-list" style="max-height:230px;overflow-y:auto;display:flex;flex-direction:column;gap:5px"></div>
+  `,`<button class="btn-c" onclick="closeM('minutes-modal')">Fechar</button>`);
+  renderMinutesModalList();
+  openM('minutes-modal');
+}
+function minuteCardHtml(m){
+  return `<div style="display:flex;gap:8px;padding:7px 9px;background:var(--bg2);border-radius:6px">
+      <div style="width:7px;height:7px;border-radius:50%;background:#0d9488;flex-shrink:0;margin-top:4px"></div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:10.5px;font-weight:700;color:var(--text)">${m.title}</span>
+          <span style="font-size:9px;color:var(--text3)">${fmtBRFull(m.date)}</span>
+          ${m.link?`<a href="${m.link}" target="_blank" style="font-size:9px">🔗 link</a>`:''}
+        </div>
+        ${m.summary?`<div style="font-size:10.5px;color:var(--text2);margin-top:2px;white-space:pre-wrap">${m.summary}</div>`:''}
+        <div style="font-size:9px;color:var(--text3);margin-top:3px">${m.author} · ${m.addedAt}</div>
+      </div>
+      ${isAdmin()?`<button class="rm" onclick="removeMinute('${m.id}')">×</button>`:''}
+    </div>`;
+}
+function renderMinutesModalList(){
+  const sched=schedules[curKey];const list=document.getElementById('minutes-list');if(!sched||!list)return;
+  const all=(sched.minutes||[]);
+  list.innerHTML=all.length?all.map(m=>minuteCardHtml(m)).join(''):'<div style="font-size:10.5px;color:var(--text3);padding:4px">Nenhuma ata registrada ainda.</div>';
+}
+function addMinuteToProject(key,title,date,link,summary){
+  const t=(title||'').trim();
+  if(!t)return{ok:false,error:'Informe o título da reunião.'};
+  const sched=schedules[key];if(!sched)return{ok:false,error:'Projeto não encontrado'};
+  if(!sched.minutes)sched.minutes=[];
+  const entry={id:uid(),title:t,date:date||ds(TODAY),link:(link||'').trim(),summary:(summary||'').trim(),author:currentUser?.name||'Sistema',addedAt:nowStr()};
+  sched.minutes.unshift(entry);
+  logChange(key,`Ata de reunião registrada: ${t}`,'#0d9488');
+  persistSchedule(key);
+  return{ok:true};
+}
+function removeMinuteFromProject(key,id){
+  const sched=schedules[key];if(!sched)return false;
+  const m=(sched.minutes||[]).find(x=>x.id===id);if(!m)return false;
+  sched.minutes=(sched.minutes||[]).filter(x=>x.id!==id);
+  logChange(key,`Ata de reunião removida: ${m.title}`,'#dc2626');
+  persistSchedule(key);
+  return true;
+}
+function addMinute(){
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem registrar atas.');return;}
+  const titleEl=document.getElementById('min-title');const dateEl=document.getElementById('min-date');const linkEl=document.getElementById('min-link');const summaryEl=document.getElementById('min-summary');
+  const res=addMinuteToProject(curKey,titleEl.value,dateEl.value,linkEl.value,summaryEl.value);
+  if(!res.ok){alert(res.error);return;}
+  titleEl.value='';dateEl.value='';linkEl.value='';summaryEl.value='';
+  renderMinutesModalList();renderResumoMinutesList();
+}
+function removeMinute(id){
+  if(!isAdmin()){alert('Apenas administradores podem remover atas.');return;}
+  if(!confirm('Remover esta ata de reunião?'))return;
+  if(removeMinuteFromProject(curKey,id)){renderMinutesModalList();renderResumoMinutesList();}
+}
+
+// ═══════════════════════════════════════════
+//  DOCUMENTOS ÚTEIS (Materiais Padronizados do VMO)
+// ═══════════════════════════════════════════
+let curDocCat='all';
+const DOC_CAT_META={
+  apresentacoes:{label:'Apresentações',icon:'🖼️',bg:'#ede9fe',color:'#5b21b6'},
+  documentos:{label:'Documentos',icon:'📄',bg:'#dbeafe',color:'#1d4ed8'},
+  planilhas:{label:'Planilhas',icon:'📊',bg:'#dcfce7',color:'#166534'},
+};
+function setDocCat(cat,el){
+  curDocCat=cat;
+  document.querySelectorAll('#docs-filters .fbtn').forEach(b=>b.classList.remove('on'));
+  if(el)el.classList.add('on');
+  renderDocsLibrary();
+}
+function renderDocsLibrary(){
+  const grid=document.getElementById('docs-grid');if(!grid)return;
+  const addBtn=document.getElementById('docs-add-btn');if(addBtn)addBtn.style.display=isAdmin()?'':'none';
+  const q=(document.getElementById('docs-search')?.value||'').toLowerCase().trim();
+  let items=DOCS_LIBRARY.slice();
+  if(curDocCat!=='all')items=items.filter(d=>d.category===curDocCat);
+  if(q)items=items.filter(d=>d.title.toLowerCase().includes(q)||d.description.toLowerCase().includes(q)||(d.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  if(!items.length){grid.innerHTML='<div class="doc-empty">Nenhum material encontrado. Tente outra busca ou categoria.</div>';return;}
+  grid.innerHTML=items.map(d=>{
+    const meta=DOC_CAT_META[d.category]||DOC_CAT_META.documentos;
+    return `<div class="doc-card">
+        <div class="doc-card-top">
+          <div class="doc-cat-icon" style="background:${meta.bg}">${meta.icon}</div>
+          <div style="flex:1;min-width:0">
+            <div class="doc-title">${d.title}</div>
+            <div style="font-size:8.5px;font-weight:700;text-transform:uppercase;color:${meta.color};margin-top:2px">${meta.label}</div>
+          </div>
+        </div>
+        <div class="doc-desc">${d.description}</div>
+        <div class="doc-tags">${(d.tags||[]).map(t=>`<span class="doc-tag">#${t}</span>`).join('')}</div>
+        <div class="doc-card-ftr">
+          <a class="btn-c" href="${d.link}" target="_blank" style="font-size:9.5px;padding:4px 9px;flex:1;text-align:center"><i class="ti ti-external-link" style="font-size:10px"></i> Abrir</a>
+          ${isAdmin()?`<button class="btn-c" style="font-size:9.5px;padding:4px 8px" onclick="openDocModal('${d.id}')" title="Editar"><i class="ti ti-pencil" style="font-size:10px"></i></button>
+          <button class="rm" onclick="removeDocItem('${d.id}')" title="Remover">×</button>`:''}
+        </div>
+      </div>`;
+  }).join('');
+}
+let editDocId=null;
+function openDocModal(id){
+  if(!isAdmin()){alert('Apenas administradores podem cadastrar ou editar materiais.');return;}
+  editDocId=id||null;
+  const d=id?DOCS_LIBRARY.find(x=>x.id===id):null;
+  const modal=getOrBuildModal('doc-modal',id?'Editar material':'Adicionar material',`
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <input type="text" id="doc-title" placeholder="Título" value="${d?d.title.replace(/"/g,'&quot;'):''}" style="border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">
+      <select id="doc-category" style="border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">
+        <option value="apresentacoes"${d?.category==='apresentacoes'?' selected':''}>🖼️ Apresentações</option>
+        <option value="documentos"${!d||d.category==='documentos'?' selected':''}>📄 Documentos</option>
+        <option value="planilhas"${d?.category==='planilhas'?' selected':''}>📊 Planilhas</option>
+      </select>
+      <textarea id="doc-desc" rows="2" placeholder="Descrição" style="border:1px solid var(--border2);border-radius:6px;padding:6px 8px;font-size:10.5px;font-family:inherit;resize:vertical">${d?d.description:''}</textarea>
+      <input type="text" id="doc-link" placeholder="Link (Google Docs/Slides/Sheets)" value="${d?d.link:''}" style="border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">
+      <input type="text" id="doc-tags" placeholder="Tags separadas por vírgula" value="${d?(d.tags||[]).join(', '):''}" style="border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">
+    </div>
+  `,`<button class="btn-c" onclick="closeM('doc-modal')">Cancelar</button>
+     <button class="btn-s" onclick="saveDocItem()"><i class="ti ti-device-floppy" style="font-size:10px"></i> Salvar</button>`);
+  openM('doc-modal');
+}
+function saveDocItem(){
+  const title=document.getElementById('doc-title').value.trim();
+  const category=document.getElementById('doc-category').value;
+  const description=document.getElementById('doc-desc').value.trim();
+  const link=document.getElementById('doc-link').value.trim();
+  const tags=document.getElementById('doc-tags').value.split(',').map(t=>t.trim().toLowerCase()).filter(Boolean);
+  if(!title){alert('Informe o título do material.');return;}
+  if(!link){alert('Informe o link do material.');return;}
+  if(editDocId){
+    const d=DOCS_LIBRARY.find(x=>x.id===editDocId);
+    if(d)Object.assign(d,{title,category,description,link,tags});
+  } else {
+    DOCS_LIBRARY.push({id:uid(),category,title,description,link,tags});
+  }
+  closeM('doc-modal');
+  renderDocsLibrary();
+  persistDocsLibrary();
+}
+function removeDocItem(id){
+  if(!isAdmin()){alert('Apenas administradores podem remover materiais.');return;}
+  const d=DOCS_LIBRARY.find(x=>x.id===id);if(!d)return;
+  if(!confirm(`Remover "${d.title}" da biblioteca?`))return;
+  DOCS_LIBRARY=DOCS_LIBRARY.filter(x=>x.id!==id);
+  renderDocsLibrary();
+  persistDocsLibrary();
 }
 
 // ── ZOOM / SEQ NUMS ──
@@ -2802,6 +3382,48 @@ function getDataRange(){
 }
 function toggleSeqNums(){showSeqNums=!showSeqNums;const b=document.getElementById('seq-btn');if(b){b.style.background=showSeqNums?'var(--gray)':'';b.style.color=showSeqNums?'#fff':'';}renderSchedule();}
 function toggleStrike(t){if(t==='ms'){strikeMs=!strikeMs;const b=document.getElementById('stms-btn');if(b){b.style.background=strikeMs?'var(--gray)':'';b.style.color=strikeMs?'#fff':'';};}else{strikeTask=!strikeTask;const b=document.getElementById('sttask-btn');if(b){b.style.background=strikeTask?'var(--gray)':'';b.style.color=strikeTask?'#fff':'';};}renderSchedule();}
+// Abre uma visualização somente-leitura do cronograma ORIGINAL (a primeira "foto" registrada
+// para o projeto — etapas e tarefas como foram criadas, antes de qualquer recálculo/atraso).
+function openBaselineViewModal(){
+  if(!curKey||!schedules[curKey])return;
+  getOrBuildModal('baseline-view-modal','Cronograma Original (Planejamento Inicial)',
+    `<div id="baseline-view-body"></div>`,
+    `<button class="btn-c" onclick="closeM('baseline-view-modal')">Fechar</button>`);
+  renderBaselineView();
+  openM('baseline-view-modal');
+}
+function renderBaselineView(){
+  const sched=schedules[curKey];const body=document.getElementById('baseline-view-body');if(!sched||!body)return;
+  if(!sched.baseline){
+    body.innerHTML=`<div class="info-box">Este projeto ainda não tem um planejamento original registrado. Isso costuma acontecer em cronogramas criados por importação (MS Project/Excel) ou por modelo antes de esse recurso existir. A partir de agora, novas etapas e tarefas adicionadas aqui já entram automaticamente no registro do planejamento original.</div>`;
+    return;
+  }
+  const baseline=sched.baseline;
+  const msList=(baseline.milestones||[]).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+  let html=`<div class="info-box" style="margin-bottom:8px">Esta é a primeira versão do cronograma registrada para este projeto — a "foto" tirada quando cada etapa/tarefa foi criada, antes de qualquer recálculo automático ou atraso.</div>`;
+  html+=`<label style="display:flex;align-items:center;gap:6px;font-size:10.5px;margin-bottom:10px;cursor:pointer">
+    <input type="checkbox" id="baseline-overlay-chk" ${showBaseline?'checked':''} onchange="toggleBaseline()">
+    Sobrepor essas datas no gráfico de Gantt (comparação visual)
+  </label>`;
+  if(!msList.length){
+    html+=`<div style="font-size:10.5px;color:var(--text3);padding:4px 8px">Nenhuma etapa registrada no planejamento original.</div>`;
+  }
+  msList.forEach(ms=>{
+    const msTasks=(baseline.tasks||[]).filter(t=>t.msId===ms.id).slice().sort((a,b)=>(a.start||'').localeCompare(b.start||''));
+    html+=`<div style="margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:${ms.color||'#6924E1'}14;border-left:3px solid ${ms.color||'#6924E1'};border-radius:4px;margin-bottom:4px">
+        <b style="font-size:11px">${ms.name}</b>
+        <span style="font-size:9.5px;color:var(--text3);margin-left:auto;white-space:nowrap">${fmtBR(ms.start)} → ${fmtBR(ms.deadline)}</span>
+      </div>
+      ${msTasks.length?`<div style="display:flex;flex-direction:column;gap:3px;padding-left:10px">${msTasks.map(t=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 8px;background:var(--bg2);border-radius:4px;font-size:10px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span><span style="white-space:nowrap;color:var(--text3)">${fmtBR(t.start)} → ${fmtBR(t.deadline)}</span></div>`).join('')}</div>`:`<div style="padding-left:10px;font-size:9.5px;color:var(--text3)">Sem tarefas.</div>`}
+    </div>`;
+  });
+  const orphanTasks=(baseline.tasks||[]).filter(t=>!msList.some(m=>m.id===t.msId));
+  if(orphanTasks.length){
+    html+=`<div class="section-lbl">Tarefas sem etapa</div><div style="display:flex;flex-direction:column;gap:3px;margin-bottom:8px">${orphanTasks.map(t=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:4px 8px;background:var(--bg2);border-radius:4px;font-size:10px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.name}</span><span style="white-space:nowrap;color:var(--text3)">${fmtBR(t.start)} → ${fmtBR(t.deadline)}</span></div>`).join('')}</div>`;
+  }
+  body.innerHTML=html;
+}
 function toggleBaseline(){showBaseline=!showBaseline;const b=document.getElementById('baseline-btn');if(b){b.style.background=showBaseline?'var(--navy)':'';b.style.color=showBaseline?'#fff':'';}renderSchedule();}
 // ── Comparação detalhada Baseline (planejamento original) vs. cronograma atual ──
 // Complementa o toggle visual do Gantt: mostra em texto o que mudou (datas) e o que foi
@@ -2842,11 +3464,63 @@ function renderBaselineCompare(){
   const tCreated=curTasks.filter(t=>!baseTaskById[t.id]);
   const tRemoved=(baseline.tasks||[]).filter(b=>!curTaskIds.has(b.id));
 
-  const row=(label,oldV,newV,color)=>`<div style="display:flex;justify-content:space-between;gap:8px;padding:5px 8px;background:var(--bg2);border-radius:5px;font-size:10.5px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span><span style="white-space:nowrap;color:${color||'var(--text2)'}">${oldV} → <b>${newV}</b></span></div>`;
+  // ── Rastreio de causa: identifica se um item (tarefa/etapa) está atrasado de verdade, e,
+  // pra tarefas/etapas cuja data mudou, tenta apontar qual tarefa predecessora (ou, no caso de
+  // etapa, qual tarefa dela) é a provável origem do atraso — comparando com o próprio prazo
+  // original dela no baseline, ou verificando se já está vencida/concluída fora do prazo.
+  const isDelayed=(item)=>{
+    if(!item.deadline)return null;
+    if(item.status==='done'){
+      if(item.endReal&&pd(item.endReal)>pd(item.deadline))return{days:diffD(pd(item.deadline),pd(item.endReal)),detail:'concluída'};
+      return null;
+    }
+    if(item.status==='cancelled')return null;
+    if(pd(item.deadline)<TODAY)return{days:diffD(pd(item.deadline),TODAY),detail:'em aberto'};
+    return null;
+  };
+  const slippedVsBaseline=(cur,base)=>{
+    if(!base||!base.deadline||!cur.deadline)return null;
+    if(pd(cur.deadline)>pd(base.deadline))return diffD(pd(base.deadline),pd(cur.deadline));
+    return null;
+  };
+  const taskCauseTag=(t)=>{
+    const d=isDelayed(t);
+    if(d)return `<span style="font-size:8px;font-weight:700;color:#b91c1c">🔴 atrasada (${d.detail}, ${d.days}d)</span>`;
+    const slip=slippedVsBaseline(t,baseTaskById[t.id]);
+    if(slip)return `<span style="font-size:8px;font-weight:700;color:#b45309">↳ prazo adiado ${slip}d vs. plano original</span>`;
+    return '';
+  };
+  const findTaskCauses=(t)=>{
+    const depIds=(t.depIds&&t.depIds.length)?t.depIds:(t.depId?[t.depId]:[]);
+    if(!depIds.length)return[];
+    const causes=[];
+    depIds.forEach(pid=>{
+      const p=curTasks.find(x=>x.id===pid);if(!p)return;
+      const d=isDelayed(p);
+      const slip=slippedVsBaseline(p,baseTaskById[p.id]);
+      if(d)causes.push(`"${p.name}" (${d.detail}, ${d.days}d de atraso)`);
+      else if(slip)causes.push(`"${p.name}" (prazo adiado ${slip}d vs. plano original)`);
+    });
+    return causes;
+  };
+  const findMsCauses=(ms)=>{
+    const msTasks=curTasks.filter(t=>t.msId===ms.id&&t.status!=='cancelled');
+    const causes=[];
+    msTasks.forEach(t=>{
+      const d=isDelayed(t);
+      const slip=slippedVsBaseline(t,baseTaskById[t.id]);
+      if(d)causes.push(`"${t.name}" (${d.detail}, ${d.days}d de atraso)`);
+      else if(slip)causes.push(`"${t.name}" (prazo adiado ${slip}d vs. plano original)`);
+    });
+    return causes;
+  };
+  const causeLine=(causes)=>causes.length?`<div style="font-size:9px;color:#b45309;padding:2px 4px 0 4px">↳ Provável causa: ${causes.slice(0,3).join('; ')}${causes.length>3?` (+${causes.length-3})`:''}</div>`:'';
+
+  const row=(label,oldV,newV,color,extra)=>`<div style="padding:5px 8px;background:var(--bg2);border-radius:5px;font-size:10.5px"><div style="display:flex;justify-content:space-between;gap:8px"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span><span style="white-space:nowrap;color:${color||'var(--text2)'}">${oldV} → <b>${newV}</b></span></div>${extra||''}</div>`;
   const simpleRow=(label,tag,color)=>`<div style="display:flex;align-items:center;gap:6px;padding:5px 8px;background:var(--bg2);border-radius:5px;font-size:10.5px"><span style="font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;background:${color}22;color:${color}">${tag}</span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${label}</span></div>`;
 
   let html='';
-  html+=`<div class="info-box" style="margin-bottom:8px">Compara o planejamento original deste projeto (a foto tirada quando as etapas/tarefas foram criadas) com o cronograma atual — datas que mudaram, e o que foi criado ou removido desde então.</div>`;
+  html+=`<div class="info-box" style="margin-bottom:8px">Compara o planejamento original deste projeto (a foto tirada quando as etapas/tarefas foram criadas) com o cronograma atual — datas que mudaram, o que provavelmente causou o atraso, e o que foi criado ou removido desde então.</div>`;
   if(slip!==null&&baselineFinish!==currentFinish){
     html+=`<div style="padding:8px 10px;background:${slip>0?'#fef2f2':'#f0fdf4'};border-radius:6px;margin-bottom:10px">
       <span style="font-size:9px;font-weight:700;text-transform:uppercase;color:${slip>0?'#b91c1c':'#15803d'}">Impacto no prazo final</span>
@@ -2857,10 +3531,10 @@ function renderBaselineCompare(){
   }
 
   html+=`<div class="section-lbl">Etapas com data alterada (${msChanged.length})</div>`;
-  html+=msChanged.length?`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">${msChanged.map(m=>row(m.name,fmtBR(baseMsById[m.id].deadline),fmtBR(m.deadline),pd(m.deadline)>pd(baseMsById[m.id].deadline)?'var(--red)':'var(--green)')).join('')}</div>`:`<div style="font-size:10px;color:var(--text3);padding:4px 8px;margin-bottom:8px">Nenhuma.</div>`;
+  html+=msChanged.length?`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px">${msChanged.map(m=>row(m.name,fmtBR(baseMsById[m.id].deadline),fmtBR(m.deadline),pd(m.deadline)>pd(baseMsById[m.id].deadline)?'var(--red)':'var(--green)',causeLine(findMsCauses(m)))).join('')}</div>`:`<div style="font-size:10px;color:var(--text3);padding:4px 8px;margin-bottom:8px">Nenhuma.</div>`;
 
   html+=`<div class="section-lbl">Tarefas com data alterada (${tChanged.length})</div>`;
-  html+=tChanged.length?`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:150px;overflow-y:auto">${tChanged.map(t=>row(t.name,fmtBR(baseTaskById[t.id].deadline),fmtBR(t.deadline),pd(t.deadline)>pd(baseTaskById[t.id].deadline)?'var(--red)':'var(--green)')).join('')}</div>`:`<div style="font-size:10px;color:var(--text3);padding:4px 8px;margin-bottom:8px">Nenhuma.</div>`;
+  html+=tChanged.length?`<div style="display:flex;flex-direction:column;gap:4px;margin-bottom:8px;max-height:150px;overflow-y:auto">${tChanged.map(t=>row(t.name+' '+taskCauseTag(t),fmtBR(baseTaskById[t.id].deadline),fmtBR(t.deadline),pd(t.deadline)>pd(baseTaskById[t.id].deadline)?'var(--red)':'var(--green)',causeLine(findTaskCauses(t)))).join('')}</div>`:`<div style="font-size:10px;color:var(--text3);padding:4px 8px;margin-bottom:8px">Nenhuma.</div>`;
 
   const createdRemovedCount=msCreated.length+tCreated.length+msRemoved.length+tRemoved.length;
   if(createdRemovedCount){
@@ -2887,9 +3561,17 @@ function buildUnits(){
   const cfg=ZOOM_CFG[zoom];const vs=getViewStart();
   const dr=getDataRange();
   // Tight range: from data start to data end + small buffer
-  const endDate=addD(dr.max, zoom==='day'?7:zoom==='week'?14:zoom==='month'?31:62);
+  let endDate=addD(dr.max, zoom==='day'?7:zoom==='week'?14:zoom==='month'?31:62);
+  // Semana/Mês/Ano: garante pelo menos 12 meses corridos de colunas a partir do início real do
+  // projeto, mesmo que as tarefas cadastradas cubram um período mais curto — dá contexto visual
+  // do ano inteiro do projeto, não só do trecho com tarefas. (Dia fica de fora: 365 colunas diárias
+  // ficariam minúsculas e sem uso prático — esse zoom é pra detalhe de curto prazo.)
+  if(zoom!=='day'){
+    const twelveMonthsEnd=addD(vs,365);
+    if(twelveMonthsEnd>endDate)endDate=twelveMonthsEnd;
+  }
   const needed=Math.ceil((endDate-vs)/cfg.unitMs)+1;
-  const cap={day:90,week:26,month:18,year:12};
+  const cap={day:90,week:56,month:18,year:12};
   const range=Math.min(Math.max(needed,4),cap[zoom]);
   // Responsiveness: calculate available pixel width and adjust the DEFAULT column width (DW).
   // Individual columns can still be resized on top of this via ganttColWidths (per-column override).
@@ -3005,7 +3687,53 @@ function renderSchedule(){
       banner.style.display='flex';
     } else banner.style.display='none';
   }
-  renderProjSum();renderTblHdr();renderRows();renderGhdr();renderBars();syncScroll();
+  renderProjSum();renderTblHdr();renderRows();renderGhdr();renderBars();renderMiniTimeline();syncScroll();
+}
+// ── Mini linha do tempo (visão geral do projeto, independente do zoom do Gantt) ──
+// Mostra o período inteiro do projeto (início real → pelo menos 12 meses à frente) de forma
+// compacta, com o marcador de "Hoje" — igual à faixa "Linha do Tempo" do MS Project, que fica
+// sempre visível no topo independente de estar zoomado em Dias/Semanas/Meses no Gantt principal.
+function renderMiniTimeline(wrapId,trackId){
+  const wrap=document.getElementById(wrapId||'gantt-timeline');const track=document.getElementById(trackId||'timeline-track');
+  if(!wrap||!track||!curKey)return;
+  const sched=schedules[curKey];
+  if(!sched||!sched.milestones||!sched.milestones.length){wrap.style.display='none';return;}
+  const dr=getDataRange();
+  const start=dr.min;
+  const minEnd=addD(start,365);
+  const end=dr.max>minEnd?dr.max:minEnd;
+  const totalMs=end-start;
+  track.innerHTML='';
+  if(!(totalMs>0)){wrap.style.display='none';return;}
+  wrap.style.display='flex';
+  const xOf=(d)=>((d-start)/totalMs)*100;
+  const base=document.createElement('div');
+  base.style.cssText='position:absolute;left:0;right:0;top:50%;height:2px;background:var(--border2);transform:translateY(-50%)';
+  track.appendChild(base);
+  const msDeadlines=(sched.milestones||[]).map(m=>m.deadline).filter(Boolean).sort();
+  const realEnd=msDeadlines.length?pd(msDeadlines[msDeadlines.length-1]):dr.max;
+  const x1=xOf(start),x2=xOf(realEnd);
+  const spanBar=document.createElement('div');
+  spanBar.style.cssText=`position:absolute;left:${x1}%;width:${Math.max(x2-x1,0.5)}%;top:50%;height:6px;background:var(--purple);opacity:.35;border-radius:3px;transform:translateY(-50%)`;
+  track.appendChild(spanBar);
+  const TICKS=6;
+  for(let i=0;i<=TICKS;i++){
+    const t=new Date(start.getTime()+totalMs*(i/TICKS));
+    const lbl=document.createElement('div');
+    lbl.style.cssText=`position:absolute;left:${(i/TICKS)*100}%;top:0;transform:translateX(${i===0?'0%':i===TICKS?'-100%':'-50%'});font-size:9px;color:var(--text3);white-space:nowrap`;
+    lbl.textContent=fmtBR(ds(t));
+    track.appendChild(lbl);
+  }
+  if(TODAY>=start&&TODAY<=end){
+    const xt=xOf(TODAY);
+    const ln=document.createElement('div');
+    ln.style.cssText=`position:absolute;left:${xt}%;top:0;bottom:0;width:2px;background:#16a34a`;
+    track.appendChild(ln);
+    const pill=document.createElement('div');
+    pill.style.cssText=`position:absolute;left:${xt}%;bottom:100%;transform:translateX(-50%);background:#16a34a;color:#fff;font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:3px;margin-bottom:2px;white-space:nowrap`;
+    pill.textContent='Hoje';
+    track.appendChild(pill);
+  }
 }
 function renderProjSum(){
   const s=schedules[curKey];const p=PROJECTS.find(x=>x.key===curKey);const st=getStats(curKey);
@@ -3030,6 +3758,20 @@ function renderProjSum(){
         <span style="font-size:9px;color:var(--text3);margin-left:3px">(${fmtBR(baselineFinish)} → ${fmtBR(currentFinish)})</span>
       </div>`
     :'';
+  const critAlert=getCriticalPathAlert(curKey);
+  const critHtml=critAlert?`<div class="ps-item" style="cursor:pointer;background:#fef2f2;border-radius:4px;padding:3px 6px" onclick="openBaselineCompareModal()" title="Clique para ver o comparativo detalhado">
+      <span style="font-size:9.5px;font-weight:700;color:#b91c1c">🔴 Caminho Crítico</span>
+      <span style="font-size:9px;color:#b91c1c;margin-left:3px">+${critAlert.slip}d — gargalo: "${critAlert.bottleneckName}" (${critAlert.bottleneckDays}d atrasada)</span>
+    </div>`:'';
+  const staleAlert=getStaleAlert(curKey);
+  const staleHtml=staleAlert?`<div class="ps-item" style="background:#fff7ed;border-radius:4px;padding:3px 6px">
+      <span style="font-size:9.5px;font-weight:700;color:#c2410c">🟠 Sem atualização publicada há ${staleAlert.days}d</span>
+    </div>`:'';
+  const atRiscoAlert=getAtRiscoAlert(curKey);
+  const atRiscoHtml=atRiscoAlert?`<div class="ps-item" style="cursor:pointer;background:#fef3c7;border-radius:4px;padding:3px 6px" onclick="showView('updates');openUpdatesProject(curKey)" title="Fim estimado do cronograma diverge do Go Live no Jira">
+      <span style="font-size:9.5px;font-weight:700;color:#92400e">⚠ Em Risco</span>
+      <span style="font-size:9px;color:#92400e;margin-left:3px">cronograma: ${fmtBR(atRiscoAlert.goLiveLocal)} · Jira: ${fmtBR(atRiscoAlert.goLiveJira)}</span>
+    </div>`:'';
   const canEdSc=canEdit(curKey)&&p.status!==DELIVERED_STATUS;
   const scRes=p.type==='Comercial'?computeScoring(s.scoring):null;
   const scoreHtml = p.type!=='Comercial'
@@ -3050,6 +3792,9 @@ function renderProjSum(){
     <div class="ps-item"><span class="ps-lbl">Início:</span><b>${fmtBR(msStarts[0])}</b></div>
     <div class="ps-item"><span class="ps-lbl">Fim estimado:</span><b>${fmtBR(msDates[msDates.length-1])}</b></div>
     ${slipHtml}
+    ${critHtml}
+    ${staleHtml}
+    ${atRiscoHtml}
     ${glDate?`<div class="ps-item"><span class="ps-lbl">Go Live Jira:</span><b style="color:var(--green)">${fmtBRFull(p.golive||null)||'—'}</b></div>`:''}
     <div class="ps-item"><span class="ps-lbl">Tarefas:</span><b>${st.tasks} · ${st.prog}% concluído</b></div>
     <div class="ps-item">${healthBadge(st.health)}</div>
@@ -3210,11 +3955,14 @@ function renderGhdr(){
   groups.forEach(g=>{const el=document.createElement('div');el.className='ghm';el.style.width=g.w+'px';el.textContent=g.lbl;mr.appendChild(el);});
   units.forEach((u,i)=>{
     const el=document.createElement('div');const we=isWE(u);const tod=zoom==='day'&&u.getTime()===TODAY.getTime();
-    el.className='ghd'+(we?' we':'')+(tod?' tod':'');el.style.width=_ganttLayout.widths[i]+'px';
+    // Início de semana (segunda-feira): marcado com negrito + linha vertical, em vez de repetir o
+    // dia da semana por extenso em toda coluna — ajuda a "contar semanas" de relance sem poluir.
+    const wkStart=zoom==='day'&&u.getDay()===1;
+    el.className='ghd'+(we?' we':'')+(tod?' tod':'')+(wkStart?' wk-start':'');el.style.width=_ganttLayout.widths[i]+'px';
     let lbl2;
     if(showSeqNums){lbl2=getSeqLabel(u,i);}
     else if(zoom==='day')lbl2=u.getDate();
-    else if(zoom==='week')lbl2=u.getDate()+'/'+(u.getMonth()+1);
+    else if(zoom==='week')lbl2=String(u.getDate()).padStart(2,'0')+'/'+String(u.getMonth()+1).padStart(2,'0');
     else if(zoom==='month')lbl2=''; // no zoom mensal cada coluna já é um mês inteiro — o rótulo completo ("Jun 2026") fica na linha de cima, repetir só a inicial aqui era redundante
     else lbl2=['J','F','M','A','M','J','J','A','S','O','N','D'][u.getMonth()];
     el.textContent=lbl2;
@@ -3231,7 +3979,7 @@ function renderBars(){
   units.forEach((u,i)=>{
     const cx=_ganttLayout.cumX[i],cw=_ganttLayout.widths[i];
     if(isWE(u)){const wk=document.createElement('div');wk.className='gcol we-bg';wk.style.cssText=`left:${cx}px;width:${cw}px;top:0;bottom:0;position:absolute;pointer-events:none`;cont.appendChild(wk);}
-    else{const gl=document.createElement('div');gl.className='gcol';gl.style.left=cx+'px';cont.appendChild(gl);}
+    else{const gl=document.createElement('div');gl.className='gcol'+(zoom==='day'&&u.getDay()===1?' wk-start-ln':'');gl.style.left=cx+'px';cont.appendChild(gl);}
   });
   const tx=dateToX(ds(TODAY));
   if(tx>=0&&tx<=totalW){const tl=document.createElement('div');tl.className='today-ln';tl.style.left=tx+'px';cont.appendChild(tl);}
@@ -4587,7 +5335,10 @@ async function persistSchedule(key) {
         scoring:       schedules[key].scoring       || null,
         stakeholders:  schedules[key].stakeholders  || [],
         scopeLink:     schedules[key].scopeLink     || null,
+        scopeSummary:  schedules[key].scopeSummary  || '',
+        clientName:    schedules[key].clientName    || '',
         decisions:     schedules[key].decisions     || [],
+        minutes:       schedules[key].minutes       || [],
         updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
         updatedBy:     currentUser?.name || '',
       });
@@ -4639,7 +5390,10 @@ async function autoLoadOnLogin() {
             scoring:       raw.scoring       || null,
             stakeholders:  raw.stakeholders  || [],
             scopeLink:     raw.scopeLink     || null,
+            scopeSummary:  raw.scopeSummary  || '',
+            clientName:    raw.clientName    || '',
             decisions:     raw.decisions     || [],
+            minutes:       raw.minutes       || [],
             updates:       schedules[doc.id]?.updates || [],
           };
         } catch(e) { console.warn('Error loading schedule', doc.id, e); }
@@ -4650,7 +5404,7 @@ async function autoLoadOnLogin() {
         try {
           const raw = JSON.parse(JSON.stringify(doc.data()));
           if (schedules[doc.id]) schedules[doc.id].updates = raw.updates || [];
-          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null, decisions:[] };
+          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null, scopeSummary:'', clientName:'', decisions:[], minutes:[] };
         } catch(e) { console.warn('Error loading updates', doc.id, e); }
       });
       // Load users
@@ -4662,6 +5416,12 @@ async function autoLoadOnLogin() {
           if (idx >= 0) USER_REGISTRY[idx] = { ...USER_REGISTRY[idx], ...u };
           else USER_REGISTRY.push(u);
         });
+      }
+      // Load docs library
+      const snapDocs = await db.collection('app_config').doc('docs_library').get();
+      if (snapDocs.exists) {
+        const savedDocs = snapDocs.data().items || [];
+        if (savedDocs.length) DOCS_LIBRARY = savedDocs;
       }
       setSyncTxt('ok', '✓ Dados carregados');
       setTimeout(() => setSyncTxt('idle', ''), 2500);
@@ -4753,6 +5513,15 @@ async function persistUsers() {
       updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
     });
   } catch(e) { console.error('persistUsers error:', e); }
+}
+async function persistDocsLibrary() {
+  if (!firebaseReady || !db) return;
+  try {
+    await db.collection('app_config').doc('docs_library').set({
+      items:     DOCS_LIBRARY,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch(e) { console.error('persistDocsLibrary error:', e); }
 }
 
 async function syncFromJira(){
