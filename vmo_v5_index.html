@@ -4525,6 +4525,7 @@ function openScoringModal(){
   const pType=PROJECTS.find(x=>x.key===curKey)?.type;
   if(pType!=='Comercial'){alert(pType==='Produtos'?'O modelo de scoring para projetos de Produtos ainda está em definição. Assim que estiver pronto, ele aparecerá aqui.':'Scoring disponível apenas para projetos Comerciais.');return;}
   const sched=schedules[curKey];const sc=sched.scoring||{};
+  const hasScoring=!!(sched.scoring&&(sc.tpv||sc.receita||sc.risco||sc.complexidade));
   const modal=getOrBuildModal('scoring-modal','Scoring do Projeto',`
     <div class="info-box" style="margin-bottom:4px">Mesmos critérios e bandas da planilha de Scoring VMO. Score e classificação são calculados automaticamente.</div>
     <div class="fg"><label>TPV Previsto (peso 30%)</label><select id="sc-tpv"><option value="">Selecione...</option>${scOptHtml('tpv',sc.tpv)}</select></div>
@@ -4533,7 +4534,8 @@ function openScoringModal(){
     <div class="fg"><label>Complexidade de Implementação (peso 20%)</label><select id="sc-complexidade"><option value="">Selecione...</option>${scOptHtml('complexidade',sc.complexidade)}</select></div>
     <div class="fg"><label>Observações</label><textarea id="sc-obs" rows="2">${sc.obs||''}</textarea></div>
     <div class="info-box" id="sc-preview" style="margin-top:2px"></div>`,
-    `<button class="btn-c" onclick="closeM('scoring-modal')">Cancelar</button><button class="btn-s" onclick="saveScoring()">Salvar</button>`);
+    `<button class="btn-c" id="sc-remove-btn" style="display:${hasScoring?'flex':'none'};color:var(--red);border-color:#fca5a5;margin-right:auto" onclick="removeScoring()"><i class="ti ti-trash" style="font-size:10px"></i> Remover Scoring</button>
+     <button class="btn-c" onclick="closeM('scoring-modal')">Cancelar</button><button class="btn-s" onclick="saveScoring()">Salvar</button>`);
   // IMPORTANTE: getOrBuildModal reaproveita o modal já existente no DOM (não reconstrói o HTML
   // em chamadas seguintes). Por isso os valores precisam ser atribuídos explicitamente aqui,
   // a cada abertura — senão o formulário ficava com os valores do último projeto editado.
@@ -4542,6 +4544,7 @@ function openScoringModal(){
   document.getElementById('sc-risco').value=sc.risco||'';
   document.getElementById('sc-complexidade').value=sc.complexidade||'';
   document.getElementById('sc-obs').value=sc.obs||'';
+  const removeBtn=document.getElementById('sc-remove-btn');if(removeBtn)removeBtn.style.display=hasScoring?'flex':'none';
   ['sc-tpv','sc-receita','sc-risco','sc-complexidade'].forEach(id=>{document.getElementById(id).onchange=updateScoringPreview;});
   updateScoringPreview();openM('scoring-modal');
 }
@@ -4557,6 +4560,15 @@ function saveScoring(){
   sched.scoring=data;
   logChange(curKey,'Scoring do projeto atualizado','#6924E1');
   closeM('scoring-modal');renderSchedule();persistSchedule(curKey);
+}
+function removeScoring(){
+  const sched=schedules[curKey];if(!sched)return;
+  if(!confirm('Remover o scoring deste projeto? Essa ação não pode ser desfeita.'))return;
+  sched.scoring=null;
+  logChange(curKey,'Scoring do projeto removido','#dc2626');
+  closeM('scoring-modal');
+  renderSchedule();renderPortfolio();renderResumoScoringCard();renderScoringView();
+  persistSchedule(curKey);
 }
 
 // ── SCORING VIEW (painel com todos os projetos) ──
