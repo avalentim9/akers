@@ -592,6 +592,9 @@ table.pft tr:hover td{background:var(--bg2)}
     <div class="ms-dd" id="dd-gp"><button class="ms-dd-btn" onclick="toggleDD('dd-gp')"><span id="dd-gp-lbl">Todos os GPs</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-gp-menu"></div></div>
     <div class="ms-dd" id="dd-health"><button class="ms-dd-btn" onclick="toggleDD('dd-health')"><span id="dd-health-lbl">Saúde do cronograma</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-health-menu"></div></div>
     <div class="ms-dd" id="dd-times"><button class="ms-dd-btn" onclick="toggleDD('dd-times')"><span id="dd-times-lbl">Todos os times</span><i class="ti ti-chevron-down ms-dd-icon"></i></button><div class="ms-dd-menu" id="dd-times-menu"></div></div>
+    <div style="flex:1"></div>
+    <button class="fbtn" style="display:flex;align-items:center;gap:4px" onclick="exportPrioridadesXlsx()" title="Exporta a lista de prioridades exatamente como está na tela (respeitando busca e filtros ativos)"><i class="ti ti-file-spreadsheet" style="font-size:11px"></i> Exportar Excel</button>
+    <button class="fbtn" style="display:flex;align-items:center;gap:4px;background:var(--purple);color:#fff;border:none" onclick="openSuggestPriorityModal()" title="Sugere uma nova ordem de prioridade combinando score, datas de entrega e segmento estratégico"><i class="ti ti-sparkles" style="font-size:11px"></i> Sugerir Priorização</button>
   </div>
   <div id="prio-kpi"></div>
 </div>
@@ -680,10 +683,8 @@ table.pft tr:hover td{background:var(--bg2)}
         <div class="rsm-card">
           <div class="rsm-card-hdr"><i class="ti ti-timeline" style="font-size:11px;color:var(--text3)"></i><h4>Datas Macro</h4></div>
           <div class="rsm-card-body">
-            <div id="resumo-timeline" style="display:none;align-items:center;gap:8px;position:relative;padding-top:16px">
-              <div id="resumo-timeline-track" style="position:relative;flex:1;height:28px"></div>
-            </div>
-            <div id="rsm-dates-empty" class="rsm-empty">Nenhuma etapa cadastrada ainda.</div>
+            <div id="rsm-dates-list" class="rsm-mini-list"></div>
+            <div id="rsm-dates-empty" class="rsm-empty" style="display:none">Nenhuma etapa cadastrada ainda.</div>
           </div>
         </div>
         <div class="rsm-card">
@@ -1789,6 +1790,78 @@ function renderPortfolio(){
     if(timesF.size>0)timesF.forEach(t=>filters2.push({label:'Time: '+t.slice(0,12),clear:()=>{msFilters.times.delete(t);updateDD('dd-times','dd-times-lbl','times','Todos os times');renderPortfolio();},col:'#0369a1',bg:'#e0f2fe'}));
     filters2.forEach(fc=>{const chip=document.createElement('span');chip.style.cssText='font-size:9.5px;background:'+fc.bg+';color:'+fc.col+';padding:2px 8px;border-radius:10px;display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap';chip.innerHTML=fc.label+' ×';chip.onclick=fc.clear;afr.appendChild(chip);});
   }
+}
+// ── Exportação Excel da lista de Prioridades ──
+// Reaplica a MESMA lógica de busca/filtros/ordenação do renderPortfolio() (sem nenhum
+// efeito colateral) pra garantir que o Excel exportado seja EXATAMENTE o que está na tela
+// no momento — respeitando busca, filtros ativos e reorder por segmento/região.
+function getPrioridadesExportRows(){
+  const q=(document.getElementById('pf-search')?.value||'').toLowerCase();
+  const statusF=msFilters.status,gpF=msFilters.gp,healthF=msFilters.health,timesF=msFilters.times,segF=msFilters.segment,regF=msFilters.region;
+  const filtersActive = !!q || !pfFilter.has('all') || statusF.size>0 || gpF.size>0 || healthF.size>0 || timesF.size>0 || msFilters.tipo.size>0 || segF.size>0 || regF.size>0 || !!alertFilter;
+  const soloFiltersOk = !q && pfFilter.has('all') && statusF.size===0 && gpF.size===0 && healthF.size===0 && timesF.size===0 && msFilters.tipo.size===0 && !alertFilter;
+  const soloSeg = soloFiltersOk && segF.size===1 && regF.size===0;
+  const soloReg = soloFiltersOk && regF.size===1 && segF.size===0;
+  const scopedReorder = soloSeg?{priKey:'segmentPriority'}:soloReg?{priKey:'regionPriority'}:null;
+  const visible=PROJECTS.filter(p=>{
+    if(p.status===DELIVERED_STATUS)return false;
+    if(q&&!p.summary.toLowerCase().includes(q)&&!p.key.toLowerCase().includes(q))return false;
+    if(!pfFilter.has('all')){
+      const st0=getStats(p.key);
+      const matchSched=pfFilter.has('sched')&&st0.has;
+      const matchNoSched=pfFilter.has('nosched')&&!st0.has;
+      if(!matchSched&&!matchNoSched)return false;
+    }
+    if(msFilters.tipo.size>0&&!msFilters.tipo.has(p.type))return false;
+    if(segF.size>0&&!segF.has(p.segment||'Produtos'))return false;
+    if(regF.size>0&&!regF.has(p.region))return false;
+    if(statusF.size>0&&!statusF.has(p.status))return false;
+    if(gpF.size>0&&![...gpF].some(g=>g==='TBD'?isNoGP(p.gp):(p.gp===g||p.gp.startsWith(g))))return false;
+    if(healthF.size>0&&!healthF.has(getStats(p.key).health))return false;
+    if(timesF.size>0&&![...timesF].some(t=>(p.times||[]).includes(t)))return false;
+    if(alertFilter==='critical'&&!getCriticalPathAlert(p.key))return false;
+    if(alertFilter==='stale'&&!getStaleAlert(p.key))return false;
+    if(alertFilter==='atrisco'&&!getAtRiscoAlert(p.key))return false;
+    return true;
+  });
+  if(scopedReorder){
+    const pk=scopedReorder.priKey;
+    visible.sort((a,b)=>(a[pk]??a.priority??9999)-(b[pk]??b.priority??9999));
+  }
+  return {visible,filtersActive,scopedReorder};
+}
+// Formato de exportação alinhado ao modelo de planilha usado na reunião de priorização:
+// Prioridade Anterior/Atual, Mudanças, Projeto, GP Alocado, Status, e as 3 datas em colunas
+// separadas (Expectativa de Entrega / Go Live / Estimativa do Cronograma) — sem Demandante
+// nem Classificação detalhada, que a ferramenta não rastreia hoje.
+function exportPrioridadesXlsx(){
+  const {visible,filtersActive,scopedReorder}=getPrioridadesExportRows();
+  if(!visible.length){alert('Nenhum projeto na lista atual para exportar.');return;}
+  const todayDDMM=String(TODAY.getDate()).padStart(2,'0')+'/'+String(TODAY.getMonth()+1).padStart(2,'0');
+  const header=['Prioridade Anterior',`Prioridade Atual (${todayDDMM})`,'Mudanças','Projeto','GP Alocado','Status','Expectativa de Entrega','Data de Go Live','Data Estimada (Cronograma)'];
+  const rows=[header];
+  visible.forEach((p,idx)=>{
+    const st=getStats(p.key);
+    const rowNum=scopedReorder?idx:idx+1;
+    const novaPrioridade=(filtersActive&&!scopedReorder)?rowNum:(scopedReorder?rowNum:(p.priority!=null&&p.priority!==9999?Math.trunc(p.priority):rowNum));
+    rows.push([
+      (!filtersActive)&&(p.lastPriority!=null)?Math.trunc(p.lastPriority):'',
+      novaPrioridade,
+      (!filtersActive)&&p.priorityVariation?p.priorityVariation:'—',
+      `${p.key} · ${p.summary}`,
+      p.gp&&p.gp!=='—'?p.gp:'',
+      p.status,
+      p.duedate?fmtBR(p.duedate):'',
+      p.golive?fmtBR(p.golive):'',
+      st.goLiveLocal?fmtBR(st.goLiveLocal):'',
+    ]);
+  });
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols']=[{wch:14},{wch:16},{wch:10},{wch:52},{wch:22},{wch:22},{wch:16},{wch:14},{wch:16}];
+  XLSX.utils.book_append_sheet(wb,ws,'Prioridades');
+  const d=new Date();const dstr=String(d.getDate()).padStart(2,'0')+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+d.getFullYear();
+  XLSX.writeFile(wb,`VMO_Prioridades_${dstr}.xlsx`);
 }
 function secHdr(sec, iconBg, iconColor, iconClass, title, subtitle, extraRight=''){
   return `<div class="sec-hdr" onclick="toggleSection('${sec}')">
@@ -3179,10 +3252,7 @@ function renderResumoDashboard(){
   }
 
   // Datas Macro
-  const hasMs=!!(sched.milestones&&sched.milestones.length);
-  document.getElementById('rsm-dates-empty').style.display=hasMs?'none':'block';
-  if(hasMs)renderMiniTimeline('resumo-timeline','resumo-timeline-track');
-  else document.getElementById('resumo-timeline').style.display='none';
+  renderResumoDatesList();
 
   renderResumoUpdatesList();
   renderResumoScoringCard();
@@ -3190,6 +3260,12 @@ function renderResumoDashboard(){
   renderResumoDecisionsList();
   renderResumoMinutesList();
   renderResumoProjectList();
+}
+function renderResumoDatesList(){
+  const sched=schedules[curKey];const list=document.getElementById('rsm-dates-list');if(!list)return;
+  const ms=(sched.milestones||[]).slice().sort((a,b)=>(a.deadline||'').localeCompare(b.deadline||''));
+  document.getElementById('rsm-dates-empty').style.display=ms.length?'none':'block';
+  list.innerHTML=ms.map(m=>`<div class="rsm-mini-item"><div class="rsm-mini-dot" style="background:${m.color||'var(--purple)'}"></div><div style="min-width:0;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex:1"><span style="font-size:10.5px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${m.name}</span><span style="font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0">${fmtBRFull(m.deadline)}</span></div></div>`).join('');
 }
 function renderResumoScoringCard(){
   const p=PROJECTS.find(x=>x.key===curKey);const sched=schedules[curKey];
@@ -5865,6 +5941,119 @@ function reorderScopedPriority(draggedKey,targetKey,dropBefore,scope){
   if(!changedAny)return;
   persistProjects(); // só local — sem push para o Jira
   renderPortfolio();
+}
+
+// ═══════════════════════════════════════════
+//  SUGERIR PRIORIZAÇÃO (algoritmo — score + datas + segmento estratégico)
+// ═══════════════════════════════════════════
+// Combina 3 critérios com peso equilibrado (1/3 cada) numa pontuação composta 0–1.
+// Quanto maior a composta, mais cedo o projeto deve vir na lista de prioridade.
+// Isso NÃO é uma IA generativa — é uma fórmula determinística e explicável, escolhida
+// porque a ferramenta é um arquivo client-side sem backend pra guardar chave de API com
+// segurança. Cada critério normalizado é mostrado na prévia pra o motivo ficar claro.
+const PRIORITY_DATE_HORIZON_DAYS=180; // datas a partir daqui contam como "sem urgência" (0)
+let pendingSuggestedOrder=null;
+function scoreComponentFor(p){
+  if(p.type!=='Comercial')return 0.5; // sem scoring aplicável — neutro (nem penaliza nem favorece)
+  const sc=computeScoring(schedules[p.key]?.scoring);
+  if(!sc)return 0.5; // Comercial mas ainda sem scoring preenchido — neutro
+  return (sc.score-1)/2; // score varia de 1 a 3 → normaliza pra 0–1
+}
+function nearestDeadlineFor(p){
+  const st=getStats(p.key);
+  const candidates=[p.duedate,p.golive,st.goLiveLocal].filter(Boolean).map(pd);
+  if(!candidates.length)return null;
+  return new Date(Math.min(...candidates));
+}
+function dateComponentFor(p,nearest){
+  if(!nearest)return 0.5; // sem nenhuma data cadastrada — neutro
+  const days=diffD(TODAY,nearest);
+  const clamped=Math.max(0,Math.min(PRIORITY_DATE_HORIZON_DAYS,days));
+  return 1-(clamped/PRIORITY_DATE_HORIZON_DAYS); // atrasado ou hoje = 1 (mais urgente)
+}
+function segComponentFor(p){
+  const seg=p.segment||'Produtos';
+  const idx=SEGMENT_ORDER.indexOf(seg);
+  if(idx<0)return 0.5;
+  return 1-(idx/(SEGMENT_ORDER.length-1));
+}
+function computeSuggestedPriorityOrder(){
+  const reorderable=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS);
+  const currentOrder=reorderable.slice().sort((a,b)=>(a.priority??9999)-(b.priority??9999));
+  const currentRank={};currentOrder.forEach((p,i)=>{currentRank[p.key]=i+1;});
+  const scored=reorderable.map(p=>{
+    const nearest=nearestDeadlineFor(p);
+    const scoreC=scoreComponentFor(p);
+    const dateC=dateComponentFor(p,nearest);
+    const segC=segComponentFor(p);
+    const composite=(scoreC+dateC+segC)/3;
+    return{p,composite,scoreC,dateC,segC,nearest,oldRank:currentRank[p.key]||reorderable.length};
+  });
+  scored.sort((a,b)=>b.composite-a.composite);
+  scored.forEach((s,i)=>{s.newRank=i+1;});
+  return scored;
+}
+function openSuggestPriorityModal(){
+  if(lastFiltersActive){alert('Para sugerir priorização, remova os filtros ativos primeiro — a prioridade sempre se refere à lista completa (sem filtro).');return;}
+  const suggestion=computeSuggestedPriorityOrder();
+  if(!suggestion.length){alert('Nenhum projeto ativo para priorizar.');return;}
+  pendingSuggestedOrder=suggestion;
+  const SCORE_TIER=v=>v>=0.75?'Alta':v>=0.4?'Média':'Baixa';
+  const rows=suggestion.map(s=>{
+    const delta=s.oldRank-s.newRank;
+    const deltaHtml=delta>0?`<span style="color:var(--green);font-weight:700">▲ ${delta}</span>`:delta<0?`<span style="color:var(--red);font-weight:700">▼ ${Math.abs(delta)}</span>`:'<span style="color:var(--text3)">—</span>';
+    return`<tr>
+        <td style="text-align:center;font-weight:700">${s.newRank}</td>
+        <td style="text-align:center;color:var(--text3)">${s.oldRank}</td>
+        <td style="text-align:center">${deltaHtml}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700">${s.p.key}</span> ${s.p.summary}</td>
+        <td style="font-size:9.5px">${s.p.segment||'Produtos'}</td>
+        <td style="font-size:9.5px;text-align:center">${SCORE_TIER(s.scoreC)}</td>
+        <td style="font-size:9.5px;text-align:center">${s.nearest?fmtBR(ds(s.nearest)):'—'}</td>
+      </tr>`;
+  }).join('');
+  const modal=getOrBuildModal('suggest-priority-modal','Sugerir Priorização',`
+    <div class="info-box">
+      Ordem sugerida combinando 3 critérios com peso equilibrado: <b>score</b> (Alta/Média/Baixa), <b>urgência de data</b> (menor prazo entre Expectativa de Entrega, Go Live e estimativa do cronograma) e <b>segmento estratégico</b> (${SEGMENT_ORDER.map((s,i)=>i<SEGMENT_ORDER.length-1?s:'').filter(Boolean).join(' > ')} > ${SEGMENT_ORDER[SEGMENT_ORDER.length-1]}). Revise antes de aplicar — a nova ordem é enviada ao Jira.
+    </div>
+    <div style="max-height:420px;overflow-y:auto;margin-top:8px">
+      <table class="pft" style="width:100%">
+        <thead><tr>
+          <th style="width:45px">Nova</th>
+          <th style="width:45px">Atual</th>
+          <th style="width:50px">Δ</th>
+          <th>Projeto</th>
+          <th style="width:90px">Segmento</th>
+          <th style="width:60px">Score</th>
+          <th style="width:75px">Prazo</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `,`<button class="btn-c" onclick="closeM('suggest-priority-modal')">Cancelar</button>
+     <button class="btn-s" onclick="applySuggestedPriorityOrder()"><i class="ti ti-check" style="font-size:10px"></i> Aplicar Nova Ordem</button>`);
+  openM('suggest-priority-modal');
+}
+function applySuggestedPriorityOrder(){
+  if(!pendingSuggestedOrder||!pendingSuggestedOrder.length){closeM('suggest-priority-modal');return;}
+  const ordered=pendingSuggestedOrder.slice().sort((a,b)=>a.newRank-b.newRank).map(s=>s.p);
+  const basePriority=Math.floor(Math.min(...ordered.map(p=>p.priority??0)));
+  const changed=[];
+  ordered.forEach((p,i)=>{
+    const newPriority=basePriority+i;
+    if(p.priority!==newPriority){
+      p.lastPriority=p.priority;
+      p.priority=newPriority;
+      changed.push(p);
+    }
+  });
+  closeM('suggest-priority-modal');
+  pendingSuggestedOrder=null;
+  if(!changed.length){alert('A lista já está na ordem sugerida — nada para aplicar.');return;}
+  persistProjects();
+  changed.forEach(p=>pushPriorityToJira(p.key,p.priority,p.lastPriority));
+  renderPortfolio();
+  alert(`Nova ordem aplicada — ${changed.length} projeto(s) reposicionado(s) e enviado(s) ao Jira.`);
 }
 function showSyncError(msg){
   setSyncTxt('error','Erro: '+msg.slice(0,40));
