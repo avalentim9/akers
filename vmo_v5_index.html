@@ -697,7 +697,7 @@ table.pft tr:hover td{background:var(--bg2)}
       <div class="rsm-col">
         <div class="rsm-card">
           <div class="rsm-card-hdr"><i class="ti ti-star" style="font-size:11px;color:var(--text3)"></i><h4>Scoring</h4>
-            <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos Comerciais combinando porte financeiro, risco e complexidade técnica. Clique para ver o detalhe do cálculo." onclick="openScoringInfoModal()"></i>
+            <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos combinando critérios próprios por tipo (Comercial ou Produtos/TI). Clique para ver o detalhe do cálculo." onclick="openScoringInfoModal()"></i>
           </div>
           <div class="rsm-card-body"><div id="rsm-scoring-body"></div></div>
         </div>
@@ -804,7 +804,7 @@ table.pft tr:hover td{background:var(--bg2)}
       <th>Projeto</th>
       <th style="width:75px">Tipo</th>
       <th style="width:118px">Status Jira</th>
-      <th style="width:70px">Score <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos Comerciais combinando porte financeiro, risco e complexidade técnica. Clique para ver o detalhe do cálculo." onclick="event.stopPropagation();openScoringInfoModal()"></i></th>
+      <th style="width:70px">Score <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos combinando critérios próprios por tipo (Comercial ou Produtos/TI). Clique para ver o detalhe do cálculo." onclick="event.stopPropagation();openScoringInfoModal()"></i></th>
       <th style="width:120px">Classificação</th>
       <th style="width:160px">Alerta</th>
     </tr></thead>
@@ -1762,7 +1762,7 @@ function renderPortfolio(){
       <td><span style="font-size:10px;font-weight:${glDate?'600':'400'};color:${glOverdue?'var(--red)':glDate?'var(--green)':'var(--text3)'}">${glDate?fmtBR(glDate)+'<span style="font-size:8px;color:var(--text3);margin-left:2px">'+(p.golive?'Jira':'local')+'</span>':'—'}</span></td>
       <td>${healthBadge(st.health)}</td>
       <td>${st.has&&st.tasks>0?`<div style="display:flex;align-items:center;gap:4px"><div class="prog-track" style="width:55px"><div class="prog-fill" style="width:${st.prog}%;background:#6924E1"></div></div><span style="font-size:9.5px;color:var(--text3)">${st.prog}%</span></div>`:'—'}</td>
-      <td>${(()=>{const sr=p.type==='Comercial'?computeScoring(schedules[p.key]?.scoring):null;return sr?`<b style="color:${sr.cls.color};font-size:10px">${sr.score.toFixed(2)} ${sr.cls.emoji}</b>`:'<span style="color:var(--text3);font-size:10px">—</span>';})()}</td>
+      <td>${(()=>{const sr=computeProjectScoring(p);return sr?`<b style="color:${sr.cls.color};font-size:10px">${sr.score.toFixed(2)} ${sr.cls.emoji}</b>`:'<span style="color:var(--text3);font-size:10px">—</span>';})()}</td>
       <td><button class="pf-act ${st.has?'':'pri'}" onclick="openProjectSchedule('${p.key}')">${st.has?'Ver cronograma':'Criar cronograma'}</button></td>`;
     if(dragEnabled){
       tr.draggable=true;
@@ -2479,7 +2479,7 @@ function renderPrioridadesShell(activeCount){
       <th style="width:75px" data-col="golive">Go Live</th>
       <th style="width:90px" data-col="saude">Saúde Cron.</th>
       <th style="width:85px" data-col="prog">Progresso</th>
-      <th style="width:75px" data-col="score">Score <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos Comerciais combinando porte financeiro, risco e complexidade técnica. Clique para ver o detalhe do cálculo." onclick="event.stopPropagation();openScoringInfoModal()"></i></th>
+      <th style="width:75px" data-col="score">Score <i class="ti ti-info-circle" style="font-size:11px;cursor:pointer;color:var(--text3)" title="Nota de 1 a 3 que prioriza projetos combinando critérios próprios por tipo (Comercial ou Produtos/TI). Clique para ver o detalhe do cálculo." onclick="event.stopPropagation();openScoringInfoModal()"></i></th>
       <th style="width:110px" data-col="acao">Ação</th>
     </tr></thead><tbody id="pf-body"></tbody></table>
     </div>`;
@@ -2760,7 +2760,7 @@ function openUpdatesProject(key){
   if(glDate){glChip.style.display='';glVal.textContent=fmtBRFull(glDate)+(p.golive?' (Jira)':' (local)');}
   else glChip.style.display='none';
   document.getElementById('upd-composer').style.display=isEditorOrAbove()?'':'none';
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,scoringProd:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
   renderScopeLinkChip(key);
   renderUpdates(key);renderUpdatesProjectList();
 }
@@ -3169,7 +3169,7 @@ function prepareProjectContext(key){
   // Update browser URL so this page can be shared/bookmarked
   const schedUrl=window.location.href.split('?')[0]+'?project='+key;
   history.replaceState(null,'',schedUrl);
-  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
+  if(!schedules[key])schedules[key]={milestones:[],tasks:[],access:[{email:(currentUser?.email||'tainah.andrade@bemobi.com'),role:'editor'}],auditLog:[],updates:[],calendar:'BR',baseline:null,scoring:null,scoringProd:null,stakeholders:[],scopeLink:null,scopeSummary:'',clientName:'',decisions:[],minutes:[]};
   collapsed.clear();viewOffset=0;selectedMs.clear();
   document.getElementById('se-title').textContent=p.summary.length>35?p.summary.slice(0,35)+'…':p.summary;
   const jl=document.getElementById('se-jira-lnk');jl.style.display='';
@@ -3273,13 +3273,11 @@ function renderResumoScoringCard(){
   const p=PROJECTS.find(x=>x.key===curKey);const sched=schedules[curKey];
   const body=document.getElementById('rsm-scoring-body');if(!body||!p||!sched)return;
   const canEdSc=canEdit(curKey)&&p.status!==DELIVERED_STATUS;
-  if(p.type!=='Comercial'){
-    body.innerHTML=p.type==='Produtos'
-      ? '<div class="rsm-empty">Scoring de Produtos em definição.</div>'
-      : '<div class="rsm-empty">Scoring não se aplica a este tipo de projeto.</div>';
+  if(!SCORING_TYPES[p.type]){
+    body.innerHTML='<div class="rsm-empty">Scoring não se aplica a este tipo de projeto.</div>';
     return;
   }
-  const scRes=computeScoring(sched.scoring);
+  const scRes=computeProjectScoring(p);
   if(scRes){
     body.innerHTML=`<div style="display:flex;align-items:center;gap:9px;${canEdSc?'cursor:pointer':''}"${canEdSc?` onclick="openScoringModal()" title="Editar scoring"`:''}>
         <div style="font-size:22px;font-weight:700;color:${scRes.cls.color};line-height:1">${scRes.score.toFixed(2)}</div>
@@ -3977,11 +3975,9 @@ function renderProjSum(){
       <span style="font-size:9px;color:#92400e;margin-left:3px">cronograma: ${fmtBR(atRiscoAlert.goLiveLocal)} · Jira: ${fmtBR(atRiscoAlert.goLiveJira)}</span>
     </div>`:'';
   const canEdSc=canEdit(curKey)&&p.status!==DELIVERED_STATUS;
-  const scRes=p.type==='Comercial'?computeScoring(s.scoring):null;
-  const scoreHtml = p.type!=='Comercial'
-    ? (p.type==='Produtos'
-        ? `<div class="ps-item"><span class="ps-lbl">Scoring Produtos:</span><span style="color:var(--text3);font-style:italic">em definição</span></div>`
-        : '')
+  const scRes=SCORING_TYPES[p.type]?computeProjectScoring(p):null;
+  const scoreHtml = !SCORING_TYPES[p.type]
+    ? ''
     : (scRes
         ? `<div class="ps-item"${canEdSc?` style="cursor:pointer" onclick="openScoringModal()" title="Editar scoring"`:''}>
              <span class="ps-lbl">Score:</span>
@@ -4524,6 +4520,61 @@ function computeScoring(sc){
 }
 function scOptHtml(crit,cur){return (SCORE_OPTIONS[crit]||[]).map(o=>`<option value="${o.v.replace(/"/g,'&quot;')}" ${cur===o.v?'selected':''}>${o.v}</option>`).join('');}
 
+// ── SCORING — Produtos/TI (segundo modelo, critérios próprios) ──
+// Pesos: Obrigatoriedade Regulatória/Contratual 35% + Abrangência no Portfólio 20% +
+// Risco Técnico/Segurança 20% + Complexidade de Implementação 25%. Mesma escala final
+// (1,00 a 3,00) e mesmas bandas de classificação do scoring Comercial, pra dar pra comparar
+// os dois lado a lado numa lista única — mas com critérios de negócio totalmente diferentes,
+// guardados à parte em sched.scoringProd (não mistura com sched.scoring, que é só Comercial).
+const SCORE_WEIGHTS_PROD={obrigatoriedade:.35,abrangencia:.20,riscoTec:.20,complexidade:.25};
+const SCORE_OPTIONS_PROD={
+  obrigatoriedade:[
+    {v:'Exigência legal ou de bandeira/parceiro com prazo definido e penalidade formal (multa, suspensão, descredenciamento)',p:3},
+    {v:'Recomendação forte de parceiro/bandeira ou risco contratual sem prazo rígido',p:2},
+    {v:'Iniciativa interna, sem exigência externa',p:1}
+  ],
+  abrangencia:[
+    {v:'Afeta múltiplos produtos e segmentos simultaneamente',p:3},
+    {v:'Afeta um produto mas múltiplos clientes/parceiros',p:2},
+    {v:'Afeta um único cliente/squad/integração pontual',p:1}
+  ],
+  riscoTec:[
+    {v:'Envolve segurança, prevenção a fraude ou dado sensível (cyber, autenticação, moeda digital)',p:3},
+    {v:'Integração técnica relevante mas sem exposição de segurança direta',p:2},
+    {v:'Baixo risco técnico, mudança incremental',p:1}
+  ],
+  // Aqui a polaridade é invertida em relação ao Comercial: no Comercial, solução já existente pontua
+  // mais (é mais fácil de entregar); em Produtos/TI, o que pontua mais é justamente a novidade/
+  // complexidade técnica — reflete a tabela de critérios fornecida, não é um bug.
+  complexidade:[
+    {v:'Solução nova, alta complexidade ou integração inédita',p:3},
+    {v:'Solução parcialmente existente, adaptação moderada',p:2},
+    {v:'Solução já existente — replicação/configuração',p:1}
+  ]
+};
+function scorePtsProd(crit,val){const o=(SCORE_OPTIONS_PROD[crit]||[]).find(x=>x.v===val);return o?o.p:0;}
+function computeScoringProd(sc){
+  if(!sc||!sc.obrigatoriedade||!sc.abrangencia||!sc.riscoTec||!sc.complexidade)return null;
+  const score=scorePtsProd('obrigatoriedade',sc.obrigatoriedade)*SCORE_WEIGHTS_PROD.obrigatoriedade
+             +scorePtsProd('abrangencia',sc.abrangencia)*SCORE_WEIGHTS_PROD.abrangencia
+             +scorePtsProd('riscoTec',sc.riscoTec)*SCORE_WEIGHTS_PROD.riscoTec
+             +scorePtsProd('complexidade',sc.complexidade)*SCORE_WEIGHTS_PROD.complexidade;
+  const cls=score>=2.5?{label:'Alta',emoji:'🟢',color:'var(--green)'}:score>=1.8?{label:'Média',emoji:'🟡',color:'var(--amber)'}:{label:'Baixa',emoji:'🔴',color:'var(--red)'};
+  const alert=sc.obrigatoriedade==='Exigência legal ou de bandeira/parceiro com prazo definido e penalidade formal (multa, suspensão, descredenciamento)'?'⚠️ Obrigatoriedade Regulatória/Contratual':null;
+  return {score,cls,alert};
+}
+function scOptHtmlProd(crit,cur){return (SCORE_OPTIONS_PROD[crit]||[]).map(o=>`<option value="${o.v.replace(/"/g,'&quot;')}" ${cur===o.v?'selected':''}>${o.v}</option>`).join('');}
+// Único ponto de entrada usado pelo resto do app: devolve o resultado do modelo certo (Comercial
+// ou Produtos/TI) conforme o tipo do projeto, já na mesma escala — é o que permite a lista
+// unificada da aba Scoring mostrar os dois tipos lado a lado com uma nota comparável.
+function computeProjectScoring(p){
+  if(!p)return null;
+  const sched=schedules[p.key];if(!sched)return null;
+  if(p.type==='Comercial')return computeScoring(sched.scoring);
+  if(p.type==='Produtos')return computeScoringProd(sched.scoringProd);
+  return null;
+}
+
 function openScoringInfoModal(){
   const critRow=(nome,peso,desc)=>`
     <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border2)">
@@ -4535,31 +4586,38 @@ function openScoringInfoModal(){
     </div>`;
   const modal=getOrBuildModal('scoring-info-modal','Como funciona o Score de Priorização',`
     <div class="info-box" style="margin-bottom:10px">
-      O Score ajuda a priorizar os projetos <b>Comerciais</b> combinando quatro critérios em uma nota única, de <b>1,00 a 3,00</b>.
+      O Score ajuda a priorizar os projetos combinando critérios em uma nota única, de <b>1,00 a 3,00</b> — a mesma escala e as
+      mesmas bandas de classificação valem para os dois modelos abaixo, então dá pra comparar Comercial e Produtos/TI lado a lado.
       Ele existe pra tirar a priorização do "achismo" e deixar mais visível o que mais pesa na hora de decidir o que entra na fila primeiro.
     </div>
-    <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px">Os 4 critérios</div>
+    <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px">Comercial — 4 critérios</div>
     <div style="margin-bottom:10px">
       ${critRow('TPV Previsto','30%','Porte financeiro estimado do cliente/projeto.')}
       ${critRow('Receita Mensal Média Prevista','30%','Quanto de receita recorrente o projeto deve gerar por mês.')}
       ${critRow('Risco de Relacionamento','20%','Risco de perder o cliente, sofrer multa ou pressão competitiva se o projeto não avançar.')}
       ${critRow('Complexidade de Implementação','20%','Quão pronta a Bemobi já está tecnicamente — soluções já existentes pontuam mais que soluções novas ou inéditas.')}
     </div>
-    <div class="info-box" style="margin-bottom:10px">
-      Cada critério recebe de 1 a 3 pontos (você escolhe a faixa no formulário de scoring do projeto); o score final é a soma desses pontos já ponderada pelos pesos acima.
+    <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px">Produtos/TI — 4 critérios</div>
+    <div style="margin-bottom:10px">
+      ${critRow('Obrigatoriedade Regulatória/Contratual','35%','Exigência legal, de bandeira ou de parceiro, com ou sem prazo/penalidade formal definidos.')}
+      ${critRow('Abrangência no Portfólio','20%','Quantos produtos, segmentos, clientes ou parceiros a mudança afeta.')}
+      ${critRow('Risco Técnico/Segurança','20%','Exposição a segurança, fraude ou dado sensível envolvida na implementação.')}
+      ${critRow('Complexidade de Implementação','25%','Aqui a lógica é invertida em relação ao Comercial: soluções novas ou de alta complexidade técnica pontuam mais, não menos.')}
     </div>
-    <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px">Classificação automática</div>
+    <div class="info-box" style="margin-bottom:10px">
+      Em cada modelo, todo critério recebe de 1 a 3 pontos (você escolhe a faixa no formulário de scoring do projeto); o score final é a soma
+      desses pontos já ponderada pelos pesos do modelo aplicável ao tipo do projeto (Comercial ou Produtos/TI).
+    </div>
+    <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px">Classificação automática (vale para os dois modelos)</div>
     <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px;font-size:11px">
       <div>🟢 <b>Alta</b> (2,50 a 3,00) — prioridade estratégica alta</div>
       <div>🟡 <b>Média</b> (1,80 a 2,49) — prioridade intermediária</div>
       <div>🔴 <b>Baixa</b> (abaixo de 1,80) — prioridade mais baixa</div>
     </div>
-    <div class="info-box warn" style="margin-bottom:10px">
-      ⚠️ <b>Viabilidade Crítica</b> aparece sempre que o critério de Complexidade indicar uma solução nova ou de alta complexidade técnica —
-      mesmo com um score alto nos outros critérios, vale reforçar a atenção técnica antes de comprometer prazo com o cliente.
-    </div>
-    <div class="info-box">
-      O scoring é calculado apenas para projetos <b>Comerciais</b>. Projetos de Produtos ainda não têm um modelo de priorização definido.
+    <div class="info-box warn">
+      ⚠️ Um alerta aparece automaticamente quando o critério mais sensível de cada modelo indicar o cenário mais crítico — Complexidade
+      alta no Comercial, ou Obrigatoriedade Regulatória/Contratual alta em Produtos/TI — mesmo com um score bom nos outros critérios,
+      vale reforçar a atenção nesse ponto antes de comprometer prazo.
     </div>`,
     `<button class="btn-c" onclick="closeM('scoring-info-modal')">Fechar</button>`
   );
@@ -4570,7 +4628,8 @@ function openScoringModal(){
   if(!canEdit(curKey)){alert('Você não tem permissão para editar o scoring deste projeto.');return;}
   if(PROJECTS.find(x=>x.key===curKey)?.status===DELIVERED_STATUS){alert('Projeto entregue: disponível apenas para consulta histórica.');return;}
   const pType=PROJECTS.find(x=>x.key===curKey)?.type;
-  if(pType!=='Comercial'){alert(pType==='Produtos'?'O modelo de scoring para projetos de Produtos ainda está em definição. Assim que estiver pronto, ele aparecerá aqui.':'Scoring disponível apenas para projetos Comerciais.');return;}
+  if(pType==='Produtos'){openScoringModalProd();return;}
+  if(pType!=='Comercial'){alert('Scoring disponível apenas para projetos Comerciais ou de Produtos/TI.');return;}
   const sched=schedules[curKey];const sc=sched.scoring||{};
   const hasScoring=!!(sched.scoring&&(sc.tpv||sc.receita||sc.risco||sc.complexidade));
   const modal=getOrBuildModal('scoring-modal','Scoring do Projeto',`
@@ -4618,17 +4677,69 @@ function removeScoring(){
   persistSchedule(curKey);
 }
 
+// ── Modal de scoring — Produtos/TI (id de modal separado do Comercial de propósito: o
+// getOrBuildModal cacheia o innerHTML na primeira construção e não reconstrói depois, então
+// reaproveitar o mesmo id 'scoring-modal' mostraria campos errados ao alternar entre um projeto
+// Comercial e um de Produtos na mesma sessão) ──
+function openScoringModalProd(){
+  const sched=schedules[curKey];const sc=sched.scoringProd||{};
+  const hasScoring=!!(sched.scoringProd&&(sc.obrigatoriedade||sc.abrangencia||sc.riscoTec||sc.complexidade));
+  const modal=getOrBuildModal('scoring-modal-prod','Scoring do Projeto (Produtos/TI)',`
+    <div class="info-box" style="margin-bottom:4px">Critérios próprios para priorização de projetos de Produtos/TI. Score e classificação são calculados automaticamente, na mesma escala (1,00 a 3,00) do scoring Comercial.</div>
+    <div class="fg"><label>Obrigatoriedade Regulatória/Contratual (peso 35%)</label><select id="scp-obrigatoriedade"><option value="">Selecione...</option>${scOptHtmlProd('obrigatoriedade',sc.obrigatoriedade)}</select></div>
+    <div class="fg"><label>Abrangência no Portfólio (peso 20%)</label><select id="scp-abrangencia"><option value="">Selecione...</option>${scOptHtmlProd('abrangencia',sc.abrangencia)}</select></div>
+    <div class="fg"><label>Risco Técnico/Segurança (peso 20%)</label><select id="scp-riscotec"><option value="">Selecione...</option>${scOptHtmlProd('riscoTec',sc.riscoTec)}</select></div>
+    <div class="fg"><label>Complexidade de Implementação (peso 25%)</label><select id="scp-complexidade"><option value="">Selecione...</option>${scOptHtmlProd('complexidade',sc.complexidade)}</select></div>
+    <div class="fg"><label>Observações</label><textarea id="scp-obs" rows="2">${sc.obs||''}</textarea></div>
+    <div class="info-box" id="scp-preview" style="margin-top:2px"></div>`,
+    `<button class="btn-c" id="scp-remove-btn" style="display:${hasScoring?'flex':'none'};color:var(--red);border-color:#fca5a5;margin-right:auto" onclick="removeScoringProd()"><i class="ti ti-trash" style="font-size:10px"></i> Remover Scoring</button>
+     <button class="btn-c" onclick="closeM('scoring-modal-prod')">Cancelar</button><button class="btn-s" onclick="saveScoringProd()">Salvar</button>`);
+  document.getElementById('scp-obrigatoriedade').value=sc.obrigatoriedade||'';
+  document.getElementById('scp-abrangencia').value=sc.abrangencia||'';
+  document.getElementById('scp-riscotec').value=sc.riscoTec||'';
+  document.getElementById('scp-complexidade').value=sc.complexidade||'';
+  document.getElementById('scp-obs').value=sc.obs||'';
+  const removeBtn=document.getElementById('scp-remove-btn');if(removeBtn)removeBtn.style.display=hasScoring?'flex':'none';
+  ['scp-obrigatoriedade','scp-abrangencia','scp-riscotec','scp-complexidade'].forEach(id=>{document.getElementById(id).onchange=updateScoringPreviewProd;});
+  updateScoringPreviewProd();openM('scoring-modal-prod');
+}
+function readScoringFormProd(){return{obrigatoriedade:document.getElementById('scp-obrigatoriedade').value,abrangencia:document.getElementById('scp-abrangencia').value,riscoTec:document.getElementById('scp-riscotec').value,complexidade:document.getElementById('scp-complexidade').value,obs:document.getElementById('scp-obs').value};}
+function updateScoringPreviewProd(){
+  const r=computeScoringProd(readScoringFormProd());const el=document.getElementById('scp-preview');if(!el)return;
+  if(!r){el.textContent='Preencha os 4 critérios para calcular o score.';el.className='info-box';}
+  else{el.innerHTML=`Score: <b style="color:${r.cls.color}">${r.score.toFixed(2)}</b> · ${r.cls.emoji} ${r.cls.label}${r.alert?' · <span style="color:var(--red)">'+r.alert+'</span>':''}`;el.className='info-box good';}
+}
+function saveScoringProd(){
+  const sched=schedules[curKey];const data=readScoringFormProd();
+  if(!data.obrigatoriedade||!data.abrangencia||!data.riscoTec||!data.complexidade){alert('Preencha os 4 critérios antes de salvar.');return;}
+  sched.scoringProd=data;
+  logChange(curKey,'Scoring (Produtos/TI) do projeto atualizado','#6924E1');
+  closeM('scoring-modal-prod');renderSchedule();persistSchedule(curKey);
+}
+function removeScoringProd(){
+  const sched=schedules[curKey];if(!sched)return;
+  if(!confirm('Remover o scoring deste projeto? Essa ação não pode ser desfeita.'))return;
+  sched.scoringProd=null;
+  logChange(curKey,'Scoring (Produtos/TI) do projeto removido','#dc2626');
+  closeM('scoring-modal-prod');
+  renderSchedule();renderPortfolio();renderResumoScoringCard();renderScoringView();
+  persistSchedule(curKey);
+}
+
 // ── SCORING VIEW (painel com todos os projetos) ──
 let scFilter='all';
 let scTypeFilter='all';
 function setScF(f,el){scFilter=f;document.querySelectorAll('#sc-topbar .sc-scope-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderScoringView();}
 function setScType(t,el){scTypeFilter=t;document.querySelectorAll('#sc-topbar .sc-type-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');renderScoringView();}
-// Projetos de Produtos ainda não têm modelo de scoring definido; Tarefa não entra no scoring comercial.
-const SCORING_TYPES={'Comercial':true};
+// Comercial e Produtos/TI têm cada um seu próprio modelo de scoring; Tarefa não entra em nenhum dos dois.
+const SCORING_TYPES={'Comercial':true,'Produtos':true};
 function renderScoringView(){
   const tbody=document.getElementById('sc-body');if(!tbody)return;
   const q=(document.getElementById('sc-search')?.value||'').toLowerCase();
-  let rows=PROJECTS.map(p=>({p,res:SCORING_TYPES[p.type]?computeScoring(schedules[p.key]?.scoring):null}));
+  // Lista unificada: cada projeto usa o modelo de scoring do seu próprio tipo (Comercial ou
+  // Produtos/TI), mas ambos caem na mesma escala 1,00–3,00 e nas mesmas bandas de classificação,
+  // então dá pra ordenar e comparar os dois tipos juntos numa única tabela.
+  let rows=PROJECTS.map(p=>({p,res:SCORING_TYPES[p.type]?computeProjectScoring(p):null}));
   if(q)rows=rows.filter(r=>r.p.summary.toLowerCase().includes(q)||r.p.key.toLowerCase().includes(q));
   if(scTypeFilter!=='all')rows=rows.filter(r=>r.p.type===scTypeFilter);
   if(scFilter==='scored')rows=rows.filter(r=>r.res);
@@ -4640,7 +4751,7 @@ function renderScoringView(){
     const tr=document.createElement('tr');tr.style.cursor='pointer';tr.onclick=()=>openProject(r.p.key);
     const notApplicable=!SCORING_TYPES[r.p.type];
     const scoreCell=notApplicable?'<span style="color:var(--text3)">—</span>':(r.res?`<b style="color:${r.res.cls.color}">${r.res.score.toFixed(2)}</b>`:'<span style="color:var(--text3)">—</span>');
-    const clsCell=r.p.type==='Produtos'?'<span style="color:var(--text3);font-style:italic;font-size:10px">Modelo em definição</span>':notApplicable?'<span style="color:var(--text3);font-size:10px">Não aplicável</span>':(r.res?`${r.res.cls.emoji} ${r.res.cls.label}`:'<span style="color:var(--text3);font-size:10px">Não preenchido</span>');
+    const clsCell=notApplicable?'<span style="color:var(--text3);font-size:10px">Não aplicável</span>':(r.res?`${r.res.cls.emoji} ${r.res.cls.label}`:'<span style="color:var(--text3);font-size:10px">Não preenchido</span>');
     const ic=r.p.type==='Produtos'?'#7c3aed':'#0369a1';const ib=r.p.type==='Produtos'?'#ede9fe':'#e0f2fe';
     tr.innerHTML=`
       <td style="text-align:center;font-size:9px;color:var(--text3)">${i+1}</td>
@@ -5331,26 +5442,39 @@ function parseProjectXML(xmlText){
   };
 
   if(hasLevels){
-    let curMsId=null;let msIdx=0;
+    // Cada tarefa-resumo (Summary=1), em QUALQUER nível, vira sua própria Etapa — o HUB VMO só
+    // suporta 2 níveis (Etapa → Tarefa), então uma hierarquia de fases aninhadas do Project
+    // (ex.: SP > BEMOBI - Pagamento > Smart POS SP) é "achatada" em etapas irmãs, uma por fase,
+    // mantendo cada tarefa-folha junto da fase (Summary) mais próxima acima dela na árvore —
+    // em vez de tudo cair numa única Etapa sintética (bug antigo: só OutlineLevel===1 virava Etapa).
+    let msIdx=0;
+    const etapaAtLevel={}; // nível → id da Etapa criada nesse nível (ancestral mais próximo ainda ativo)
+    let fallbackMsId=null;
     taskEls.forEach(t=>{
       const raw=txt(t,'OutlineLevel');
       const outlineLevel=raw===''?1:(parseInt(raw)||0);
       if(outlineLevel<1)return; // pula a tarefa-resumo raiz do projeto (nível 0)
+      const isSummary=txt(t,'Summary')==='1';
       const {taskUid,name,start,finish,pct,status,resources,preds}=readTask(t);
-      if(outlineLevel===1){
-        const msId=uid();curMsId=msId;msIdx++;
+      if(isSummary){
+        const msId=uid();msIdx++;
+        etapaAtLevel[outlineLevel]=msId;
         uidToNewId[taskUid]=msId;
         milestones.push({id:msId,name,start,deadline:finish,endReal:pct>=100?finish:'',
           color:['#6366f1','#06b6d4','#10b981','#f59e0b','#8b5cf6','#ef4444'][msIdx%6],
           status,assignees:resources.map(r=>({name:r,type:'internal'}))});
         if(preds.length)uidToPreds[msId]=preds;
       } else {
-        if(!curMsId){
-          const msId=uid();curMsId=msId;
-          milestones.push({id:msId,name:'Importado',start,deadline:finish,endReal:'',color:'#6366f1',status:'not_started',assignees:[]});
+        let parentMsId=etapaAtLevel[outlineLevel-1];
+        if(!parentMsId){
+          if(!fallbackMsId){
+            fallbackMsId=uid();
+            milestones.push({id:fallbackMsId,name:'Importado',start,deadline:finish,endReal:'',color:'#6366f1',status:'not_started',assignees:[]});
+          }
+          parentMsId=fallbackMsId;
         }
         const newId=uid();uidToNewId[taskUid]=newId;
-        tasks.push({id:newId,msId:curMsId,name,start,deadline:finish,
+        tasks.push({id:newId,msId:parentMsId,name,start,deadline:finish,
           endReal:pct>=100?finish:'',assignees:resources.map(r=>({name:r,type:'internal'})),
           depId:'',depIds:[],depType:'TI',depMode:'blocked',
           status,notes:'',jiraLink:'',jiraLinkStatus:''});
@@ -5549,6 +5673,7 @@ async function persistSchedule(key) {
         holidays:      schedules[key].holidays      || [],
         baseline:      schedules[key].baseline      || null,
         scoring:       schedules[key].scoring       || null,
+        scoringProd:   schedules[key].scoringProd   || null,
         stakeholders:  schedules[key].stakeholders  || [],
         scopeLink:     schedules[key].scopeLink     || null,
         scopeSummary:  schedules[key].scopeSummary  || '',
@@ -5604,6 +5729,7 @@ async function autoLoadOnLogin() {
             holidays:      raw.holidays      || [],
             baseline:      raw.baseline      || null,
             scoring:       raw.scoring       || null,
+            scoringProd:   raw.scoringProd   || null,
             stakeholders:  raw.stakeholders  || [],
             scopeLink:     raw.scopeLink     || null,
             scopeSummary:  raw.scopeSummary  || '',
@@ -5620,7 +5746,7 @@ async function autoLoadOnLogin() {
         try {
           const raw = JSON.parse(JSON.stringify(doc.data()));
           if (schedules[doc.id]) schedules[doc.id].updates = raw.updates || [];
-          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, stakeholders:[], scopeLink:null, scopeSummary:'', clientName:'', decisions:[], minutes:[] };
+          else schedules[doc.id] = { milestones:[], tasks:[], access:[], auditLog:[], updates: raw.updates||[], calendar:'BR', baseline:null, scoring:null, scoringProd:null, stakeholders:[], scopeLink:null, scopeSummary:'', clientName:'', decisions:[], minutes:[] };
         } catch(e) { console.warn('Error loading updates', doc.id, e); }
       });
       // Load users
@@ -6023,10 +6149,10 @@ function reorderScopedPriority(draggedKey,targetKey,dropBefore,scope){
 const PRIORITY_DATE_HORIZON_DAYS=180; // datas a partir daqui contam como "sem urgência" (0)
 let pendingSuggestedOrder=null;
 function scoreComponentFor(p){
-  if(p.type!=='Comercial')return 0.5; // sem scoring aplicável — neutro (nem penaliza nem favorece)
-  const sc=computeScoring(schedules[p.key]?.scoring);
-  if(!sc)return 0.5; // Comercial mas ainda sem scoring preenchido — neutro
-  return (sc.score-1)/2; // score varia de 1 a 3 → normaliza pra 0–1
+  if(!SCORING_TYPES[p.type])return 0.5; // sem modelo de scoring aplicável — neutro (nem penaliza nem favorece)
+  const sc=computeProjectScoring(p);
+  if(!sc)return 0.5; // tipo com modelo aplicável mas ainda sem scoring preenchido — neutro
+  return (sc.score-1)/2; // score varia de 1 a 3 (nos dois modelos) → normaliza pra 0–1
 }
 function nearestDeadlineFor(p){
   const st=getStats(p.key);
@@ -6075,32 +6201,37 @@ function openSuggestPriorityModal(){
         <td style="text-align:center;font-weight:700">${s.newRank}</td>
         <td style="text-align:center;color:var(--text3)">${s.oldRank}</td>
         <td style="text-align:center">${deltaHtml}</td>
-        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700">${s.p.key}</span> ${s.p.summary}</td>
+        <td style="font-size:11px;line-height:1.35"><span style="font-size:9px;color:var(--blue);background:#e8ecfd;padding:1px 4px;border-radius:3px;font-weight:700;white-space:nowrap">${s.p.key}</span> ${s.p.summary}</td>
         <td style="font-size:9.5px">${s.p.segment||'Produtos'}</td>
         <td style="font-size:9.5px;text-align:center">${SCORE_TIER(s.scoreC)}</td>
-        <td style="font-size:9.5px;text-align:center">${s.nearest?fmtBR(ds(s.nearest)):'—'}</td>
+        <td style="font-size:9.5px;text-align:center;white-space:nowrap">${s.nearest?fmtBR(ds(s.nearest)):'—'}</td>
       </tr>`;
   }).join('');
   const modal=getOrBuildModal('suggest-priority-modal','Sugerir Priorização',`
     <div class="info-box">
       Ordem sugerida combinando 3 critérios com peso equilibrado: <b>score</b> (Alta/Média/Baixa), <b>urgência de data</b> (menor prazo entre Expectativa de Entrega, Go Live e estimativa do cronograma) e <b>segmento estratégico</b> (${SEGMENT_ORDER.map((s,i)=>i<SEGMENT_ORDER.length-1?s:'').filter(Boolean).join(' > ')} > ${SEGMENT_ORDER[SEGMENT_ORDER.length-1]}). Revise antes de aplicar — a nova ordem é enviada ao Jira.
     </div>
-    <div style="max-height:420px;overflow-y:auto;margin-top:8px">
-      <table class="pft" style="width:100%">
+    <div style="max-height:460px;overflow-y:auto;margin-top:8px">
+      <table class="pft" style="width:100%;table-layout:fixed">
+        <colgroup>
+          <col style="width:38px"><col style="width:38px"><col style="width:44px">
+          <col><col style="width:100px"><col style="width:58px"><col style="width:72px">
+        </colgroup>
         <thead><tr>
-          <th style="width:45px">Nova</th>
-          <th style="width:45px">Atual</th>
-          <th style="width:50px">Δ</th>
+          <th style="width:38px">Nova</th>
+          <th style="width:38px">Atual</th>
+          <th style="width:44px">Δ</th>
           <th>Projeto</th>
-          <th style="width:90px">Segmento</th>
-          <th style="width:60px">Score</th>
-          <th style="width:75px">Prazo</th>
+          <th style="width:100px">Segmento</th>
+          <th style="width:58px">Score</th>
+          <th style="width:72px">Prazo</th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
   `,`<button class="btn-c" onclick="closeM('suggest-priority-modal')">Cancelar</button>
      <button class="btn-s" onclick="applySuggestedPriorityOrder()"><i class="ti ti-check" style="font-size:10px"></i> Aplicar Nova Ordem</button>`);
+  const mbox=modal.querySelector('.mbox');if(mbox)mbox.style.width='880px';
   openM('suggest-priority-modal');
 }
 function applySuggestedPriorityOrder(){
