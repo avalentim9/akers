@@ -662,8 +662,8 @@ table.pft tr:hover td{background:var(--bg2)}
     </div>
     <div id="rsm-hdr-meta" style="display:flex;align-items:center;gap:8px;padding:8px 16px;flex-wrap:wrap;border-bottom:1px solid var(--border);background:var(--bg)">
       <span class="upd-golive-chip" style="background:#ede9fe;color:#5b21b6"><i class="ti ti-building" style="font-size:10px"></i> Cliente: <b id="rsm-client-val">—</b><button class="btn-c" id="rsm-client-edit-btn" style="display:none;font-size:8px;padding:0 5px;margin-left:5px;border:none" onclick="editClientName()" title="Editar cliente"><i class="ti ti-pencil" style="font-size:8px"></i></button></span>
-      <span class="upd-golive-chip" style="background:#fce7f3;color:#9d174d"><i class="ti ti-tag" style="font-size:10px"></i> Segmento: <b id="rsm-segment-val">—</b></span>
-      <span class="upd-golive-chip" style="background:#dcfce7;color:#166534"><i class="ti ti-map-pin" style="font-size:10px"></i> Região: <b id="rsm-region-val">—</b></span>
+      <span class="upd-golive-chip" style="background:#fce7f3;color:#9d174d"><i class="ti ti-tag" style="font-size:10px"></i> Segmento: <b id="rsm-segment-val">—</b><button class="btn-c" id="rsm-segment-edit-btn" style="display:none;font-size:8px;padding:0 5px;margin-left:5px;border:none" onclick="editSegment()" title="Editar segmento"><i class="ti ti-pencil" style="font-size:8px"></i></button></span>
+      <span class="upd-golive-chip" style="background:#dcfce7;color:#166534"><i class="ti ti-map-pin" style="font-size:10px"></i> Região: <b id="rsm-region-val">—</b><button class="btn-c" id="rsm-region-edit-btn" style="display:none;font-size:8px;padding:0 5px;margin-left:5px;border:none" onclick="editRegion()" title="Editar região"><i class="ti ti-pencil" style="font-size:8px"></i></button></span>
     </div>
     <div id="rsm-empty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text3)">
       <i class="ti ti-layout-grid" style="font-size:26px"></i>
@@ -3233,6 +3233,8 @@ function renderResumoDashboard(){
   const clientEditBtn=document.getElementById('rsm-client-edit-btn');if(clientEditBtn)clientEditBtn.style.display=isEditorOrAbove()?'':'none';
   const segVal=document.getElementById('rsm-segment-val');if(segVal)segVal.textContent=p.segment?(p.segment==='Produtos'?'TI/Produtos':p.segment):'—';
   const regVal=document.getElementById('rsm-region-val');if(regVal)regVal.textContent=p.region||'—';
+  const segEditBtn=document.getElementById('rsm-segment-edit-btn');if(segEditBtn)segEditBtn.style.display=isEditorOrAbove()?'':'none';
+  const regEditBtn=document.getElementById('rsm-region-edit-btn');if(regEditBtn)regEditBtn.style.display=isEditorOrAbove()?'':'none';
 
   // Escopo Macro
   const scopeEditBtn=document.getElementById('rsm-scope-edit-btn');
@@ -3307,6 +3309,51 @@ function editClientName(){
   logChange(curKey,sched.clientName?'Cliente atualizado':'Cliente removido','#5b21b6');
   persistSchedule(curKey);
   renderResumoDashboard();
+}
+// ── Edição manual de Segmento/Região (fallback quando o Jira não traz o campo preenchido) ──
+// Marca segmentManual/regionManual=true pra o próximo Sync Jira NÃO sobrescrever o valor
+// definido aqui (ver applyJiraSync).
+function editSegment(){
+  if(!curKey)return;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar o segmento.');return;}
+  const p=PROJECTS.find(x=>x.key===curKey);if(!p)return;
+  const opts=['Telco','Utilities','Education','Health','Others','Produtos'];
+  const optsHtml=opts.map(o=>`<option value="${o}"${p.segment===o?' selected':''}>${o==='Produtos'?'TI/Produtos':o}</option>`).join('');
+  getOrBuildModal('edit-segment-modal','Editar Segmento',`
+    <div class="info-box" style="margin-bottom:8px">Use isso quando o Jira não trouxe o segmento deste projeto automaticamente. Fica marcado como definido manualmente e não será sobrescrito pelo próximo Sync Jira.</div>
+    <select id="edit-segment-select" style="width:100%;border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">${optsHtml}</select>
+  `,`<button class="btn-c" onclick="closeM('edit-segment-modal')">Cancelar</button><button class="btn-s" onclick="saveSegment()">Salvar</button>`);
+  openM('edit-segment-modal');
+}
+function saveSegment(){
+  const p=PROJECTS.find(x=>x.key===curKey);if(!p)return;
+  const val=document.getElementById('edit-segment-select').value;
+  p.segment=val;p.segmentManual=true;
+  logChange(curKey,'Segmento definido manualmente: '+val,'#9d174d');
+  persistProjects();
+  closeM('edit-segment-modal');
+  renderResumoDashboard();renderPortfolio();
+}
+function editRegion(){
+  if(!curKey)return;
+  if(!isEditorOrAbove()){alert('Apenas editores e administradores podem alterar a região.');return;}
+  const p=PROJECTS.find(x=>x.key===curKey);if(!p)return;
+  const opts=['Brasil','LATAM','International','Todas'];
+  const optsHtml=opts.map(o=>`<option value="${o}"${p.region===o?' selected':''}>${o}</option>`).join('');
+  getOrBuildModal('edit-region-modal','Editar Região',`
+    <div class="info-box" style="margin-bottom:8px">Use isso quando o Jira não trouxe a região deste projeto automaticamente. Fica marcado como definido manualmente e não será sobrescrito pelo próximo Sync Jira.</div>
+    <select id="edit-region-select" style="width:100%;border:1px solid var(--border2);border-radius:5px;padding:6px 8px;font-size:10.5px">${optsHtml}</select>
+  `,`<button class="btn-c" onclick="closeM('edit-region-modal')">Cancelar</button><button class="btn-s" onclick="saveRegion()">Salvar</button>`);
+  openM('edit-region-modal');
+}
+function saveRegion(){
+  const p=PROJECTS.find(x=>x.key===curKey);if(!p)return;
+  const val=document.getElementById('edit-region-select').value;
+  p.region=val;p.regionManual=true;
+  logChange(curKey,'Região definida manualmente: '+val,'#166534');
+  persistProjects();
+  closeM('edit-region-modal');
+  renderResumoDashboard();renderPortfolio();
 }
 function editScopeSummary(){
   if(!curKey||!schedules[curKey])return;
@@ -5638,7 +5685,15 @@ async function autoSyncProjectsFromJira() {
         const cached = snap.data().projects || [];
         cached.forEach(fp => {
           const idx = PROJECTS.findIndex(p => p.key === fp.key);
-          if (idx >= 0) Object.assign(PROJECTS[idx], fp); else PROJECTS.push(fp);
+          if (idx >= 0) {
+            // Merge campo a campo preservando o que já está em memória quando o valor cacheado
+            // vier null/undefined — um Object.assign cego aqui "zerava" por um instante campos
+            // como segmento/região sempre que a página recarregava, até o sync fresco do Jira
+            // corrigir de novo alguns segundos depois (o "aparece e depois some").
+            Object.keys(fp).forEach(k => { if (fp[k] !== null && fp[k] !== undefined) PROJECTS[idx][k] = fp[k]; });
+          } else {
+            PROJECTS.push(fp);
+          }
         });
         renderKPI(); renderPortfolio(); renderUpdatesProjectList();
         document.getElementById('badge-pf').textContent = PROJECTS.length;
@@ -5833,8 +5888,10 @@ function applyJiraSync(freshProjects){
       PROJECTS[idx].duedate  = fp.duedate  ?? PROJECTS[idx].duedate;
       PROJECTS[idx].times    = fp.times    ?? PROJECTS[idx].times;
       PROJECTS[idx].created  = fp.created  ?? PROJECTS[idx].created;
-      PROJECTS[idx].segment  = fp.segment  ?? PROJECTS[idx].segment;
-      PROJECTS[idx].region   = (fp.region ?? PROJECTS[idx].region) ?? null;
+      // Se o segmento/região foi definido manualmente na ferramenta (Jira não trouxe o campo
+      // preenchido), preserva o valor manual em vez de deixar o sync sobrescrever.
+      if(!PROJECTS[idx].segmentManual) PROJECTS[idx].segment = fp.segment ?? PROJECTS[idx].segment;
+      if(!PROJECTS[idx].regionManual)  PROJECTS[idx].region  = (fp.region ?? PROJECTS[idx].region) ?? null;
       // golive agora vem só de "Data limite" (duedate) — sobrescreve sempre, mesmo quando
       // o Jira vier vazio, para não manter preso um valor antigo do campo "Go Live" (customfield_29150)
       PROJECTS[idx].golive   = fp.golive   ?? null;
