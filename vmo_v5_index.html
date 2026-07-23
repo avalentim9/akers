@@ -6155,8 +6155,11 @@ function scoreComponentFor(p){
   return (sc.score-1)/2; // score varia de 1 a 3 (nos dois modelos) → normaliza pra 0–1
 }
 function nearestDeadlineFor(p){
+  // Urgência de data considera só Go Live (Jira) e a estimativa do cronograma (fim previsto pelas
+  // etapas) — Expectativa de Entrega (duedate) foi tirada de propósito: é uma data de intenção
+  // interna, não um compromisso firmado com o cliente ou calculado a partir do cronograma real.
   const st=getStats(p.key);
-  const candidates=[p.duedate,p.golive,st.goLiveLocal].filter(Boolean).map(pd);
+  const candidates=[p.golive,st.goLiveLocal].filter(Boolean).map(pd);
   if(!candidates.length)return null;
   return new Date(Math.min(...candidates));
 }
@@ -6172,8 +6175,11 @@ function segComponentFor(p){
   if(idx<0)return 0.5;
   return 1-(idx/(SEGMENT_ORDER.length-1));
 }
+// Status que nunca entram na sugestão de priorização: já não fazem parte da fila ativa de
+// entrega (negociação ainda não fechada, ou o projeto já saiu do fluxo de execução).
+const SUGGEST_PRIORITY_EXCLUDED_STATUS=new Set(['NEG. COMERCIAL / PRÉ VENDA','CANCELADO','PAUSADO','BACKLOG','Pós produção']);
 function computeSuggestedPriorityOrder(){
-  const reorderable=PROJECTS.filter(p=>p.status!==DELIVERED_STATUS);
+  const reorderable=PROJECTS.filter(p=>!SUGGEST_PRIORITY_EXCLUDED_STATUS.has(p.status));
   const currentOrder=reorderable.slice().sort((a,b)=>(a.priority??9999)-(b.priority??9999));
   const currentRank={};currentOrder.forEach((p,i)=>{currentRank[p.key]=i+1;});
   const scored=reorderable.map(p=>{
@@ -6209,7 +6215,7 @@ function openSuggestPriorityModal(){
   }).join('');
   const modal=getOrBuildModal('suggest-priority-modal','Sugerir Priorização',`
     <div class="info-box">
-      Ordem sugerida combinando 3 critérios com peso equilibrado: <b>score</b> (Alta/Média/Baixa), <b>urgência de data</b> (menor prazo entre Expectativa de Entrega, Go Live e estimativa do cronograma) e <b>segmento estratégico</b> (${SEGMENT_ORDER.map((s,i)=>i<SEGMENT_ORDER.length-1?s:'').filter(Boolean).join(' > ')} > ${SEGMENT_ORDER[SEGMENT_ORDER.length-1]}). Revise antes de aplicar — a nova ordem é enviada ao Jira.
+      Ordem sugerida combinando 3 critérios com peso equilibrado: <b>score</b> (Alta/Média/Baixa), <b>urgência de data</b> (menor prazo entre Go Live e estimativa do cronograma) e <b>segmento estratégico</b> (${SEGMENT_ORDER.map((s,i)=>i<SEGMENT_ORDER.length-1?s:'').filter(Boolean).join(' > ')} > ${SEGMENT_ORDER[SEGMENT_ORDER.length-1]}). Revise antes de aplicar — a nova ordem é enviada ao Jira.
     </div>
     <div style="max-height:460px;overflow-y:auto;margin-top:8px">
       <table class="pft" style="width:100%;table-layout:fixed">
